@@ -1,16 +1,8 @@
 package com.effective.android.sample;
-
-import android.text.TextUtils;
-import android.util.Log;
-
 import com.effective.android.anchors.AnchorsManager;
-import com.effective.android.anchors.AnchorsRuntime;
 import com.effective.android.anchors.Project;
 import com.effective.android.anchors.Task;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Stack;
 
 public class TaskTest {
 
@@ -69,10 +61,9 @@ public class TaskTest {
     public static final String TASK_93 = "TASK_93";
 
 
-    public static final String TASK_A = "TASK_A";
-    public static final String TASK_B = "TASK_B";
-    public static final String TASK_C = "TASK_C";
-    public static final String TASK_D = "TASK_D";
+    public static final String UITHREAD_TASK_A = "UITHREAD_TASK_A";
+    public static final String UITHREAD_TASK_B = "UITHREAD_TASK_B";
+    public static final String UITHREAD_TASK_C = "UITHREAD_TASK_C";
 
 
     public void start() {
@@ -138,35 +129,31 @@ public class TaskTest {
         Project.Builder builder9 = new Project.Builder(PROJECT_9, testTaskFactory);
         builder9.add(TASK_90);
         builder9.add(TASK_91).dependOn(TASK_90);
-        builder9.add(TASK_92).dependOn(TASK_91);
+        builder9.add(TASK_92).dependOn(TASK_90);
         builder9.add(TASK_93).dependOn(TASK_92);
         Project project9 = builder9.build();
 
 
-//
-        final Task taskA = new TestTaskFactory.TASK_A();
-        Task taskB = new TestTaskFactory.TASK_B();
-        Task taskC = new TestTaskFactory.TASK_C();
-        Task taskD = new TestTaskFactory.TASK_D();
+        final Task UiTaskA = new TestTaskFactory.UITHREAD_TASK_A();
+        Task UiTaskB = new TestTaskFactory.UITHREAD_TASK_B();
+        Task UiTaskC = new TestTaskFactory.UITHREAD_TASK_C();
 
-        project9.dependOn(taskA);
-        project8.dependOn(taskA);
-        project7.dependOn(taskA);
-        project6.dependOn(taskA);
-        project5.dependOn(taskA);
-        project4.dependOn(taskA);
-        project3.dependOn(taskA);
-        project2.dependOn(taskA);
-        project1.dependOn(taskA);
+        project9.dependOn(UiTaskA);
+        project8.dependOn(UiTaskA);
+        project7.dependOn(UiTaskA);
+        project6.dependOn(UiTaskA);
+        project5.dependOn(UiTaskA);
+        project4.dependOn(UiTaskA);
+        project3.dependOn(UiTaskA);
+        project2.dependOn(UiTaskA);
+        project1.dependOn(UiTaskA);
 
-        taskB.dependOn(taskA);
-        taskC.dependOn(taskB);
-        taskD.dependOn(taskB);
-//        taskB.dependOn(taskD);
-//
+        UiTaskB.dependOn(UiTaskA);
+        UiTaskC.dependOn(UiTaskA);
+
         AnchorsManager.getInstance()
                 .debuggable(true)
-                .addAnchors(TASK_A, TASK_90, TASK_12, TASK_42)
-                .start(taskA);
+                .addAnchors(TASK_93)
+                .start(UiTaskA);
     }
 }

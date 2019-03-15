@@ -25,7 +25,7 @@ public class LogTaskListener implements TaskListener {
 
     public static void logTaskRuntimeInfoString(Task task) {
         TaskRuntimeInfo taskRuntimeInfo = AnchorsRuntime.getTaskRuntimeInfo(task.getId());
-        SparseArray<Long> map = taskRuntimeInfo.stateTime;
+        SparseArray<Long> map = taskRuntimeInfo.getStateTime();
         Long startTime = map.get(TaskState.START);
         Long runningTime = map.get(TaskState.RUNNING);
         Long finishedTime = map.get(TaskState.FINISHED);
@@ -35,8 +35,8 @@ public class LogTaskListener implements TaskListener {
         builder.append(Constants.WRAPPED);
         buildTaskInfoEdge(builder, taskRuntimeInfo);
         addTaskInfoLineString(builder, Constants.DEPENDENCIES, getDependenceInfo(taskRuntimeInfo), false);
-        addTaskInfoLineString(builder, Constants.IS_ANCHOR, String.valueOf(taskRuntimeInfo.isAnchor), false);
-        addTaskInfoLineString(builder, Constants.THREAD_INFO, taskRuntimeInfo.threadName, false);
+        addTaskInfoLineString(builder, Constants.IS_ANCHOR, String.valueOf(taskRuntimeInfo.isAnchor()), false);
+        addTaskInfoLineString(builder, Constants.THREAD_INFO, taskRuntimeInfo.getThreadName(), false);
         addTaskInfoLineString(builder, Constants.START_TIME, String.valueOf(startTime), true);
         addTaskInfoLineString(builder, Constants.START_UNTIL_RUNNING, String.valueOf(runningTime - startTime), true);
         addTaskInfoLineString(builder, Constants.RUNNING_CONSUME, String.valueOf(finishedTime - runningTime), true);
@@ -44,7 +44,7 @@ public class LogTaskListener implements TaskListener {
         buildTaskInfoEdge(builder, null);
         builder.append(Constants.WRAPPED);
         Logger.d(Constants.TASK_DETAIL_INFO_TAG, builder.toString());
-        if(taskRuntimeInfo.isAnchor){
+        if (taskRuntimeInfo.isAnchor()) {
             Logger.d(Constants.ANCHORS_INFO_TAG, builder.toString());
         }
     }
@@ -67,7 +67,7 @@ public class LogTaskListener implements TaskListener {
         stringBuilder.append(Constants.WRAPPED);
         stringBuilder.append(Constants.HALF_LINE_STRING);
         if (taskRuntimeInfo != null) {
-            stringBuilder.append(taskRuntimeInfo.isProject ? " project (" : " task (" + taskRuntimeInfo.taskId + " ) ");
+            stringBuilder.append(taskRuntimeInfo.isProject() ? " project (" : " task (" + taskRuntimeInfo.getTaskId() + " ) ");
         }
         stringBuilder.append(Constants.HALF_LINE_STRING);
     }
@@ -75,10 +75,8 @@ public class LogTaskListener implements TaskListener {
 
     private static String getDependenceInfo(@NonNull TaskRuntimeInfo taskRuntimeInfo) {
         StringBuilder stringBuilder = new StringBuilder();
-        if (taskRuntimeInfo.dependencies != null && !taskRuntimeInfo.dependencies.isEmpty()) {
-            for (String s : taskRuntimeInfo.dependencies) {
-                stringBuilder.append(s + " ");
-            }
+        for (String s : taskRuntimeInfo.getDependencies()) {
+            stringBuilder.append(s + " ");
         }
         return stringBuilder.toString();
     }

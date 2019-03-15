@@ -41,7 +41,7 @@ public class AnchorsRuntime {
     private static final InnerThreadPool sPool = new InnerThreadPool();
 
     //设置锚点任务，当且仅当所有锚点任务都完成时, application 不在阻塞 UIThread
-    private static volatile Set<String> sAnchorTasks = new HashSet<>();
+    private static volatile Set<String> sAnchorTaskIds = new HashSet<>();
 
     //如果存在锚点任务，则同步的任务都所有锚点任务都完成前，在 UIThread 上运行
     //ps: 后续解除锚点之后，所有UI线程上的 Task 都通过 handle 发送执行，不保证业务逻辑的同步。
@@ -76,30 +76,30 @@ public class AnchorsRuntime {
 
     protected static void addWaitTask(String id) {
         if (!TextUtils.isEmpty(id)) {
-            sAnchorTasks.add(id);
+            sAnchorTaskIds.add(id);
         }
     }
 
     protected static void addAnchorTasks(String... ids) {
         if (ids != null && ids.length > 0) {
             for (String id : ids) {
-                sAnchorTasks.add(id);
+                sAnchorTaskIds.add(id);
             }
         }
     }
 
     protected static void removeAnchorTask(String id) {
         if (!TextUtils.isEmpty(id)) {
-            sAnchorTasks.remove(id);
+            sAnchorTaskIds.remove(id);
         }
     }
 
     protected static boolean hasAnchorTasks() {
-        return !sAnchorTasks.isEmpty();
+        return !sAnchorTaskIds.isEmpty();
     }
 
     protected static Set<String> getAnchorTasks() {
-        return sAnchorTasks;
+        return sAnchorTaskIds;
     }
 
     protected static void addRunTasks(Task task) {
@@ -142,15 +142,14 @@ public class AnchorsRuntime {
     protected static void setThreadName(@NonNull Task task, String threadName) {
         TaskRuntimeInfo taskRuntimeInfo = sTaskRuntimeInfo.get(task.getId());
         if (taskRuntimeInfo != null) {
-            taskRuntimeInfo.threadName = threadName;
+            taskRuntimeInfo.setThreadName(threadName);
         }
     }
 
     protected static void setStateInfo(@NonNull Task task) {
         TaskRuntimeInfo taskRuntimeInfo = sTaskRuntimeInfo.get(task.getId());
         if (taskRuntimeInfo != null) {
-            taskRuntimeInfo.state = task.getState();
-            taskRuntimeInfo.stateTime.put(task.getState(), System.currentTimeMillis());
+            taskRuntimeInfo.setStateTime(task.getState(), System.currentTimeMillis());
         }
     }
 
@@ -167,23 +166,49 @@ public class AnchorsRuntime {
     }
 
     /**
-     * 遍历初始化依赖树
+     * 遍历依赖树并完成启动前的初始化
+     * <p>
+     * 1.获取依赖树最大深度
+     * 2.遍历初始化运行时数据并打印log
+     * 3.如果锚点不存在，则移除
+     * 4.提升锚点链的优先级
      *
      * @param task
      */
-    protected static void traversalDependencies(@NonNull Task task) {
-        int maxDepth = getDependenciesMaxDepth(task,sTraversalVisitor);
-
+    protected static void traversalDependenciesAndInit(@NonNull Task task) {
+        //获取依赖树最大深度
+        int maxDepth = getDependenciesMaxDepth(task, sTraversalVisitor);
         sTraversalVisitor.clear();
         Task[] pathTasks = new Task[maxDepth];
+        //遍历初始化运行时数据并打印log
         traversalDependenciesPath(task, pathTasks, 0);
-        Iterator<String> iterator = sAnchorTasks.iterator();
+
+        //如果锚点不存在，则移除。存在则提升锚点链的优先级
+        Iterator<String> iterator = sAnchorTaskIds.iterator();
         while (iterator.hasNext()) {
             String taskId = iterator.next();
             if (!hasTaskRuntimeInfo(taskId)) {
                 Logger.w("anchor \"" + taskId + "\" no found !");
                 iterator.remove();
+            } else {
+                TaskRuntimeInfo info = getTaskRuntimeInfo(taskId);
+                traversalMaxTaskPriority(info.getTask());
             }
+        }
+    }
+
+    /**
+     * 递归向上设置优先级
+     *
+     * @param task
+     */
+    static void traversalMaxTaskPriority(Task task) {
+        if (task == null) {
+            return;
+        }
+        task.setPriority(Integer.MAX_VALUE);
+        for (Task dependence : task.getDependTasks()) {
+            traversalMaxTaskPriority(dependence);
         }
     }
 
@@ -208,18 +233,14 @@ public class AnchorsRuntime {
                     if (hasTaskRuntimeInfo(pathItem.getId())) {
                         TaskRuntimeInfo taskRuntimeInfo = getTaskRuntimeInfo(pathItem.getId());
                         //不允许框架层存在两个相同id的task
-                        if (taskRuntimeInfo.taskHashCode != pathItem.hashCode()) {
+                        if (!taskRuntimeInfo.isTaskInfo(pathItem)) {
                             throw new RuntimeException("Multiple different tasks are not allowed to contain the same id (" + pathItem.getId() + ")!");
                         }
                     } else {
                         //如果没有初始化则初始化runtimeInfo
-                        TaskRuntimeInfo taskRuntimeInfo = new TaskRuntimeInfo();
-                        taskRuntimeInfo.dependencies = pathItem.getDependTaskName();
-                        taskRuntimeInfo.isProject = pathItem instanceof Project;
-                        taskRuntimeInfo.taskId = pathItem.getId();
-                        taskRuntimeInfo.taskHashCode = pathItem.hashCode();
-                        if (sAnchorTasks.contains(pathItem.getId())) {
-                            taskRuntimeInfo.isAnchor = true;
+                        TaskRuntimeInfo taskRuntimeInfo = new TaskRuntimeInfo(pathItem);
+                        if (sAnchorTaskIds.contains(pathItem.getId())) {
+                            taskRuntimeInfo.setAnchor(true);
                         }
                         sTaskRuntimeInfo.put(pathItem.getId(), taskRuntimeInfo);
                     }

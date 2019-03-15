@@ -3,7 +3,6 @@ package com.effective.android.anchors;
 
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 
 public class AnchorsManager {
 
@@ -41,7 +40,7 @@ public class AnchorsManager {
         if (task == null) {
             throw new RuntimeException("can no run a task that was null !");
         }
-        AnchorsRuntime.traversalDependencies(task);
+        AnchorsRuntime.traversalDependenciesAndInit(task);
         boolean logEnd = logStartWithAnchorsInfo();
         task.start();
         while (AnchorsRuntime.hasAnchorTasks()) {

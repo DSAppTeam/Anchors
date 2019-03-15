@@ -232,6 +232,10 @@ public abstract class Task implements Runnable, Comparable<Task> {
         }
     }
 
+    public Set<Task> getDependTasks() {
+        return dependTasks;
+    }
+
     /**
      * 依赖的任务已经完成
      * 比如 B -> A (B 依赖 A), A 完成之后调用该方法通知 B "A依赖已经完成了"
@@ -253,6 +257,7 @@ public abstract class Task implements Runnable, Comparable<Task> {
     }
 
     void recycle() {
+        AnchorsRuntime.getTaskRuntimeInfo(mId).clearTask();
         dependTasks.clear();
         behindTasks.clear();
         dependTaskName.clear();

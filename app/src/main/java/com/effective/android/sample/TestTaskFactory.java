@@ -134,17 +134,14 @@ public class TestTaskFactory extends Project.TaskFactory {
                     case TaskTest.TASK_93: {
                         return new TASK_93();
                     }
-                    case TaskTest.TASK_A: {
-                        return new TASK_A();
+                    case TaskTest.UITHREAD_TASK_A: {
+                        return new UITHREAD_TASK_A();
                     }
-                    case TaskTest.TASK_B: {
-                        return new TASK_B();
+                    case TaskTest.UITHREAD_TASK_B: {
+                        return new UITHREAD_TASK_B();
                     }
-                    case TaskTest.TASK_C: {
-                        return new TASK_B();
-                    }
-                    case TaskTest.TASK_D: {
-                        return new TASK_B();
+                    case TaskTest.UITHREAD_TASK_C: {
+                        return new UITHREAD_TASK_B();
                     }
                 }
                 return null;
@@ -186,7 +183,7 @@ public class TestTaskFactory extends Project.TaskFactory {
     public static class TASK_11 extends Task {
 
         public TASK_11() {
-            super(TaskTest.TASK_11);
+            super(TaskTest.TASK_11,true);
         }
 
         @Override
@@ -582,7 +579,7 @@ public class TestTaskFactory extends Project.TaskFactory {
     public static class TASK_92 extends Task {
 
         public TASK_92() {
-            super(TaskTest.TASK_92, true);
+            super(TaskTest.TASK_92);
         }
 
         @Override
@@ -604,10 +601,10 @@ public class TestTaskFactory extends Project.TaskFactory {
     }
 
 
-    public static class TASK_A extends Task {
+    public static class UITHREAD_TASK_A extends Task {
 
-        public TASK_A() {
-            super(TaskTest.TASK_A);
+        public UITHREAD_TASK_A() {
+            super(TaskTest.UITHREAD_TASK_A);
         }
 
         @Override
@@ -616,10 +613,10 @@ public class TestTaskFactory extends Project.TaskFactory {
         }
     }
 
-    public static class TASK_B extends Task {
+    public static class UITHREAD_TASK_B extends Task {
 
-        public TASK_B() {
-            super(TaskTest.TASK_B);
+        public UITHREAD_TASK_B() {
+            super(TaskTest.UITHREAD_TASK_B);
         }
 
         @Override
@@ -628,10 +625,10 @@ public class TestTaskFactory extends Project.TaskFactory {
         }
     }
 
-    public static class TASK_C extends Task {
+    public static class UITHREAD_TASK_C extends Task {
 
-        public TASK_C() {
-            super(TaskTest.TASK_C);
+        public UITHREAD_TASK_C() {
+            super(TaskTest.UITHREAD_TASK_C);
         }
 
         @Override
@@ -639,17 +636,4 @@ public class TestTaskFactory extends Project.TaskFactory {
             doJob(200);
         }
     }
-
-    public static class TASK_D extends Task {
-
-        public TASK_D() {
-            super(TaskTest.TASK_D);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
 }
