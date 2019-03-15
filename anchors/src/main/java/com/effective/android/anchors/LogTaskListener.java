@@ -25,9 +25,6 @@ public class LogTaskListener implements TaskListener {
 
     public static void logTaskRuntimeInfoString(Task task) {
         TaskRuntimeInfo taskRuntimeInfo = AnchorsRuntime.getTaskRuntimeInfo(task.getId());
-        if (taskRuntimeInfo == null) {
-            return;
-        }
         SparseArray<Long> map = taskRuntimeInfo.stateTime;
         Long startTime = map.get(TaskState.START);
         Long runningTime = map.get(TaskState.RUNNING);

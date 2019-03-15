@@ -3,7 +3,6 @@ package com.effective.android.anchors;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
@@ -60,6 +59,8 @@ public class AnchorsRuntime {
             return Utils.compareTask(lhs, rhs);
         }
     };
+
+    private static Set<Task> sTraversalVisitor = new HashSet<>();
 
     public static boolean debuggable() {
         return sDebuggable;
@@ -133,7 +134,7 @@ public class AnchorsRuntime {
         return sTaskRuntimeInfo.get(taskId) != null;
     }
 
-    @Nullable
+    @NonNull
     public static TaskRuntimeInfo getTaskRuntimeInfo(@NonNull String taskId) {
         return sTaskRuntimeInfo.get(taskId);
     }
@@ -171,7 +172,9 @@ public class AnchorsRuntime {
      * @param task
      */
     protected static void traversalDependencies(@NonNull Task task) {
-        int maxDepth = getDependenciesMaxDepth(task);
+        int maxDepth = getDependenciesMaxDepth(task,sTraversalVisitor);
+
+        sTraversalVisitor.clear();
         Task[] pathTasks = new Task[maxDepth];
         traversalDependenciesPath(task, pathTasks, 0);
         Iterator<String> iterator = sAnchorTasks.iterator();
@@ -199,16 +202,23 @@ public class AnchorsRuntime {
         if (task.getBehindTasks().isEmpty()) {
 
             StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 0; i < pathTasks.length; i++) {
+            for (int i = 0; i < pathLen; i++) {
                 Task pathItem = pathTasks[i];
                 if (pathItem != null) {
-                    //如果没有初始化则初始化runtimeInfo
-                    if (getTaskRuntimeInfo(pathItem.getId()) == null) {
+                    if (hasTaskRuntimeInfo(pathItem.getId())) {
+                        TaskRuntimeInfo taskRuntimeInfo = getTaskRuntimeInfo(pathItem.getId());
+                        //不允许框架层存在两个相同id的task
+                        if (taskRuntimeInfo.taskHashCode != pathItem.hashCode()) {
+                            throw new RuntimeException("Multiple different tasks are not allowed to contain the same id (" + pathItem.getId() + ")!");
+                        }
+                    } else {
+                        //如果没有初始化则初始化runtimeInfo
                         TaskRuntimeInfo taskRuntimeInfo = new TaskRuntimeInfo();
-                        taskRuntimeInfo.dependencies = task.getDependTaskName();
-                        taskRuntimeInfo.isProject = task instanceof Project;
-                        taskRuntimeInfo.taskId = task.getId();
-                        if (sAnchorTasks.contains(task.getId())) {
+                        taskRuntimeInfo.dependencies = pathItem.getDependTaskName();
+                        taskRuntimeInfo.isProject = pathItem instanceof Project;
+                        taskRuntimeInfo.taskId = pathItem.getId();
+                        taskRuntimeInfo.taskHashCode = pathItem.hashCode();
+                        if (sAnchorTasks.contains(pathItem.getId())) {
                             taskRuntimeInfo.isAnchor = true;
                         }
                         sTaskRuntimeInfo.put(pathItem.getId(), taskRuntimeInfo);
@@ -234,10 +244,18 @@ public class AnchorsRuntime {
      * @param task
      * @return
      */
-    private static int getDependenciesMaxDepth(@NonNull Task task) {
+    private static int getDependenciesMaxDepth(@NonNull Task task, Set<Task> sTraversalVisitor) {
+        //判断依赖路径是否存在异常，不允许存在回环的依赖
         int maxDepth = 0;
+        if (!sTraversalVisitor.contains(task)) {
+            sTraversalVisitor.add(task);
+        } else {
+            throw new RuntimeException("Do not allow dependency graphs to have a loopback！Related task'id is " + task.getId() + "!");
+        }
         for (Task behindTask : task.getBehindTasks()) {
-            int depth = getDependenciesMaxDepth(behindTask);
+            Set<Task> newTasks = new HashSet<>();
+            newTasks.addAll(sTraversalVisitor);
+            int depth = getDependenciesMaxDepth(behindTask, newTasks);
             if (depth >= maxDepth) {
                 maxDepth = depth;
             }

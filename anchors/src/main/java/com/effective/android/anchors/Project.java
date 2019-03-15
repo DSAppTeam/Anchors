@@ -62,6 +62,10 @@ public class Project extends Task {
         startTask = null;
     }
 
+    /**
+     * project 的构建内部，避免了回环的发生。
+     * 当出现project 内 task 循环依赖是，循环依赖会自动断开。
+     */
     public static class Builder {
 
         private Task mCurrentAddTask;

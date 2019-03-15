@@ -14,8 +14,22 @@ public class Logger {
     }
 
     public static void w(Object obj) {
+        w(Constants.TAG, obj);
+    }
+
+    public static void e(Object obj) {
+        e(Constants.TAG, obj);
+    }
+
+    public static void e(String tag, Object obj) {
         if (AnchorsRuntime.debuggable()) {
-            Log.w(Constants.TAG, obj.toString());
+            Log.e(tag, obj.toString());
+        }
+    }
+
+    public static void w(String tag, Object obj) {
+        if (AnchorsRuntime.debuggable()) {
+            Log.w(tag, obj.toString());
         }
     }
 
@@ -24,4 +38,5 @@ public class Logger {
             Log.d(tag, obj.toString());
         }
     }
+
 }

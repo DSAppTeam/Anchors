@@ -77,7 +77,7 @@ public class TaskTest {
 
     public void start() {
 
-        TestTaskFactory testTaskFactory = new TestTaskFactory();
+       final  TestTaskFactory testTaskFactory = new TestTaskFactory();
 
         Project.Builder builder1 = new Project.Builder(PROJECT_1, testTaskFactory);
         builder1.add(TASK_10);
@@ -138,10 +138,12 @@ public class TaskTest {
         Project.Builder builder9 = new Project.Builder(PROJECT_9, testTaskFactory);
         builder9.add(TASK_90);
         builder9.add(TASK_91).dependOn(TASK_90);
-        builder9.add(TASK_92).dependOn(TASK_90);
+        builder9.add(TASK_92).dependOn(TASK_91);
         builder9.add(TASK_93).dependOn(TASK_92);
         Project project9 = builder9.build();
 
+
+//
         final Task taskA = new TestTaskFactory.TASK_A();
         Task taskB = new TestTaskFactory.TASK_B();
         Task taskC = new TestTaskFactory.TASK_C();
@@ -160,7 +162,8 @@ public class TaskTest {
         taskB.dependOn(taskA);
         taskC.dependOn(taskB);
         taskD.dependOn(taskB);
-
+//        taskB.dependOn(taskD);
+//
         AnchorsManager.getInstance()
                 .debuggable(true)
                 .addAnchors(TASK_A, TASK_90, TASK_12, TASK_42)
