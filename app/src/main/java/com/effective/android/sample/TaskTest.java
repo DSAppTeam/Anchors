@@ -151,9 +151,8 @@ public class TaskTest {
         UiTaskB.dependOn(UiTaskA);
         UiTaskC.dependOn(UiTaskA);
 
-        AnchorsManager.getInstance()
-                .debuggable(true)
-                .addAnchors(TASK_93)
+        AnchorsManager.getInstance().debuggable(true)
+                .addAnchors(TASK_93,"TASK_E","TASK_100")
                 .start(UiTaskA);
     }
 }

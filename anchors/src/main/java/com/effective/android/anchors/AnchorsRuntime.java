@@ -188,7 +188,7 @@ class AnchorsRuntime {
         while (iterator.hasNext()) {
             String taskId = iterator.next();
             if (!hasTaskRuntimeInfo(taskId)) {
-                Logger.w("anchor \"" + taskId + "\" no found !");
+                Logger.w(Constants.ANCHORS_INFO_TAG, "anchor \"" + taskId + "\" no found !");
                 iterator.remove();
             } else {
                 TaskRuntimeInfo info = getTaskRuntimeInfo(taskId);
