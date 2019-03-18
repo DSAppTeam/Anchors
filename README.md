@@ -12,6 +12,8 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 
 `Anchors` is a graph-based structure that supports the asynchronous startup task to initialize the Android startup framework. Its anchor provides a "hook" dependency function that provides flexibility in solving complex synchronization problems during initialization. Refer to `alpha` and improve some of its details, which is more suitable for Android-initiated scenarios. It also supports optimizing the dependency initialization process and selecting a better path for initialization.
 
+For the thinking about `alpha`, please see [关于Android异步启动框架alpha的思考](http://yummylau.com/2019/03/15/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%E4%B9%8B%20alpha/)
+
 
 ##### Use
 1. Add a Maven path to the project root path
