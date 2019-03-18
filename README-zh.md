@@ -12,6 +12,8 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 
 `Anchors` 是一个基于图结构，支持同异步依赖任务初始化 Android 启动框架。其锚点提供 "勾住" 依赖的功能，能灵活解决初始化过程中复杂的同步问题。参考 `alpha` 并改进其部分细节, 更贴合 Android 启动的场景, 同时支持优化依赖初始化流程, 选择较优的路径进行初始化。
 
+关于 `alpha` 的思考，请查看 [关于Android异步启动框架alpha的思考](http://yummylau.com/2019/03/15/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%E4%B9%8B%20alpha/)
+
 
 ##### 使用方法
 1. 在项目根目路添加 Maven 路径
