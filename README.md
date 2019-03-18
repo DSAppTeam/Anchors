@@ -1,6 +1,6 @@
 ### Anchors
 
-<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/anchors/anchor_logo.png" width = "1300" height = "300" alt="图片名称" align=center />
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/anchors/anchor_logo.png" width = "1300" height = "150" alt="图片名称" align=center />
 
 ![](https://travis-ci.org/YummyLau/Anchors.svg?branch=master)
 ![Language](https://img.shields.io/badge/language-java-orange.svg)
@@ -102,7 +102,7 @@ For code logic, please refer to the sample case under the **app** module.
 
 Below is the execution time given by **Trace** without using anchor points and using anchor points in the scene
 
-<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/anchors/anchor_1.png" width = "1860" height = "600" alt="图片名称" align=center />
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/anchors/anchor_1.png" width = "1860" height = "400" alt="图片名称" align=center />
 
 The dependency graph has a `UITHREAD_TASK_A -> TASK_90 -> TASK_92 -> Task_93` dependency. Assuming that our dependency path is a precondition for subsequent business, we need to wait for the business to complete before proceeding with its own business code. If not then we don't care about their end time. When using the anchor function, we hook `TASK_93`, and the priority from the beginning to the anchor will be raised. As you can see from the above figure, the time to execute the dependency chain is shortened.
 
