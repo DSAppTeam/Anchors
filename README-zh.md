@@ -8,25 +8,25 @@
 
 README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [中文](https://github.com/YummyLau/Anchors/blob/master/README-zh.md)
 
-#### Introduction
+#### 简介
 
-`Anchors` is a graph-based structure that supports the asynchronous startup task to initialize the Android startup framework. Its anchor provides a "hook" dependency function that provides flexibility in solving complex synchronization problems during initialization. Refer to `alpha` and improve some of its details, which is more suitable for Android-initiated scenarios. It also supports optimizing the dependency initialization process and selecting a better path for initialization.
+`Anchors` 是一个基于图结构，支持同异步依赖任务初始化 Android 启动框架。其锚点提供 "勾住" 依赖的功能，能灵活解决初始化过程中复杂的同步问题。参考 `alpha` 并改进其部分细节, 更贴合 Android 启动的场景, 同时支持优化依赖初始化流程, 选择较优的路径进行初始化。
 
 
-##### Use
-1. Add a Maven path to the project root path
+##### 使用方法
+1. 在项目根目路添加 Maven 路径
 
  	```
 	maven { url 'https://dl.bintray.com/yummylau/maven' }
 	```
 
-2. Add dependencies under the **app** module
+2. 在 **app** 模块下添加依赖
 
 	```
 	implementation 'com.effective.android:Anchors:1.0.0'
 	```
 
-3. Add a dependency graph in `Application`
+3. 在 `Application` 中添加依赖图
 
 	```
 	AnchorsManager.getInstance().debuggable(true)
@@ -34,19 +34,18 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 	        .start(dependencyGraphHead);
 	```
 
-	Where *anchorYouNeed* is the anchor point you need to add, *dependencyGraphHead* is the head of the dependency graph.
+	其中 *anchorYouNeed* 为你所需要添加的锚点, *dependencyGraphHead* 为依赖图的头部。
 
-**debuggale** mode can print logs of different dimensions as debugging information output, and do `Trace` tracking for each dependent task. You can output **trace.html** for performance analysis by *python systrace.py* .
-
+**debuggale** 模式下能打印不同维度的 log 作为调试信息输出，同时针对每个依赖任务做 `Trace` 追踪, 可以通过 *python systrace.py* 来输出 **trace.html** 进行性能分析。
 
 ##### Sample
 
-For code logic, please refer to the sample case under the **app** module.
+代码逻辑请参考 **app** 模块下的 sample。
 
-`Anchors` defines different **TAG** for filtering logs, you need to open Debug mode.
+`Anchors` 定义不同的 **TAG** 用于过滤 log, 需要打开 Debug 模式。
 
-* `Anchors`, The most basic TAG
-* `TASK_DETAIL`, Filter details of dependent tasks
+* `Anchors`, 最基础的 TAG
+* `TASK_DETAIL`, 过滤依赖任务的详情
 
 	```
 	2019-03-18 14:19:45.687 22493-22493/com.effective.android.sample D/TASK_DETAIL: TASK_DETAIL
@@ -60,7 +59,7 @@ For code logic, please refer to the sample case under the **app** module.
 	| 结束时刻 : 1552889985686
 	==============================================
 	```
-* `ANCHOR_DETAIL`, Filter output anchor task information
+* `ANCHOR_DETAIL`, 过滤输出锚点任务信息
 
 	```
 	2019-03-18 14:42:33.354 24719-24719/com.effective.android.sample W/ANCHOR_DETAIL: anchor "TASK_100" no found !
@@ -79,7 +78,7 @@ For code logic, please refer to the sample case under the **app** module.
 	2019-03-18 14:42:34.194 24719-24719/com.effective.android.sample D/ANCHOR_DETAIL: All anchors were released！
 	```
 
-* `DEPENDENCE_DETAIL`, Filter dependency graph information
+* `DEPENDENCE_DETAIL`, 过滤依赖图信息
 
 	```
 	2019-03-18 14:27:53.724 22843-22843/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> PROJECT_9_start(1552890473721) --> TASK_90 --> TASK_91 --> PROJECT_9_end(1552890473721)
@@ -100,14 +99,14 @@ For code logic, please refer to the sample case under the **app** module.
 	2019-03-18 14:27:53.726 22843-22843/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> UITHREAD_TASK_C
 	```
 
-Below is the execution time given by **Trace** without using anchor points and using anchor points in the scene
+下面是没有使用锚点和使用锚点场景下, **Trace** 给出的执行时间
 
 <img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/anchors/anchor_1.png" width = "1860" height = "600" alt="图片名称" align=center />
 
-The dependency graph has a `UITHREAD_TASK_A -> TASK_90 -> TASK_92 -> Task_93` dependency. Assuming that our dependency path is a precondition for subsequent business, we need to wait for the business to complete before proceeding with its own business code. If not then we don't care about their end time. When using the anchor function, we hook `TASK_93`, and the priority from the beginning to the anchor will be raised. As you can see from the above figure, the time to execute the dependency chain is shortened.
+依赖图中有着一条 `UITHREAD_TASK_A -> TASK_90 -> TASK_92 -> Task_93`依赖。假设我们的这条依赖路径是后续业务的前置条件,则我们需要等待该业务完成之后再进行自身的业务代码。如果不是则我们不关系他们的结束时机。在使用锚点功能时，我们勾住 `TASK_93`，则从始端到该锚点的优先级将被提升。从上图可以看到执行该依赖链的时间缩短了。
 
-> The dependency graph is used to resolve the dependencies between tasks when the task is executed, and the anchor setting is used to resolve the synchronization relationship between the execution dependencies and the code call points.
+> 依赖图用于解决任务执行时任务间的依赖关系，而锚点设置则是用于解决执行依赖与代码调用点之间的同步关系。
 
 
-#### Expectation
-The project was written only to improve the efficiency of day-to-day development and focus on the business. If you have a better practice or suggestions, please write to yummyl.lau@gmail.com, ask **Issues** or initiate **Pull requests**, any problems will be resolved in the first time.
+#### 期望
+编写该项目只是希望能提高日常开发的效率，专注于处理业务 。如果更好的做法或者意见建议，欢迎写信到 yummyl.lau@gmail.com, 提出 **Issues** 或发起 **Pull requests** , 任何问题都会第一时间得到处理解决。
