@@ -1,6 +1,7 @@
 package com.effective.android.anchors;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.SparseArray;
 
 import java.util.HashSet;
@@ -43,7 +44,7 @@ public class TaskRuntimeInfo {
     }
 
     public boolean isProject() {
-        return task != null && task instanceof Project;
+        return task instanceof Project;
     }
 
     public SparseArray<Long> getStateTime() {

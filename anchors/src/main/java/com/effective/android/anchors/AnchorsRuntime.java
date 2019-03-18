@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 运行时 Task 信息收集
  * created by yummylau on 2019/03/12
  */
-public class AnchorsRuntime {
+class AnchorsRuntime {
 
     //调试信息
     private static boolean sDebuggable = false;
@@ -66,21 +66,21 @@ public class AnchorsRuntime {
         return sDebuggable;
     }
 
-    protected static void openDebug(boolean debug) {
+    static void openDebug(boolean debug) {
         AnchorsRuntime.sDebuggable = debug;
     }
 
-    protected static Comparator<Task> getTaskComparator() {
+    static Comparator<Task> getTaskComparator() {
         return sTaskComparator;
     }
 
-    protected static void addWaitTask(String id) {
+    static void addWaitTask(String id) {
         if (!TextUtils.isEmpty(id)) {
             sAnchorTaskIds.add(id);
         }
     }
 
-    protected static void addAnchorTasks(String... ids) {
+    static void addAnchorTasks(String... ids) {
         if (ids != null && ids.length > 0) {
             for (String id : ids) {
                 sAnchorTaskIds.add(id);
@@ -88,27 +88,27 @@ public class AnchorsRuntime {
         }
     }
 
-    protected static void removeAnchorTask(String id) {
+    static void removeAnchorTask(String id) {
         if (!TextUtils.isEmpty(id)) {
             sAnchorTaskIds.remove(id);
         }
     }
 
-    protected static boolean hasAnchorTasks() {
+    static boolean hasAnchorTasks() {
         return !sAnchorTaskIds.isEmpty();
     }
 
-    protected static Set<String> getAnchorTasks() {
+    static Set<String> getAnchorTasks() {
         return sAnchorTaskIds;
     }
 
-    protected static void addRunTasks(Task task) {
+    private static void addRunTasks(Task task) {
         if (task != null && !sRunBlockApplication.contains(task)) {
             sRunBlockApplication.add(task);
         }
     }
 
-    protected static void tryRunBlockRunnable() {
+    static void tryRunBlockRunnable() {
         if (!sRunBlockApplication.isEmpty()) {
             if (sRunBlockApplication.size() > 1) {
                 Collections.sort(sRunBlockApplication, AnchorsRuntime.getTaskComparator());
@@ -126,11 +126,11 @@ public class AnchorsRuntime {
         }
     }
 
-    protected static boolean hasRunTasks() {
+    static boolean hasRunTasks() {
         return !sRunBlockApplication.isEmpty();
     }
 
-    protected static boolean hasTaskRuntimeInfo(String taskId) {
+    private static boolean hasTaskRuntimeInfo(String taskId) {
         return sTaskRuntimeInfo.get(taskId) != null;
     }
 
@@ -139,21 +139,21 @@ public class AnchorsRuntime {
         return sTaskRuntimeInfo.get(taskId);
     }
 
-    protected static void setThreadName(@NonNull Task task, String threadName) {
+    static void setThreadName(@NonNull Task task, String threadName) {
         TaskRuntimeInfo taskRuntimeInfo = sTaskRuntimeInfo.get(task.getId());
         if (taskRuntimeInfo != null) {
             taskRuntimeInfo.setThreadName(threadName);
         }
     }
 
-    protected static void setStateInfo(@NonNull Task task) {
+    static void setStateInfo(@NonNull Task task) {
         TaskRuntimeInfo taskRuntimeInfo = sTaskRuntimeInfo.get(task.getId());
         if (taskRuntimeInfo != null) {
             taskRuntimeInfo.setStateTime(task.getState(), System.currentTimeMillis());
         }
     }
 
-    protected static void executeTask(Task task) {
+    static void executeTask(Task task) {
         if (task.isAsyncTask()) {
             sPool.executeTask(task);
         } else {
@@ -175,7 +175,7 @@ public class AnchorsRuntime {
      *
      * @param task
      */
-    protected static void traversalDependenciesAndInit(@NonNull Task task) {
+    static void traversalDependenciesAndInit(@NonNull Task task) {
         //获取依赖树最大深度
         int maxDepth = getDependenciesMaxDepth(task, sTraversalVisitor);
         sTraversalVisitor.clear();
@@ -202,7 +202,7 @@ public class AnchorsRuntime {
      *
      * @param task
      */
-    static void traversalMaxTaskPriority(Task task) {
+    private static void traversalMaxTaskPriority(Task task) {
         if (task == null) {
             return;
         }
@@ -289,7 +289,12 @@ public class AnchorsRuntime {
 
         private ExecutorService asyncThreadExecutor;
         private final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
-        private final int CORE_POOL_SIZE = Math.max(2, Math.min(CPU_COUNT - 1, 4));
+        /**
+         * {@link android.os.AsyncTask}
+         * 相对比 Anchors, AsyncTask 更强调的是在业务处理中，异步业务不应该使得cpu饱和，但是启动场景时间比较短，可以尽可能使用更多的cpu资源。
+         * 但是，anchors支持锚点阻塞ui线程，后续可能还会有延迟的异步初始化任务，所以也不要完全饱和。
+         */
+        private final int CORE_POOL_SIZE = Math.max(4, Math.min(CPU_COUNT - 1, 8));
         private final int MAXIMUM_POOL_SIZE = CPU_COUNT * 2 + 1;
         private final int KEEP_ALIVE_SECONDS = 30;
 
@@ -304,7 +309,7 @@ public class AnchorsRuntime {
         private final BlockingQueue<Runnable> sPoolWorkQueue =
                 new PriorityBlockingQueue<>(128);
 
-        public InnerThreadPool() {
+        InnerThreadPool() {
             ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
                     CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE_SECONDS, TimeUnit.SECONDS,
                     sPoolWorkQueue, sThreadFactory);

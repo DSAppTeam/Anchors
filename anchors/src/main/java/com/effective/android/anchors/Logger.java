@@ -9,31 +9,31 @@ import android.util.Log;
 public class Logger {
 
 
-    public static void d(Object obj) {
+    static void d(Object obj) {
         d(Constants.TAG, obj);
     }
 
-    public static void w(Object obj) {
+    static void w(Object obj) {
         w(Constants.TAG, obj);
     }
 
-    public static void e(Object obj) {
+    static void e(Object obj) {
         e(Constants.TAG, obj);
     }
 
-    public static void e(String tag, Object obj) {
+    static void e(String tag, Object obj) {
         if (AnchorsRuntime.debuggable()) {
             Log.e(tag, obj.toString());
         }
     }
 
-    public static void w(String tag, Object obj) {
+    static void w(String tag, Object obj) {
         if (AnchorsRuntime.debuggable()) {
             Log.w(tag, obj.toString());
         }
     }
 
-    public static void d(String tag, Object obj) {
+    static void d(String tag, Object obj) {
         if (AnchorsRuntime.debuggable()) {
             Log.d(tag, obj.toString());
         }

@@ -15,12 +15,12 @@ public class Project extends Task {
     }
 
     @NonNull
-    protected Task getStartTask() {
+    public Task getStartTask() {
         return startTask;
     }
 
     @NonNull
-    protected Task getEndTask() {
+    public Task getEndTask() {
         return endTask;
     }
 
@@ -158,7 +158,7 @@ public class Project extends Task {
             mCacheTask = new HashMap<>();
         }
 
-        public synchronized Task getTask(String taskId) {
+        synchronized Task getTask(String taskId) {
             Task task = mCacheTask.get(taskId);
 
             if (task != null) {
@@ -180,7 +180,7 @@ public class Project extends Task {
      */
     private static class CriticalTask extends Task {
 
-        public CriticalTask(String name) {
+        CriticalTask(String name) {
             super(name);
         }
 

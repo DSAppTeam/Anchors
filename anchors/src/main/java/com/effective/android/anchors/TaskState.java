@@ -2,6 +2,10 @@ package com.effective.android.anchors;
 
 import android.support.annotation.IntDef;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+@Retention(RetentionPolicy.SOURCE)
 @IntDef({TaskState.IDLE, TaskState.RUNNING, TaskState.FINISHED, TaskState.START})
 public @interface TaskState {
     int IDLE = 0;               //静止
