@@ -1,6 +1,6 @@
 ### Anchors
 
-<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/anchors/anchor_logo.png" width = "1300" height = "300" alt="图片名称" align=center />
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/anchors/anchor_logo.png" width = "1300" height = "150" alt="图片名称" align=center />
 
 ![](https://travis-ci.org/YummyLau/Anchors.svg?branch=master)
 ![Language](https://img.shields.io/badge/language-java-orange.svg)
@@ -11,6 +11,8 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 #### 简介
 
 `Anchors` 是一个基于图结构，支持同异步依赖任务初始化 Android 启动框架。其锚点提供 "勾住" 依赖的功能，能灵活解决初始化过程中复杂的同步问题。参考 `alpha` 并改进其部分细节, 更贴合 Android 启动的场景, 同时支持优化依赖初始化流程, 选择较优的路径进行初始化。
+
+关于 `alpha` 的思考，请查看 [关于Android异步启动框架alpha的思考](http://yummylau.com/2019/03/15/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%E4%B9%8B%20alpha/)
 
 
 ##### 使用方法
@@ -95,7 +97,7 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 
 下面是没有使用锚点和使用锚点场景下, **Trace** 给出的执行时间
 
-<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/anchors/anchor_1.png" width = "1860" height = "600" alt="图片名称" align=center />
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/anchors/anchor_1.png" width = "1860" height = "400" alt="图片名称" align=center />
 
 依赖图中有着一条 `UITHREAD_TASK_A -> TASK_90 -> TASK_92 -> Task_93`依赖。假设我们的这条依赖路径是后续业务的前置条件,则我们需要等待该业务完成之后再进行自身的业务代码。如果不是则我们不关系他们的结束时机。在使用锚点功能时，我们勾住 `TASK_93`，则从始端到该锚点的优先级将被提升。从上图可以看到执行该依赖链的时间缩短了。
 
