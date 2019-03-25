@@ -4,7 +4,7 @@
 
 ![](https://travis-ci.org/YummyLau/Anchors.svg?branch=master)
 ![Language](https://img.shields.io/badge/language-java-orange.svg)
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)
 
 README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [中文](https://github.com/YummyLau/Anchors/blob/master/README-zh.md)
 
@@ -14,19 +14,13 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 
 
 ##### Use
-1. Add a Maven path to the project root path
-
- 	```
-	maven { url 'https://dl.bintray.com/yummylau/maven' }
-	```
-
-2. Add dependencies under the **app** module
+1. Add dependencies under the **app** module
 
 	```
-	implementation 'com.effective.android:Anchors:1.0.0'
+	implementation 'com.effective.android:Anchors:1.0.1'
 	```
 
-3. Add a dependency graph in `Application`
+2. Add a dependency graph in `Application`
 
 	```
 	AnchorsManager.getInstance().debuggable(true)

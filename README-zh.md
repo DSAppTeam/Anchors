@@ -4,7 +4,7 @@
 
 ![](https://travis-ci.org/YummyLau/Anchors.svg?branch=master)
 ![Language](https://img.shields.io/badge/language-java-orange.svg)
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)
 
 README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [中文](https://github.com/YummyLau/Anchors/blob/master/README-zh.md)
 
@@ -14,19 +14,13 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 
 
 ##### 使用方法
-1. 在项目根目路添加 Maven 路径
-
- 	```
-	maven { url 'https://dl.bintray.com/yummylau/maven' }
-	```
-
-2. 在 **app** 模块下添加依赖
+1. 在 **app** 模块下添加依赖
 
 	```
-	implementation 'com.effective.android:Anchors:1.0.0'
+	implementation 'com.effective.android:Anchors:1.0.1'
 	```
 
-3. 在 `Application` 中添加依赖图
+2. 在 `Application` 中添加依赖图
 
 	```
 	AnchorsManager.getInstance().debuggable(true)
