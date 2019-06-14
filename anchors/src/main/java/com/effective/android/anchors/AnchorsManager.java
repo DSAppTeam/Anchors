@@ -40,9 +40,13 @@ public class AnchorsManager {
         if (task == null) {
             throw new RuntimeException("can no run a task that was null !");
         }
-        AnchorsRuntime.traversalDependenciesAndInit(task);
+        Task startTask = task;
+        if(startTask instanceof Project){
+            startTask = ((Project)task).getStartTask();
+        }
+        AnchorsRuntime.traversalDependenciesAndInit(startTask);
         boolean logEnd = logStartWithAnchorsInfo();
-        task.start();
+        startTask.start();
         while (AnchorsRuntime.hasAnchorTasks()) {
             try {
                 Thread.sleep(10);
