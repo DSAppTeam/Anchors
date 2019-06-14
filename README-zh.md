@@ -8,6 +8,11 @@
 
 README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [中文](https://github.com/YummyLau/Anchors/blob/master/README-zh.md)
 
+#### 版本更新
+
+* 1.0.2（2019/06/14） 新增支持直接打开 project 节点
+
+
 #### 简介
 
 `Anchors` 是一个基于图结构，支持同异步依赖任务初始化 Android 启动框架。其锚点提供 "勾住" 依赖的功能，能灵活解决初始化过程中复杂的同步问题。参考 `alpha` 并改进其部分细节, 更贴合 Android 启动的场景, 同时支持优化依赖初始化流程, 选择较优的路径进行初始化。

@@ -8,6 +8,11 @@
 
 README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [中文](https://github.com/YummyLau/Anchors/blob/master/README-zh.md)
 
+
+#### Version Update
+
+* 1.0.2（2019/06/14） Added support to open the project node directly
+
 #### Introduction
 
 `Anchors` is a graph-based structure that supports the asynchronous startup task to initialize the Android startup framework. Its anchor provides a "hook" dependency function that provides flexibility in solving complex synchronization problems during initialization. Refer to `alpha` and improve some of its details, which is more suitable for Android-initiated scenarios. It also supports optimizing the dependency initialization process and selecting a better path for initialization.
