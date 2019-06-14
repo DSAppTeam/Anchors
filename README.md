@@ -4,7 +4,7 @@
 
 ![](https://travis-ci.org/YummyLau/Anchors.svg?branch=master)
 ![Language](https://img.shields.io/badge/language-java-orange.svg)
-![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)
+![Version](https://img.shields.io/badge/version-1.0.2-blue.svg)
 
 README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [中文](https://github.com/YummyLau/Anchors/blob/master/README-zh.md)
 
@@ -24,7 +24,7 @@ For the thinking about `alpha`, please see [关于Android异步启动框架alpha
 1. Add dependencies under the **app** module
 
 	```
-	implementation 'com.effective.android:Anchors:1.0.1'
+	implementation 'com.effective.android:Anchors:1.0.2'
 	```
 
 2. Add a dependency graph in `Application`
