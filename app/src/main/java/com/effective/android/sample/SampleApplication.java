@@ -14,6 +14,7 @@ public class SampleApplication extends Application {
             return;
         }
         LeakCanary.install(this);
-        new TaskTest().start();
+        //new TaskTest().start();
+        new TaskTest4Delay().start();
     }
 }

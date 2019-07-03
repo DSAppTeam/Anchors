@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,6 +22,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.effective.android.anchors.Constants.TAG;
 
 /**
  * Anchors 框架 runtime 信息管理
@@ -108,18 +111,36 @@ class AnchorsRuntime {
         }
     }
 
+//    static void tryRunBlockRunnable() {
+//        if (!sRunBlockApplication.isEmpty()) {
+//            if (sRunBlockApplication.size() > 1) {
+//                Collections.sort(sRunBlockApplication, AnchorsRuntime.getTaskComparator());
+//            }
+//            Runnable runnable = sRunBlockApplication.remove(0);
+//            if (hasAnchorTasks()) {
+//                runnable.run();
+//            } else {
+//                sHandler.post(runnable);
+//                for (Runnable blockItem : sRunBlockApplication) {
+//                    sHandler.post(blockItem);
+//                }
+//                sRunBlockApplication.clear();
+//            }
+//        }
+//    }
+
     static void tryRunBlockRunnable() {
         if (!sRunBlockApplication.isEmpty()) {
             if (sRunBlockApplication.size() > 1) {
                 Collections.sort(sRunBlockApplication, AnchorsRuntime.getTaskComparator());
             }
-            Runnable runnable = sRunBlockApplication.remove(0);
-            if (hasAnchorTasks()) {
-                runnable.run();
+            Task task = sRunBlockApplication.remove(0);
+            if (AnchorsRuntime.hasAnchorTasks()) {
+                task.run();
             } else {
-                sHandler.post(runnable);
-                for (Runnable blockItem : sRunBlockApplication) {
-                    sHandler.post(blockItem);
+                sHandler.postDelayed(new DelayRunnable(task), task.getDelayMills());
+                for (Task blockTask : sRunBlockApplication) {
+                    sHandler.postDelayed(blockTask, blockTask.getDelayMills());
                 }
                 sRunBlockApplication.clear();
             }
@@ -153,15 +174,70 @@ class AnchorsRuntime {
         }
     }
 
-    static void executeTask(Task task) {
+//    static void executeTask(Task task) {
+//        if (task.isAsyncTask()) {
+//            sPool.executeTask(task);
+//        } else {
+//            if (!AnchorsRuntime.hasAnchorTasks()) {
+//                sHandler.post(task);
+//            } else {
+//                AnchorsRuntime.addRunTasks(task);
+//            }
+//        }
+//    }
+
+    static void executeTask(final Task task) {
         if (task.isAsyncTask()) {
             sPool.executeTask(task);
         } else {
+            if (task.getDelayMills() > 0 && !hasAnchorBehindTask(task)) {
+                //如果延迟任务behind链路上  存在anchor任务  则延迟无效
+                sHandler.postDelayed(new DelayRunnable(task), task.getDelayMills());
+                return;
+            }
+
             if (!AnchorsRuntime.hasAnchorTasks()) {
-                sHandler.post(task);
+                task.run();
             } else {
                 AnchorsRuntime.addRunTasks(task);
             }
+        }
+    }
+
+
+    static boolean hasAnchorBehindTask(Task task) {
+        if (task instanceof Project.CriticalTask) {
+            task.setDelayMills(0);
+            return false;
+        }
+        List<Task> behindTasks = task.getBehindTasks();
+        for (Task behindTask : behindTasks) {
+            TaskRuntimeInfo behindTaskInfo = getTaskRuntimeInfo(behindTask.getId());
+            if (behindTask == null) {
+                continue;
+            }
+            if (behindTaskInfo.isAnchor()) {
+                return true;
+            }
+            return hasAnchorBehindTask(behindTask);
+        }
+
+        return false;
+    }
+
+    private static class DelayRunnable implements Runnable {
+        private Task delayTask;
+
+        public DelayRunnable(Task delayTask) {
+            this.delayTask = delayTask;
+        }
+
+        @Override
+        public void run() {
+            if (debuggable()) {
+                Log.e(TAG, "DelayRunnable:" + delayTask.getId());
+            }
+            delayTask.run();
         }
     }
 

@@ -22,6 +22,8 @@ public abstract class Task implements Runnable, Comparable<Task> {
     private boolean isAsyncTask;                   //是否是异步存在
     private int mPriority;                         //优先级，数值越低，优先级越低
     private long mExecuteTime;
+    private long mDelayMills;                       //延迟时间ms
+
 
     public static final int DEFAULT_PRIORITY = 0;
     private List<Task> behindTasks = new ArrayList<>();                                //被依赖者
@@ -74,6 +76,14 @@ public abstract class Task implements Runnable, Comparable<Task> {
 
     protected void setState(@TaskState int state) {
         this.mState = state;
+    }
+
+    public long getDelayMills() {
+        return mDelayMills;//anchor和异步任务的延迟时间无效
+    }
+
+    public void setDelayMills(long mills) {
+        this.mDelayMills = mills;
     }
 
     public void addTaskListener(TaskListener taskListener) {

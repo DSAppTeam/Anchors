@@ -178,7 +178,7 @@ public class Project extends Task {
      * 作为临界节点，标识 project 的开始和结束。
      * 同个 project 下可能需要等待 {次后节点们} 统一结束直接才能进入结束节点。
      */
-    private static class CriticalTask extends Task {
+    public static class CriticalTask extends Task {
 
         CriticalTask(String name) {
             super(name);
