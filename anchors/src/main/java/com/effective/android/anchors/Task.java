@@ -11,6 +11,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.effective.android.anchors.AnchorsRuntime.*;
+
 /**
  * created by yummylau on 2019/03/11
  */
@@ -26,7 +28,6 @@ public abstract class Task implements Runnable, Comparable<Task> {
     public static final int DEFAULT_PRIORITY = 0;
     private List<Task> behindTasks = new ArrayList<>();                                //被依赖者
     private Set<Task> dependTasks = new HashSet<>();                                   //依赖者
-    private Set<String> dependTaskName = new HashSet<>();                              //用于log统计
     private List<TaskListener> taskListeners = new ArrayList<>();                      //监听器
     private TaskListener logTaskListeners = new LogTaskListener();
 
@@ -88,12 +89,12 @@ public abstract class Task implements Runnable, Comparable<Task> {
         }
         toStart();
         setExecuteTime(System.currentTimeMillis());
-        AnchorsRuntime.executeTask(this);
+        executeTask(this);
     }
 
     @Override
     public void run() {
-        if (AnchorsRuntime.debuggable() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+        if (debuggable() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             Trace.beginSection(mId);
         }
         toRunning();
@@ -101,7 +102,7 @@ public abstract class Task implements Runnable, Comparable<Task> {
         toFinish();
         notifyBehindTasks();
         recycle();
-        if (AnchorsRuntime.debuggable() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+        if (debuggable() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             Trace.endSection();
         }
     }
@@ -110,8 +111,8 @@ public abstract class Task implements Runnable, Comparable<Task> {
 
     void toStart() {
         setState(TaskState.START);
-        AnchorsRuntime.setStateInfo(this);
-        if (AnchorsRuntime.debuggable()) {
+        setStateInfo(this);
+        if (debuggable()) {
             logTaskListeners.onStart(this);
         }
         for (TaskListener listener : taskListeners) {
@@ -121,9 +122,9 @@ public abstract class Task implements Runnable, Comparable<Task> {
 
     void toRunning() {
         setState(TaskState.RUNNING);
-        AnchorsRuntime.setStateInfo(this);
-        AnchorsRuntime.setThreadName(this, Thread.currentThread().getName());
-        if (AnchorsRuntime.debuggable()) {
+        setStateInfo(this);
+        setThreadName(this, Thread.currentThread().getName());
+        if (debuggable()) {
             logTaskListeners.onRunning(this);
         }
         for (TaskListener listener : taskListeners) {
@@ -134,9 +135,9 @@ public abstract class Task implements Runnable, Comparable<Task> {
 
     void toFinish() {
         setState(TaskState.FINISHED);
-        AnchorsRuntime.setStateInfo(this);
-        AnchorsRuntime.removeAnchorTask(mId);
-        if (AnchorsRuntime.debuggable()) {
+        setStateInfo(this);
+        removeAnchorTask(mId);
+        if (debuggable()) {
             logTaskListeners.onFinish(this);
         }
         for (TaskListener listener : taskListeners) {
@@ -145,11 +146,28 @@ public abstract class Task implements Runnable, Comparable<Task> {
     }
 
     public Set<String> getDependTaskName() {
-        return dependTaskName;
+        Set<String> result = new HashSet<>();
+        for(Task task : dependTasks){
+            result.add(task.mId);
+        }
+        return result;
     }
 
     public List<Task> getBehindTasks() {
         return behindTasks;
+    }
+
+    public void removeDepend(Task originTask){
+        if(dependTasks.contains(originTask)){
+            dependTasks.remove(originTask);
+        }
+    }
+
+    public void updateBehind(Task updateTask,Task originTask){
+        if(behindTasks.contains(originTask)){
+            behindTasks.remove(originTask);
+        }
+        behindTasks.add(updateTask);
     }
 
     /**
@@ -188,7 +206,6 @@ public abstract class Task implements Runnable, Comparable<Task> {
                 task = ((Project) task).getEndTask();
             }
             dependTasks.add(task);
-            dependTaskName.add(task.mId);
             //防止外部所有直接调用dependOn无法构建完整图
             if (!task.behindTasks.contains(this)) {
                 task.behindTasks.add(this);
@@ -202,7 +219,6 @@ public abstract class Task implements Runnable, Comparable<Task> {
                 task = ((Project) task).getEndTask();
             }
             dependTasks.remove(task);
-            dependTaskName.add(task.mId);
             if (task.behindTasks.contains(this)) {
                 task.behindTasks.remove(this);
             }
@@ -219,10 +235,17 @@ public abstract class Task implements Runnable, Comparable<Task> {
      * 通知后置者自己已经完成了
      */
     void notifyBehindTasks() {
+
+        if(this instanceof LockableTask){
+            if(!((LockableTask) this).successToUnlock()){
+                return;
+            }
+        }
+
         if (!behindTasks.isEmpty()) {
 
             if (behindTasks.size() > 1) {
-                Collections.sort(behindTasks, AnchorsRuntime.getTaskComparator());
+                Collections.sort(behindTasks, getTaskComparator());
             }
 
             //遍历记下来的任务，通知它们说存在的前置已经完成
@@ -257,10 +280,9 @@ public abstract class Task implements Runnable, Comparable<Task> {
     }
 
     void recycle() {
-        AnchorsRuntime.getTaskRuntimeInfo(mId).clearTask();
+        getTaskRuntimeInfo(mId).clearTask();
         dependTasks.clear();
         behindTasks.clear();
-        dependTaskName.clear();
         taskListeners.clear();
         logTaskListeners = null;
     }

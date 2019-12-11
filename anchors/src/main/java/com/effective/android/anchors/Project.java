@@ -151,14 +151,14 @@ public class Project extends Task {
     public static class TaskFactory {
 
         private Map<String, Task> mCacheTask;
-        private ITaskCreator mTaskCreator;
+        private TaskCreator mTaskCreator;
 
-        public TaskFactory(ITaskCreator creator) {
+        public TaskFactory(TaskCreator creator) {
             mTaskCreator = creator;
             mCacheTask = new HashMap<>();
         }
 
-        synchronized Task getTask(String taskId) {
+        public synchronized Task getTask(String taskId) {
             Task task = mCacheTask.get(taskId);
 
             if (task != null) {
@@ -167,7 +167,7 @@ public class Project extends Task {
             task = mTaskCreator.createTask(taskId);
 
             if (task == null) {
-                throw new IllegalArgumentException("Create task fail. Make sure ITaskCreator can create a task with only taskId");
+                throw new IllegalArgumentException("Create task fail. Make sure TaskCreator can create a task with only taskId");
             }
             mCacheTask.put(taskId, task);
             return task;

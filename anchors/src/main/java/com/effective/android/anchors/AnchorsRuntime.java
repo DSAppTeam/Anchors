@@ -3,6 +3,7 @@ package com.effective.android.anchors;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
@@ -62,6 +63,14 @@ class AnchorsRuntime {
 
     private static Set<Task> sTraversalVisitor = new HashSet<>();
 
+    static void clear(){
+        sDebuggable = false;
+        sAnchorTaskIds.clear();
+        sRunBlockApplication.clear();
+        sTaskRuntimeInfo.clear();
+        sTraversalVisitor.clear();
+    }
+
     public static boolean debuggable() {
         return sDebuggable;
     }
@@ -74,17 +83,15 @@ class AnchorsRuntime {
         return sTaskComparator;
     }
 
-    static void addWaitTask(String id) {
-        if (!TextUtils.isEmpty(id)) {
-            sAnchorTaskIds.add(id);
-        }
+
+    static Handler getHandler(){
+        return sHandler;
     }
 
-    static void addAnchorTasks(String... ids) {
-        if (ids != null && ids.length > 0) {
-            for (String id : ids) {
-                sAnchorTaskIds.add(id);
-            }
+
+    static void addAnchorTasks(Set<String> ids) {
+        if (ids != null && ids.size() > 0) {
+            sAnchorTaskIds.addAll(ids);
         }
     }
 
@@ -135,7 +142,7 @@ class AnchorsRuntime {
     }
 
     @NonNull
-    public static TaskRuntimeInfo getTaskRuntimeInfo(@NonNull String taskId) {
+    static TaskRuntimeInfo getTaskRuntimeInfo(@NonNull String taskId) {
         return sTaskRuntimeInfo.get(taskId);
     }
 

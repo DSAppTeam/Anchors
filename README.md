@@ -9,9 +9,9 @@
 README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [中文](https://github.com/YummyLau/Anchors/blob/master/README-zh.md)
 
 
-#### Version Update
-
-* 1.0.2（2019/06/14） Added support to open the project node directly
+#### new version update
+* 1.0.2 (2019/06/14) Added support for directly opening the project node
+* 1.0.3 (2019/12/11) Added support for node wait function
 
 #### Introduction
 
@@ -19,30 +19,68 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 
 For the thinking about `alpha`, please see [关于Android异步启动框架alpha的思考](http://yummylau.com/2019/03/15/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%E4%B9%8B%20alpha/)
 
+Advantages over `alpha`
+
+* Support to configure anchors to wait for the task chain. It is often used before application # onCreate to ensure that some initialization tasks are completed before entering the activity lifecycle callback.
+* Supports active request blocking waiting tasks, which are commonly used for certain initialization tasks on the task chain that require user logic confirmation.
+* Supports synchronous and asynchronous task chains
+
+#### Need to know
+
+> 1. Anchors are designed for efficient and convenient completion of complex initialization tasks when the app is launched, not for initializing certain dependencies in business logic.
+> 2. Setting the anchor in the api will block and wait until the anchor is completed before continuing to walk the code block after AnchorsManager # start. The reason why the application can handle this is because there are no frequent UI operations. The tasks after the anchor will be autonomously scheduled by the framework, the synchronous tasks will be sent to the main thread for processing via handler # post, and the asynchronous tasks will be driven by the thread pool in the framework.
+> 3. The wait function is used in scenarios where anchor is not set. If anchor is set, the waiting task should be placed behind the anchor to avoid uiThead blocking.
+> 4. In combination with the asynchronous hybrid chain and anchor function, it can flexibly handle many complex initialization scenarios, but it is necessary to fully understand the thread background when using the function.
 
 ##### Use
-1. Add dependencies under the **app** module
+1. Add jcenter warehouse to project root
 
 	```
-	implementation 'com.effective.android:Anchors:1.0.2'
+	buildscript {
+		repositories {
+		jcenter ()
+		}
+	}
+	allprojects {
+		repositories {
+		jcenter ()
+		}
+	}
 	```
 
-2. Add a dependency graph in `Application`
+2. Add dependencies under the **app** module
 
 	```
+	implementation 'com.effective.android:Anchors:1.0.3'
+	```
+
+3. Add a dependency graph in `Application`
+
+	```
+	//anchor Call
 	AnchorsManager.getInstance().debuggable(true)
 	        .addAnchors(anchorYouNeed)
 	        .start(dependencyGraphHead);
+	        
+	//or Waiting for the scene Call
+	AnchorsManager anchorsManager = AnchorsManager.getInstance();
+   anchorsManager.debuggable(true);
+   LockableAnchor lockableAnchor = anchorsManager.requestBlockWhenFinish(waitTaskYouNeed);
+   lockableAnchor.setLockListener(...){
+   	    //lockableAnchor.unlock  Remove the wait and continue the task chain
+   	    //lockableAnchor.smash Destroy the wait and terminate the task chain
+   }
+   anchorsManager.start(dependencyGraphHead);
 	```
 
-	Where *anchorYouNeed* is the anchor point you need to add, *dependencyGraphHead* is the head of the dependency graph.
-
-**debuggale** mode can print logs of different dimensions as debugging information output, and do `Trace` tracking for each dependent task. You can output **trace.html** for performance analysis by *python systrace.py* .
+	*AnchorYouNeed* is the anchor you need to add, *waitTaskYouNeed* is the task you need to wait for, and *dependencyGraphHead* is the head of the dependency graph.
 
 
-##### Sample
+#### Sample
 
 For code logic, please refer to the sample case under the **app** module.
+
+**debuggale** mode can print logs of different dimensions as debugging information output, and do `Trace` tracking for each dependent task. You can output **trace.html** for performance analysis by *python systrace.py* .
 
 `Anchors` defines different **TAG** for filtering logs, you need to open Debug mode.
 
@@ -61,6 +99,7 @@ For code logic, please refer to the sample case under the **app** module.
 	| 结束时刻 : 1552889985686
 	==============================================
 	```
+	
 * `ANCHOR_DETAIL`, Filter output anchor task information
 
 	```
@@ -78,6 +117,15 @@ For code logic, please refer to the sample case under the **app** module.
     | 结束时刻 : 1552891354188
     ==============================================
 	2019-03-18 14:42:34.194 24719-24719/com.effective.android.sample D/ANCHOR_DETAIL: All anchors were released！
+	```
+
+* `LOCK_DETAIL`, 过滤输出等待信息
+
+	```
+	2019-12-11 14:53:11.784 6183-6437/com.effective.android.sample D/LOCK_DETAIL: Anchors Thread #9- lock( TASK_10 )
+	2019-12-11 14:53:13.229 6183-6183/com.effective.android.sample D/LOCK_DETAIL: main- unlock( TASK_10 )
+	2019-12-11 14:53:13.229 6183-6183/com.effective.android.sample D/LOCK_DETAIL: Continue the task chain...
+	
 	```
 
 * `DEPENDENCE_DETAIL`, Filter dependency graph information

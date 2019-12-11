@@ -3,7 +3,23 @@ package com.effective.android.anchors;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 
+import java.util.List;
+import java.util.Set;
+
 public class Utils {
+
+    public static void insertAfterTask(@NonNull Task insert, @NonNull Task targetTask){
+        if(insert == null  || targetTask == null){
+            return;
+        }
+        List<Task> taskBehinds = targetTask.getBehindTasks();
+        for(Task behind: taskBehinds){
+            behind.removeDepend(targetTask);
+            insert.behind(behind);
+        }
+        targetTask.getBehindTasks().clear();
+        insert.dependOn(targetTask);
+    }
 
     /**
      * 比较两个 task

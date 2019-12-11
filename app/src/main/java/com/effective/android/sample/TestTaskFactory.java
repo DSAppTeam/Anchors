@@ -5,14 +5,14 @@ import android.support.annotation.Nullable;
 
 import com.effective.android.anchors.Project;
 import com.effective.android.anchors.Task;
-import com.effective.android.anchors.ITaskCreator;
+import com.effective.android.anchors.TaskCreator;
 
 import java.util.Random;
 
 public class TestTaskFactory extends Project.TaskFactory {
 
     public TestTaskFactory() {
-        super(new ITaskCreator() {
+        super(new TaskCreator() {
             @Nullable
             @Override
             public Task createTask(String taskName) {
@@ -176,7 +176,7 @@ public class TestTaskFactory extends Project.TaskFactory {
 
         @Override
         protected void run(String name) {
-            doJob(200);
+            doJob(1000);
         }
     }
 

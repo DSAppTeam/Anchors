@@ -7,6 +7,7 @@ class Constants {
     static final String TASK_DETAIL_INFO_TAG = "TASK_DETAIL";
     static final String ANCHORS_INFO_TAG = "ANCHOR_DETAIL";
     static final String DEPENDENCE_TAG = "DEPENDENCE_DETAIL";
+    static final String LOCK_TAG = "LOCK_DETAIL";
 
     //ANCHORS_INFO_TAG
     static final String NO_ANCHOR = "has no any anchor！";

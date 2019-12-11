@@ -1,5 +1,6 @@
 package com.effective.android.sample;
 import com.effective.android.anchors.AnchorsManager;
+import com.effective.android.anchors.LockableAnchor;
 import com.effective.android.anchors.Project;
 import com.effective.android.anchors.Task;
 
@@ -66,7 +67,39 @@ public class TaskTest {
     public static final String UITHREAD_TASK_C = "UITHREAD_TASK_C";
 
 
-    public void start() {
+    /**
+     * 可通过DEPENDENCE_DETAIL 查看到有一下任务链
+     * 2019-12-11 14:05:44.848 32459-32459/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> PROJECT_9_start(1576044344839) --> TASK_90 --> TASK_91 --> PROJECT_9_end(1576044344839)
+     * 2019-12-11 14:05:44.848 32459-32459/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> PROJECT_9_start(1576044344839) --> TASK_90 --> TASK_92 --> TASK_93 --> PROJECT_9_end(1576044344839)
+     * 2019-12-11 14:05:44.849 32459-32459/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> PROJECT_8_start(1576044344839) --> TASK_80 --> TASK_81 --> PROJECT_8_end(1576044344839)
+     * 2019-12-11 14:05:44.849 32459-32459/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> PROJECT_8_start(1576044344839) --> TASK_80 --> TASK_82 --> TASK_83 --> PROJECT_8_end(1576044344839)
+     * 2019-12-11 14:05:44.849 32459-32459/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> PROJECT_7_start(1576044344838) --> TASK_70 --> TASK_71 --> PROJECT_7_end(1576044344838)
+     * 2019-12-11 14:05:44.849 32459-32459/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> PROJECT_7_start(1576044344838) --> TASK_70 --> TASK_72 --> TASK_73 --> PROJECT_7_end(1576044344838)
+     * 2019-12-11 14:05:44.850 32459-32459/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> PROJECT_6_start(1576044344838) --> TASK_60 --> TASK_61 --> PROJECT_6_end(1576044344838)
+     * 2019-12-11 14:05:44.850 32459-32459/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> PROJECT_6_start(1576044344838) --> TASK_60 --> TASK_62 --> TASK_63 --> PROJECT_6_end(1576044344838)
+     * 2019-12-11 14:05:44.850 32459-32459/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> PROJECT_5_start(1576044344837) --> TASK_50 --> TASK_51 --> PROJECT_5_end(1576044344837)
+     * 2019-12-11 14:05:44.851 32459-32459/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> PROJECT_5_start(1576044344837) --> TASK_50 --> TASK_52 --> TASK_53 --> PROJECT_5_end(1576044344837)
+     * 2019-12-11 14:05:44.851 32459-32459/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> PROJECT_4_start(1576044344837) --> TASK_40 --> TASK_41 --> TASK_42 --> TASK_43 --> PROJECT_4_end(1576044344837)
+     * 2019-12-11 14:05:44.852 32459-32459/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> PROJECT_3_start(1576044344836) --> TASK_30 --> TASK_31 --> TASK_32 --> TASK_33 --> PROJECT_3_end(1576044344836)
+     * 2019-12-11 14:05:44.852 32459-32459/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> PROJECT_2_start(1576044344835) --> TASK_20 --> TASK_21 --> TASK_22 --> TASK_23 --> PROJECT_2_end(1576044344835)
+     * 2019-12-11 14:05:44.852 32459-32459/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> PROJECT_1_start(1576044344835) --> TASK_10 --> TASK_11 --> TASK_12 --> TASK_13 --> PROJECT_1_end(1576044344835)
+     * 2019-12-11 14:05:44.853 32459-32459/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> UITHREAD_TASK_B
+     * 2019-12-11 14:05:44.853 32459-32459/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> UITHREAD_TASK_C
+     *
+     *
+     * 设置了一下anchor
+     * 2019-12-11 14:05:44.853 32459-32459/com.effective.android.sample D/ANCHOR_DETAIL: has some anchors！( "TASK_10" "TASK_93" )
+     *
+     * 校验log：当且仅当anchor执行完毕，解除阻塞
+     * 2019-12-11 14:05:44.805 32459-32459/com.effective.android.sample D/SampleApplication: onCreate - start
+     *
+     *  （TASK_10 完成）
+     *  （TASK_93 完成）
+     *
+     * 2019-12-11 14:05:46.086 32459-32459/com.effective.android.sample D/ANCHOR_DETAIL: All anchors were released！
+     * 2019-12-11 14:05:46.087 32459-32459/com.effective.android.sample D/SampleApplication: onCreate - end
+     */
+    public void startFromApplication() {
 
        final  TestTaskFactory testTaskFactory = new TestTaskFactory();
 
@@ -147,12 +180,36 @@ public class TaskTest {
         project3.dependOn(UiTaskA);
         project2.dependOn(UiTaskA);
         project1.dependOn(UiTaskA);
-
         UiTaskB.dependOn(UiTaskA);
         UiTaskC.dependOn(UiTaskA);
 
         AnchorsManager.getInstance().debuggable(true)
-                .addAnchors(TASK_93,"TASK_E","TASK_100")
+                .addAnchors(TASK_93,"TASK_E","TASK_10")
                 .start(UiTaskA);
+    }
+
+    public LockableAnchor startForTestLockableAnchor() {
+
+        final  TestTaskFactory testTaskFactory = new TestTaskFactory();
+
+        Project.Builder builder1 = new Project.Builder(PROJECT_1, testTaskFactory);
+        builder1.add(TASK_10);
+        builder1.add(TASK_11).dependOn(TASK_10);
+        builder1.add(TASK_12).dependOn(TASK_11);
+        builder1.add(TASK_13).dependOn(TASK_12);
+        Project project1 = builder1.build();
+
+        final Task UiTaskA = new TestTaskFactory.UITHREAD_TASK_A();
+        Task UiTaskB = new TestTaskFactory.UITHREAD_TASK_B();
+        Task UiTaskC = new TestTaskFactory.UITHREAD_TASK_C();
+        project1.dependOn(UiTaskA);
+        UiTaskB.dependOn(UiTaskA);
+        UiTaskC.dependOn(UiTaskB);
+
+        AnchorsManager anchorsManager = AnchorsManager.getInstance();
+        anchorsManager.debuggable(true);
+        LockableAnchor lockableAnchor = anchorsManager.requestBlockWhenFinish(testTaskFactory.getTask(TASK_10));
+        anchorsManager.start(UiTaskA);
+        return lockableAnchor;
     }
 }
