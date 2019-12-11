@@ -4,7 +4,7 @@
 
 ![](https://travis-ci.org/YummyLau/Anchors.svg?branch=master)
 ![Language](https://img.shields.io/badge/language-java-orange.svg)
-![Version](https://img.shields.io/badge/version-1.0.2-blue.svg)
+![Version](https://img.shields.io/badge/version-1.0.3-blue.svg)
 
 README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [中文](https://github.com/YummyLau/Anchors/blob/master/README-zh.md)
 
@@ -32,7 +32,7 @@ Advantages over `alpha`
 > 3. The wait function is used in scenarios where anchor is not set. If anchor is set, the waiting task should be placed behind the anchor to avoid uiThead blocking.
 > 4. In combination with the asynchronous hybrid chain and anchor function, it can flexibly handle many complex initialization scenarios, but it is necessary to fully understand the thread background when using the function.
 
-##### Use
+#### Use
 1. Add jcenter warehouse to project root
 
 	```
@@ -51,7 +51,7 @@ Advantages over `alpha`
 2. Add dependencies under the **app** module
 
 	```
-	implementation 'com.effective.android:Anchors:1.0.3'
+	implementation 'com.effective.android:anchors:1.0.3'
 	```
 
 3. Add a dependency graph in `Application`
