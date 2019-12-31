@@ -66,6 +66,12 @@ public class TaskTest {
     public static final String UITHREAD_TASK_B = "UITHREAD_TASK_B";
     public static final String UITHREAD_TASK_C = "UITHREAD_TASK_C";
 
+    public static final String ASYNC_TASK_1 = "ASYNC_TASK_1";
+    public static final String ASYNC_TASK_2 = "ASYNC_TASK_2";
+    public static final String ASYNC_TASK_3 = "ASYNC_TASK_3";
+    public static final String ASYNC_TASK_4 = "ASYNC_TASK_4";
+    public static final String ASYNC_TASK_5 = "ASYNC_TASK_5";
+
 
     /**
      * 可通过DEPENDENCE_DETAIL 查看到有一下任务链
@@ -186,6 +192,18 @@ public class TaskTest {
         AnchorsManager.getInstance().debuggable(true)
                 .addAnchors(TASK_93,"TASK_E","TASK_10")
                 .start(UiTaskA);
+
+//        Project.Builder taskAync = new Project.Builder("测试异步效果", testTaskFactory);
+//        taskAync.add(UITHREAD_TASK_A);
+//        taskAync.add(ASYNC_TASK_1).dependOn(UITHREAD_TASK_A);
+//        taskAync.add(ASYNC_TASK_2).dependOn(UITHREAD_TASK_A);
+//        taskAync.add(ASYNC_TASK_3).dependOn(UITHREAD_TASK_A);
+//        taskAync.add(ASYNC_TASK_4).dependOn(UITHREAD_TASK_A);
+//        taskAync.add(ASYNC_TASK_5).dependOn(UITHREAD_TASK_A);
+//        Project taskAyncTest = taskAync.build();
+//
+//        AnchorsManager.getInstance().debuggable(true)
+//                .start(taskAyncTest);
     }
 
     public LockableAnchor startForTestLockableAnchor() {

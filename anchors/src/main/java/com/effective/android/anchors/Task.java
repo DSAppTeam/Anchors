@@ -4,11 +4,13 @@ import android.os.Build;
 import android.os.Trace;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import static com.effective.android.anchors.AnchorsRuntime.*;
@@ -27,7 +29,7 @@ public abstract class Task implements Runnable, Comparable<Task> {
 
     public static final int DEFAULT_PRIORITY = 0;
     private List<Task> behindTasks = new ArrayList<>();                                //被依赖者
-    private Set<Task> dependTasks = new HashSet<>();                                   //依赖者
+    private volatile Set<Task> dependTasks = new HashSet<>();                                   //依赖者
     private List<TaskListener> taskListeners = new ArrayList<>();                      //监听器
     private TaskListener logTaskListeners = new LogTaskListener();
 
@@ -147,7 +149,7 @@ public abstract class Task implements Runnable, Comparable<Task> {
 
     public Set<String> getDependTaskName() {
         Set<String> result = new HashSet<>();
-        for(Task task : dependTasks){
+        for (Task task : dependTasks) {
             result.add(task.mId);
         }
         return result;
@@ -157,14 +159,14 @@ public abstract class Task implements Runnable, Comparable<Task> {
         return behindTasks;
     }
 
-    public void removeDepend(Task originTask){
-        if(dependTasks.contains(originTask)){
+    public void removeDepend(Task originTask) {
+        if (dependTasks.contains(originTask)) {
             dependTasks.remove(originTask);
         }
     }
 
-    public void updateBehind(Task updateTask,Task originTask){
-        if(behindTasks.contains(originTask)){
+    public void updateBehind(Task updateTask, Task originTask) {
+        if (behindTasks.contains(originTask)) {
             behindTasks.remove(originTask);
         }
         behindTasks.add(updateTask);
@@ -236,8 +238,8 @@ public abstract class Task implements Runnable, Comparable<Task> {
      */
     void notifyBehindTasks() {
 
-        if(this instanceof LockableTask){
-            if(!((LockableTask) this).successToUnlock()){
+        if (this instanceof LockableTask) {
+            if (!((LockableTask) this).successToUnlock()) {
                 return;
             }
         }
@@ -266,7 +268,7 @@ public abstract class Task implements Runnable, Comparable<Task> {
      *
      * @param dependTask
      */
-    void dependTaskFinish(Task dependTask) {
+    synchronized void dependTaskFinish(Task dependTask) {
 
         if (dependTasks.isEmpty()) {
             return;
@@ -278,6 +280,18 @@ public abstract class Task implements Runnable, Comparable<Task> {
             start();
         }
     }
+
+    public static void doJob(long millis) {
+        long nowTime = System.currentTimeMillis();
+        while (System.currentTimeMillis() < nowTime + millis) {
+            //程序阻塞指定时间
+            int min = 10;
+            int max = 99;
+            Random random = new Random();
+            int num = random.nextInt(max) % (max - min + 1) + min;
+        }
+    }
+
 
     void recycle() {
         getTaskRuntimeInfo(mId).clearTask();

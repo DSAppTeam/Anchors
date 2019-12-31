@@ -4,13 +4,14 @@
 
 ![](https://travis-ci.org/YummyLau/Anchors.svg?branch=master)
 ![Language](https://img.shields.io/badge/language-java-orange.svg)
-![Version](https://img.shields.io/badge/version-1.0.3-blue.svg)
+![Version](https://img.shields.io/badge/version-1.0.4-blue.svg)
 
 README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [中文](https://github.com/YummyLau/Anchors/blob/master/README-zh.md)
 
 #### 版本更新
 * 1.0.2（2019/06/14） 新增支持直接打开 project 节点
 * 1.0.3（2019/12/11） 新增支持节点等待功能
+* 1.0.4（2019/12/31） 优化线上反馈多线程同步通知下一节点启动的问题
 
 
 #### 简介
@@ -51,7 +52,7 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 2. 在 **app** 模块下添加依赖
 
 	```
-	implementation 'com.effective.android:anchors:1.0.3'
+	implementation 'com.effective.android:anchors:1.0.4'
 	```
 
 2. 在 `Application` 中添加依赖图

@@ -141,7 +141,22 @@ public class TestTaskFactory extends Project.TaskFactory {
                         return new UITHREAD_TASK_B();
                     }
                     case TaskTest.UITHREAD_TASK_C: {
-                        return new UITHREAD_TASK_B();
+                        return new UITHREAD_TASK_C();
+                    }
+                    case TaskTest.ASYNC_TASK_1: {
+                        return new ASYNC_TASK_1();
+                    }
+                    case TaskTest.ASYNC_TASK_2: {
+                        return new ASYNC_TASK_2();
+                    }
+                    case TaskTest.ASYNC_TASK_3: {
+                        return new ASYNC_TASK_3();
+                    }
+                    case TaskTest.ASYNC_TASK_4: {
+                        return new ASYNC_TASK_4();
+                    }
+                    case TaskTest.ASYNC_TASK_5: {
+                        return new ASYNC_TASK_5();
                     }
                 }
                 return null;
@@ -636,4 +651,66 @@ public class TestTaskFactory extends Project.TaskFactory {
             doJob(200);
         }
     }
+
+    public static class ASYNC_TASK_1 extends Task {
+
+        public ASYNC_TASK_1() {
+            super(TaskTest.ASYNC_TASK_1,true);
+        }
+
+        @Override
+        protected void run(String name) {
+            doJob(200);
+        }
+    }
+
+    public static class ASYNC_TASK_2 extends Task {
+
+        public ASYNC_TASK_2() {
+            super(TaskTest.ASYNC_TASK_2,true);
+        }
+
+        @Override
+        protected void run(String name) {
+            doJob(200);
+        }
+    }
+
+    public static class ASYNC_TASK_3 extends Task {
+
+        public ASYNC_TASK_3() {
+            super(TaskTest.ASYNC_TASK_3,true);
+        }
+
+        @Override
+        protected void run(String name) {
+            doJob(200);
+        }
+    }
+
+    public static class ASYNC_TASK_4 extends Task {
+
+        public ASYNC_TASK_4() {
+            super(TaskTest.ASYNC_TASK_4,true);
+        }
+
+        @Override
+        protected void run(String name) {
+            doJob(200);
+        }
+    }
+
+    public static class ASYNC_TASK_5 extends Task {
+
+        public ASYNC_TASK_5() {
+            super(TaskTest.ASYNC_TASK_5,true);
+        }
+
+        @Override
+        protected void run(String name) {
+            doJob(200);
+        }
+    }
+
+
 }
