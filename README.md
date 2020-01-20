@@ -86,30 +86,17 @@ The following describes the main scenarios involved in the demo.
 
 * Multi-process initialization
 
-	```
-	SampleApplication.class is implemented for multiple processes to meet most initialization scenarios.
-	SampleApplication#onCreate will be called again when the business involving the new process is started, so the initialization scenarios for different processes can be customized based on the process name.
-	The code can refer to the SampleApplication#initDependenciesCompatMultiProcess method
-	Reer to MainActivity#testPrivateProcess or MainActivity#testPublicProcess for triggering a new process.
-	```
+	**SampleApplication.class** is implemented for multiple processes to meet most initialization scenarios. ```SampleApplication#onCreate``` will be called again when the business involving the new process is started, so the initialization scenarios for different processes can be customized based on the process name. The code can refer to the ```SampleApplication#initDependenciesCompatMultiProcess``` method.  Reer to ```MainActivity#testPrivateProcess``` or ```MainActivity#testPublicProcess``` for triggering a new process.
 
 * An intermediate node in an initialization chain needs to wait for a response
 
-	```
-	Some very demanding initialization chains may need to wait for certain conditions.
-	(Note: The response here should be the response of the UI thread. If it is an asynchronous response, it can be actively initialized in advance as a node)
-	Scenarios such as some apps require the user to select the "Interest Scenario" when initializing, and then initialize all logic of subsequent pages.
-	The code can refer to MainActivity#testUserChoose
-	
-	```
+	Some very demanding initialization chains may need to wait for certain conditions. (Note: The response here should be the response of the UI thread. If it is an asynchronous response, it can be actively initialized in advance as a node). Scenarios such as some apps require the user to select the "Interest Scenario" when initializing, and then initialize all logic of subsequent pages. The code can refer to ```MainActivity#testUserChoose``` .
+
 
 * After an initialization chain is completed, another new chain may be started
 
-	```
-	This kind of function is also supported, but in fact the framework advocates unified management of all initialization chains in the application.
-	Because the framework emphasizes that "arbitrary initialization tasks should be business heavyweight initialization code or third-party SDK# nit".
-	The code can refer to MainActivity#testRestartNewDependenciesLink
-	```
+	This kind of function is also supported, but in fact the framework advocates unified management of all initialization chains in the application.Because the framework emphasizes that **arbitrary initialization tasks should be business heavyweight initialization code or third-party SDK init** . The code can refer to ```MainActivity#testRestartNewDependenciesLink```.
+
 
 #### Debug information
 

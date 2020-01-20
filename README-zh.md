@@ -86,29 +86,19 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 
 * 多进程初始化
 
-	```
-	SampleApplication.class 中针对多进程进行实践，满足绝大部分初始化场景。
-	SampleApplication#onCreate 会在涉及新进程业务启动时被再次调用，所以不同进程的初始化场景可根据进程名称进行特定定制。
-	代码可参考 SampleApplication#initDependenciesCompatMultiProcess 方法
-	触发拉起新进程可参考 MainActivity#testPrivateProcess / MainActivity#testPublicProcess
-	```
+	**SampleApplication.class** 中针对多进程进行实践，满足绝大部分初始化场景。```SampleApplication#onCreate```
+	会在涉及新进程业务启动时被再次调用，所以不同进程的初始化场景可根据进程名称进行特定定制。
+	代码可参考 ```SampleApplication#initDependenciesCompatMultiProcess```  . 
+	触发拉起新进程可参考 ```MainActivity#testPrivateProcess```  或者  ```MainActivity#testPublicProcess``` 。
 
 * 某初始化链中间节点需要等待响应
 
-	```
-	某些非常苛刻的初始化链可能需要等待某些条件。
-	（注意：这里的响应应该是 UI 线程的响应，如果是异步响应，则可以作为一个节点提前主动初始化了）
-	场景比如某些 app 初始化的时候需要用户选择 ”兴趣场景“ 进而初始化后续页面的所有逻辑等。
-	代码可参考 MainActivity#testUserChoose
-	```
+	某些非常苛刻的初始化链可能需要等待某些条件。（注意：这里的响应应该是 UI 线程的响应，如果是异步响应，则可以作为一个节点提前主动初始化了。）比如某些 app 初始化的时候需要用户选择 ”兴趣场景“ 进而初始化后续页面的所有逻辑等。代码可参考 ```MainActivity#testUserChoose```
 
 * 某初始化链完成之后可能会再启动另一条新链
 
-	```
-	这类功能也支持，但是实际上框架更提倡在 application 中统一管理所有初始化链。
-	因为框架强调的是，”任意初始化任务应该是属于业务重量级初始化代码或者第三方SDK#init“。
-	代码可参考 MainActivity#testRestartNewDependenciesLink
-	```
+	这类功能也支持，但是实际上框架更提倡在 application 中统一管理所有初始化链。因为框架强调的是 **任意初始化任务应该是属于业务重量级初始化代码或者第三方SDK初始化** 。
+	代码可参考 ```MainActivity#testRestartNewDependenciesLink``` 。
 
 
 #### Debug 信息
