@@ -21,7 +21,7 @@ dependencies {
 //    userOrg = 'yummylau'
 //    groupId = 'com.effective.android'
 //    artifactId = 'anchors'
-//    publishVersion = '1.0.4'
+//    publishVersion = '1.0.5'
 //    desc = 'Android startup framework'
 //    website = 'https://github.com/YummyLau/Anchors'
 //}

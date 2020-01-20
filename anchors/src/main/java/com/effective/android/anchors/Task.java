@@ -4,7 +4,6 @@ import android.os.Build;
 import android.os.Trace;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,7 +20,7 @@ import static com.effective.android.anchors.AnchorsRuntime.*;
 public abstract class Task implements Runnable, Comparable<Task> {
 
     @TaskState
-    private int mState = TaskState.IDLE;           //状态
+    private int mState;
     private String mId;                            //mId,唯一存在
     private boolean isAsyncTask;                   //是否是异步存在
     private int mPriority;                         //优先级，数值越低，优先级越低
@@ -45,6 +44,7 @@ public abstract class Task implements Runnable, Comparable<Task> {
         if (TextUtils.isEmpty(id)) {
             throw new IllegalArgumentException("task's mId can't be empty");
         }
+        this.mState = TaskState.IDLE;
     }
 
     public long getExecuteTime() {
@@ -103,7 +103,7 @@ public abstract class Task implements Runnable, Comparable<Task> {
         run(mId);
         toFinish();
         notifyBehindTasks();
-        recycle();
+        release();
         if (debuggable() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             Trace.endSection();
         }
@@ -281,23 +281,19 @@ public abstract class Task implements Runnable, Comparable<Task> {
         }
     }
 
-    public static void doJob(long millis) {
-        long nowTime = System.currentTimeMillis();
-        while (System.currentTimeMillis() < nowTime + millis) {
-            //程序阻塞指定时间
-            int min = 10;
-            int max = 99;
-            Random random = new Random();
-            int num = random.nextInt(max) % (max - min + 1) + min;
-        }
-    }
-
-
-    void recycle() {
+    void release() {
+        setState(TaskState.RELEASE);
+        setStateInfo(this);
         getTaskRuntimeInfo(mId).clearTask();
         dependTasks.clear();
         behindTasks.clear();
+        if (debuggable()) {
+            logTaskListeners.onRelease(this);
+            logTaskListeners = null;
+        }
+        for (TaskListener listener : taskListeners) {
+            listener.onRelease(this);
+        }
         taskListeners.clear();
-        logTaskListeners = null;
     }
 }

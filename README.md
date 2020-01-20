@@ -4,7 +4,7 @@
 
 ![](https://travis-ci.org/YummyLau/Anchors.svg?branch=master)
 ![Language](https://img.shields.io/badge/language-java-orange.svg)
-![Version](https://img.shields.io/badge/version-1.0.4-blue.svg)
+![Version](https://img.shields.io/badge/version-1.0.5-blue.svg)
 
 README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [中文](https://github.com/YummyLau/Anchors/blob/master/README-zh.md)
 
@@ -13,6 +13,7 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 * 1.0.2 (2019/06/14) Added support for directly opening the project node
 * 1.0.3 (2019/12/11) Added support for node wait function
 * 1.0.4 (2019/12/31) Optimize the online feedback of multi-thread synchronization to notify the next node to start
+* 1.0.5 (2020/01/20) Added demo scenarios such as node release monitoring entry, multi-process / wait / restart new chain, etc. (see Sample example)
 
 #### Introduction
 
@@ -52,7 +53,7 @@ Advantages over `alpha`
 2. Add dependencies under the **app** module
 
 	```
-	implementation 'com.effective.android:anchors:1.0.4'
+	implementation 'com.effective.android:anchors:1.0.5'
 	```
 
 3. Add a dependency graph in `Application`
@@ -80,6 +81,37 @@ Advantages over `alpha`
 #### Sample
 
 For code logic, please refer to the sample case under the **app** module.
+
+The following describes the main scenarios involved in the demo.
+
+* Multi-process initialization
+
+	```
+	SampleApplication.class is implemented for multiple processes to meet most initialization scenarios.
+	SampleApplication#onCreate will be called again when the business involving the new process is started, so the initialization scenarios for different processes can be customized based on the process name.
+	The code can refer to the SampleApplication#initDependenciesCompatMultiProcess method
+	Reer to MainActivity#testPrivateProcess or MainActivity#testPublicProcess for triggering a new process.
+	```
+
+* An intermediate node in an initialization chain needs to wait for a response
+
+	```
+	Some very demanding initialization chains may need to wait for certain conditions.
+	(Note: The response here should be the response of the UI thread. If it is an asynchronous response, it can be actively initialized in advance as a node)
+	Scenarios such as some apps require the user to select the "Interest Scenario" when initializing, and then initialize all logic of subsequent pages.
+	The code can refer to MainActivity#testUserChoose
+	
+	```
+
+* After an initialization chain is completed, another new chain may be started
+
+	```
+	This kind of function is also supported, but in fact the framework advocates unified management of all initialization chains in the application.
+	Because the framework emphasizes that "arbitrary initialization tasks should be business heavyweight initialization code or third-party SDK# nit".
+	The code can refer to MainActivity#testRestartNewDependenciesLink
+	```
+
+#### Debug information
 
 **debuggale** mode can print logs of different dimensions as debugging information output, and do `Trace` tracking for each dependent task. You can output **trace.html** for performance analysis by *python systrace.py* .
 
@@ -149,6 +181,8 @@ For code logic, please refer to the sample case under the **app** module.
 	2019-03-18 14:27:53.726 22843-22843/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> UITHREAD_TASK_B
 	2019-03-18 14:27:53.726 22843-22843/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> UITHREAD_TASK_C
 	```
+
+#### Effect comparison
 
 Below is the execution time given by **Trace** without using anchor points and using anchor points in the scene
 

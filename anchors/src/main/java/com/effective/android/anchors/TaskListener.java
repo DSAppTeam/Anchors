@@ -7,4 +7,6 @@ public interface TaskListener {
     void onRunning(Task task);
 
     void onFinish(Task task);
+
+    void onRelease(Task task);
 }

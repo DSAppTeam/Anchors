@@ -1,4 +1,4 @@
-package com.effective.android.sample;
+package com.effective.android.sample.data;
 
 import android.support.annotation.Nullable;
 

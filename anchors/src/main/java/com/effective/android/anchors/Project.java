@@ -56,8 +56,8 @@ public class Project extends Task {
     }
 
     @Override
-    void recycle() {
-        super.recycle();
+    void release() {
+        super.release();
         endTask = null;
         startTask = null;
     }

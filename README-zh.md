@@ -4,7 +4,7 @@
 
 ![](https://travis-ci.org/YummyLau/Anchors.svg?branch=master)
 ![Language](https://img.shields.io/badge/language-java-orange.svg)
-![Version](https://img.shields.io/badge/version-1.0.4-blue.svg)
+![Version](https://img.shields.io/badge/version-1.0.5-blue.svg)
 
 README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [中文](https://github.com/YummyLau/Anchors/blob/master/README-zh.md)
 
@@ -12,6 +12,7 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 * 1.0.2（2019/06/14） 新增支持直接打开 project 节点
 * 1.0.3（2019/12/11） 新增支持节点等待功能
 * 1.0.4（2019/12/31） 优化线上反馈多线程同步通知下一节点启动的问题
+* 1.0.5（2020/01/20） 新增节点释放监听入口，新增多进程/等待/重启新链等 demo 场景（见 Sample）
 
 
 #### 简介
@@ -52,7 +53,7 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 2. 在 **app** 模块下添加依赖
 
 	```
-	implementation 'com.effective.android:anchors:1.0.4'
+	implementation 'com.effective.android:anchors:1.0.5'
 	```
 
 2. 在 `Application` 中添加依赖图
@@ -80,6 +81,37 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 #### Sample
 
 代码逻辑请参考 **app** 模块下的 sample。
+
+下面针对 demo 中涉及的主要场景做下阐述。
+
+* 多进程初始化
+
+	```
+	SampleApplication.class 中针对多进程进行实践，满足绝大部分初始化场景。
+	SampleApplication#onCreate 会在涉及新进程业务启动时被再次调用，所以不同进程的初始化场景可根据进程名称进行特定定制。
+	代码可参考 SampleApplication#initDependenciesCompatMultiProcess 方法
+	触发拉起新进程可参考 MainActivity#testPrivateProcess / MainActivity#testPublicProcess
+	```
+
+* 某初始化链中间节点需要等待响应
+
+	```
+	某些非常苛刻的初始化链可能需要等待某些条件。
+	（注意：这里的响应应该是 UI 线程的响应，如果是异步响应，则可以作为一个节点提前主动初始化了）
+	场景比如某些 app 初始化的时候需要用户选择 ”兴趣场景“ 进而初始化后续页面的所有逻辑等。
+	代码可参考 MainActivity#testUserChoose
+	```
+
+* 某初始化链完成之后可能会再启动另一条新链
+
+	```
+	这类功能也支持，但是实际上框架更提倡在 application 中统一管理所有初始化链。
+	因为框架强调的是，”任意初始化任务应该是属于业务重量级初始化代码或者第三方SDK#init“。
+	代码可参考 MainActivity#testRestartNewDependenciesLink
+	```
+
+
+#### Debug 信息
 
 **debuggale** 模式下能打印不同维度的 log 作为调试信息输出，同时针对每个依赖任务做 `Trace` 追踪, 可以通过 *python systrace.py* 来输出 **trace.html** 进行性能分析。
 
@@ -148,6 +180,8 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 	2019-03-18 14:27:53.726 22843-22843/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> UITHREAD_TASK_B
 	2019-03-18 14:27:53.726 22843-22843/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> UITHREAD_TASK_C
 	```
+
+#### 效果对比
 
 下面是没有使用锚点和使用锚点场景下, **Trace** 给出的执行时间
 

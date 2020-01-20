@@ -19,6 +19,7 @@ class Constants {
     static final String START_METHOD = " -- onStart -- ";
     static final String RUNNING_METHOD = " -- onRunning -- ";
     static final String FINISH_METHOD = " -- onFinish -- ";
+    static final String RELEASE_METHOD = " -- onRelease -- ";
     static final String LINE_STRING_FORMAT = "| %s : %s ";
     static final String MS_UNIT = "ms";
     static final String HALF_LINE_STRING = "=======================";

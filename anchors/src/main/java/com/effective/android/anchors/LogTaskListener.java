@@ -23,6 +23,11 @@ public class LogTaskListener implements TaskListener {
         logTaskRuntimeInfoString(task);
     }
 
+    @Override
+    public void onRelease(Task task) {
+        Logger.d(task.getId() + Constants.RELEASE_METHOD);
+    }
+
     private static void logTaskRuntimeInfoString(Task task) {
         TaskRuntimeInfo taskRuntimeInfo = AnchorsRuntime.getTaskRuntimeInfo(task.getId());
         SparseArray<Long> map = taskRuntimeInfo.getStateTime();

@@ -1,8 +1,12 @@
-package com.effective.android.sample;
+package com.effective.android.sample.data;
+
+import android.support.annotation.NonNull;
+
 import com.effective.android.anchors.AnchorsManager;
 import com.effective.android.anchors.LockableAnchor;
 import com.effective.android.anchors.Project;
 import com.effective.android.anchors.Task;
+import com.effective.android.anchors.TaskListener;
 
 
 public class TaskTest {
@@ -72,7 +76,6 @@ public class TaskTest {
     public static final String ASYNC_TASK_4 = "ASYNC_TASK_4";
     public static final String ASYNC_TASK_5 = "ASYNC_TASK_5";
 
-
     /**
      * 可通过DEPENDENCE_DETAIL 查看到有一下任务链
      * 2019-12-11 14:05:44.848 32459-32459/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> PROJECT_9_start(1576044344839) --> TASK_90 --> TASK_91 --> PROJECT_9_end(1576044344839)
@@ -91,24 +94,24 @@ public class TaskTest {
      * 2019-12-11 14:05:44.852 32459-32459/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> PROJECT_1_start(1576044344835) --> TASK_10 --> TASK_11 --> TASK_12 --> TASK_13 --> PROJECT_1_end(1576044344835)
      * 2019-12-11 14:05:44.853 32459-32459/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> UITHREAD_TASK_B
      * 2019-12-11 14:05:44.853 32459-32459/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> UITHREAD_TASK_C
-     *
-     *
+     * <p>
+     * <p>
      * 设置了一下anchor
      * 2019-12-11 14:05:44.853 32459-32459/com.effective.android.sample D/ANCHOR_DETAIL: has some anchors！( "TASK_10" "TASK_93" )
-     *
+     * <p>
      * 校验log：当且仅当anchor执行完毕，解除阻塞
      * 2019-12-11 14:05:44.805 32459-32459/com.effective.android.sample D/SampleApplication: onCreate - start
-     *
-     *  （TASK_10 完成）
-     *  （TASK_93 完成）
-     *
+     * <p>
+     * （TASK_10 完成）
+     * （TASK_93 完成）
+     * <p>
      * 2019-12-11 14:05:46.086 32459-32459/com.effective.android.sample D/ANCHOR_DETAIL: All anchors were released！
      * 2019-12-11 14:05:46.087 32459-32459/com.effective.android.sample D/SampleApplication: onCreate - end
      */
-    public void startFromApplication() {
+    public void startFromApplicationOnMainProcess() {
 
-       final  TestTaskFactory testTaskFactory = new TestTaskFactory();
 
+        TestTaskFactory testTaskFactory = new TestTaskFactory();
         Project.Builder builder1 = new Project.Builder(PROJECT_1, testTaskFactory);
         builder1.add(TASK_10);
         builder1.add(TASK_11).dependOn(TASK_10);
@@ -190,26 +193,58 @@ public class TaskTest {
         UiTaskC.dependOn(UiTaskA);
 
         AnchorsManager.getInstance().debuggable(true)
-                .addAnchors(TASK_93,"TASK_E","TASK_10")
+                .addAnchors(TASK_93, "TASK_E", "TASK_10")
+                .start(UiTaskA);
+    }
+
+    public void startFromApplicationOnPrivateProcess() {
+
+        TestTaskFactory testTaskFactory = new TestTaskFactory();
+        Project.Builder builder8 = new Project.Builder(PROJECT_8, testTaskFactory);
+        builder8.add(TASK_80);
+        builder8.add(TASK_81).dependOn(TASK_80);
+        builder8.add(TASK_82).dependOn(TASK_80);
+        builder8.add(TASK_83).dependOn(TASK_82);
+        Project project8 = builder8.build();
+
+
+        final Task UiTaskA = new TestTaskFactory.UITHREAD_TASK_A();
+        Task UiTaskB = new TestTaskFactory.UITHREAD_TASK_B();
+
+        project8.dependOn(UiTaskA);
+        UiTaskB.dependOn(UiTaskA);
+
+        AnchorsManager.getInstance().debuggable(true)
+                .addAnchors(TASK_82)
                 .start(UiTaskA);
 
-//        Project.Builder taskAync = new Project.Builder("测试异步效果", testTaskFactory);
-//        taskAync.add(UITHREAD_TASK_A);
-//        taskAync.add(ASYNC_TASK_1).dependOn(UITHREAD_TASK_A);
-//        taskAync.add(ASYNC_TASK_2).dependOn(UITHREAD_TASK_A);
-//        taskAync.add(ASYNC_TASK_3).dependOn(UITHREAD_TASK_A);
-//        taskAync.add(ASYNC_TASK_4).dependOn(UITHREAD_TASK_A);
-//        taskAync.add(ASYNC_TASK_5).dependOn(UITHREAD_TASK_A);
-//        Project taskAyncTest = taskAync.build();
-//
-//        AnchorsManager.getInstance().debuggable(true)
-//                .start(taskAyncTest);
+    }
+
+    public void startFromApplicationOnPublicProcess() {
+
+        TestTaskFactory testTaskFactory = new TestTaskFactory();
+        Project.Builder builder9 = new Project.Builder(PROJECT_9, testTaskFactory);
+        builder9.add(TASK_90);
+        builder9.add(TASK_91).dependOn(TASK_90);
+        builder9.add(TASK_92).dependOn(TASK_90);
+        builder9.add(TASK_93).dependOn(TASK_92);
+        Project project9 = builder9.build();
+
+
+        final Task UiTaskA = new TestTaskFactory.UITHREAD_TASK_A();
+        Task UiTaskC = new TestTaskFactory.UITHREAD_TASK_C();
+
+        project9.dependOn(UiTaskA);
+        UiTaskC.dependOn(UiTaskA);
+
+        AnchorsManager.getInstance().debuggable(true)
+                .addAnchors(TASK_93)
+                .start(UiTaskA);
     }
 
     public LockableAnchor startForTestLockableAnchor() {
 
-        final  TestTaskFactory testTaskFactory = new TestTaskFactory();
-
+        TestTaskFactory testTaskFactory = new TestTaskFactory();
         Project.Builder builder1 = new Project.Builder(PROJECT_1, testTaskFactory);
         builder1.add(TASK_10);
         builder1.add(TASK_11).dependOn(TASK_10);
@@ -229,5 +264,59 @@ public class TaskTest {
         LockableAnchor lockableAnchor = anchorsManager.requestBlockWhenFinish(testTaskFactory.getTask(TASK_10));
         anchorsManager.start(UiTaskA);
         return lockableAnchor;
+    }
+
+    public void startForLinkOne(final @NonNull Runnable runnable) {
+
+        TestTaskFactory testTaskFactory = new TestTaskFactory();
+        Project.Builder builder1 = new Project.Builder(PROJECT_1, testTaskFactory);
+        builder1.add(TASK_10);
+        builder1.add(TASK_11).dependOn(TASK_10);
+        builder1.add(TASK_12).dependOn(TASK_11);
+        builder1.add(TASK_13).dependOn(TASK_12);
+        Project project1 = builder1.build();
+
+        final Task UiTaskA = new TestTaskFactory.UITHREAD_TASK_A();
+        project1.dependOn(UiTaskA);
+        project1.getEndTask().addTaskListener(new TaskListener() {
+            @Override
+            public void onStart(Task task) {
+
+            }
+
+            @Override
+            public void onRunning(Task task) {
+
+            }
+
+            @Override
+            public void onFinish(Task task) {
+
+            }
+
+            @Override
+            public void onRelease(Task task) {
+                runnable.run();
+            }
+        });
+        AnchorsManager.getInstance().debuggable(true)
+                .start(UiTaskA);
+    }
+
+    public void startForLinkTwo() {
+
+        TestTaskFactory testTaskFactory = new TestTaskFactory();
+        Project.Builder builder2 = new Project.Builder(PROJECT_2, testTaskFactory);
+        builder2.add(TASK_20);
+        builder2.add(TASK_21).dependOn(TASK_20);
+        builder2.add(TASK_22).dependOn(TASK_21);
+        builder2.add(TASK_23).dependOn(TASK_22);
+        Project project2 = builder2.build();
+
+        final Task UiTaskA = new TestTaskFactory.UITHREAD_TASK_A();
+        project2.dependOn(UiTaskA);
+
+        AnchorsManager.getInstance().debuggable(true)
+                .start(UiTaskA);
     }
 }
