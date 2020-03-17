@@ -1,35 +1,32 @@
-package com.effective.android.anchors;
+package com.effective.android.anchors
 
-class Constants {
-
+internal object Constants {
     // log tag
-    static final String TAG = "Anchors";
-    static final String TASK_DETAIL_INFO_TAG = "TASK_DETAIL";
-    static final String ANCHORS_INFO_TAG = "ANCHOR_DETAIL";
-    static final String DEPENDENCE_TAG = "DEPENDENCE_DETAIL";
-    static final String LOCK_TAG = "LOCK_DETAIL";
+    const val TAG = "Anchors"
+    const val TASK_DETAIL_INFO_TAG = "TASK_DETAIL"
+    const val ANCHORS_INFO_TAG = "ANCHOR_DETAIL"
+    const val DEPENDENCE_TAG = "DEPENDENCE_DETAIL"
+    const val LOCK_TAG = "LOCK_DETAIL"
 
     //ANCHORS_INFO_TAG
-    static final String NO_ANCHOR = "has no any anchor！";
-    static final String HAS_ANCHOR = "has some anchors！";
-    static final String ANCHOR_RELEASE = "All anchors were released！";
-
+    const val NO_ANCHOR = "has no any anchor！"
+    const val HAS_ANCHOR = "has some anchors！"
+    const val ANCHOR_RELEASE = "All anchors were released！"
 
     //TASK_DETAIL_INFO_TAG
-    static final String START_METHOD = " -- onStart -- ";
-    static final String RUNNING_METHOD = " -- onRunning -- ";
-    static final String FINISH_METHOD = " -- onFinish -- ";
-    static final String RELEASE_METHOD = " -- onRelease -- ";
-    static final String LINE_STRING_FORMAT = "| %s : %s ";
-    static final String MS_UNIT = "ms";
-    static final String HALF_LINE_STRING = "=======================";
-    static final String DEPENDENCIES = "依赖任务";
-    static final String THREAD_INFO = "线程信息";
-    static final String START_TIME = "开始时刻";
-    static final String START_UNTIL_RUNNING = "等待运行耗时";
-    static final String RUNNING_CONSUME = "运行任务耗时";
-    static final String FINISH_TIME = "结束时刻";
-    static final String IS_ANCHOR = "是否是锚点任务";
-
-    static final String WRAPPED = "\n";
+    const val START_METHOD = " -- onStart -- "
+    const val RUNNING_METHOD = " -- onRunning -- "
+    const val FINISH_METHOD = " -- onFinish -- "
+    const val RELEASE_METHOD = " -- onRelease -- "
+    const val LINE_STRING_FORMAT = "| %s : %s "
+    const val MS_UNIT = "ms"
+    const val HALF_LINE_STRING = "======================="
+    const val DEPENDENCIES = "依赖任务"
+    const val THREAD_INFO = "线程信息"
+    const val START_TIME = "开始时刻"
+    const val START_UNTIL_RUNNING = "等待运行耗时"
+    const val RUNNING_CONSUME = "运行任务耗时"
+    const val FINISH_TIME = "结束时刻"
+    const val IS_ANCHOR = "是否是锚点任务"
+    const val WRAPPED = "\n"
 }

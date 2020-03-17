@@ -1,9 +1,5 @@
-package com.effective.android.anchors;
+package com.effective.android.anchors
 
-import android.support.annotation.NonNull;
-
-public interface TaskCreator {
-
-    @NonNull
-    Task createTask(String taskName);
+interface TaskCreator {
+    fun createTask(taskName: String): Task?
 }

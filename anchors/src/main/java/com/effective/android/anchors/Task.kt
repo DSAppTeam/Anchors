@@ -1,264 +1,202 @@
-package com.effective.android.anchors;
+package com.effective.android.anchors
 
-import android.os.Build;
-import android.os.Trace;
-import android.support.annotation.NonNull;
-import android.text.TextUtils;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-
-import static com.effective.android.anchors.AnchorsRuntime.*;
+import android.os.Build
+import android.os.Trace
+import android.text.TextUtils
+import com.effective.android.anchors.AnchorsRuntime.getTaskRuntimeInfo
+import java.util.*
 
 /**
  * created by yummylau on 2019/03/11
  */
-public abstract class Task implements Runnable, Comparable<Task> {
-
+abstract class Task @JvmOverloads constructor(
+    val id: String, //id,唯一存在
+    val isAsyncTask: Boolean = false //是否是异步存在
+) : Runnable, Comparable<Task> {
     @TaskState
-    private int mState;
-    private String mId;                            //mId,唯一存在
-    private boolean isAsyncTask;                   //是否是异步存在
-    private int mPriority;                         //优先级，数值越低，优先级越低
-    private long mExecuteTime;
+    var state: Int
+        protected set
+    var priority: Int //优先级，数值越低，优先级越低
+    var executeTime: Long = 0
+        protected set
+    val behindTasks = mutableListOf<Task>() //被依赖者
+    val dependTasks = mutableSetOf<Task>() //依赖者
+    private val taskListeners = mutableListOf<TaskListener>() //监听器
+    private val logTaskListeners = LogTaskListener()
 
-    public static final int DEFAULT_PRIORITY = 0;
-    private List<Task> behindTasks = new ArrayList<>();                                //被依赖者
-    private volatile Set<Task> dependTasks = new HashSet<>();                                   //依赖者
-    private List<TaskListener> taskListeners = new ArrayList<>();                      //监听器
-    private TaskListener logTaskListeners = new LogTaskListener();
-
-
-    public Task(String id) {
-        this(id, false);
+    init {
+        priority = DEFAULT_PRIORITY
+        require(!TextUtils.isEmpty(id)) { "task's id can't be empty" }
+        state = TaskState.IDLE
     }
 
-    public Task(String id, boolean async) {
-        this.mId = id;
-        this.isAsyncTask = async;
-        this.mPriority = DEFAULT_PRIORITY;
-        if (TextUtils.isEmpty(id)) {
-            throw new IllegalArgumentException("task's mId can't be empty");
-        }
-        this.mState = TaskState.IDLE;
-    }
-
-    public long getExecuteTime() {
-        return mExecuteTime;
-    }
-
-    protected void setExecuteTime(long mExecuteTime) {
-        this.mExecuteTime = mExecuteTime;
-    }
-
-    public String getId() {
-        return mId;
-    }
-
-    public void setPriority(int priority) {
-        this.mPriority = priority;
-    }
-
-    public int getPriority() {
-        return mPriority;
-    }
-
-    public boolean isAsyncTask() {
-        return isAsyncTask;
-    }
-
-    public int getState() {
-        return mState;
-    }
-
-    protected void setState(@TaskState int state) {
-        this.mState = state;
-    }
-
-    public void addTaskListener(TaskListener taskListener) {
-        if (taskListener != null && !taskListeners.contains(taskListener)) {
-            taskListeners.add(taskListener);
+    fun addTaskListener(taskListener: TaskListener) {
+        if (!taskListeners.contains(taskListener)) {
+            taskListeners.add(taskListener)
         }
     }
 
-    protected synchronized void start() {
-        if (mState != TaskState.IDLE) {
-            throw new RuntimeException("can no run task " + getId() + " again!");
+    @Synchronized
+    open fun start() {
+        if (state != TaskState.IDLE) {
+            throw RuntimeException("can no run task $id again!")
         }
-        toStart();
-        setExecuteTime(System.currentTimeMillis());
-        executeTask(this);
+        toStart()
+        executeTime = System.currentTimeMillis()
+        AnchorsRuntime.executeTask(this)
     }
 
-    @Override
-    public void run() {
-        if (debuggable() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            Trace.beginSection(mId);
+    override fun run() {
+        if (AnchorsRuntime.debuggable() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            Trace.beginSection(id)
         }
-        toRunning();
-        run(mId);
-        toFinish();
-        notifyBehindTasks();
-        release();
-        if (debuggable() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            Trace.endSection();
-        }
-    }
-
-    protected abstract void run(String name);
-
-    void toStart() {
-        setState(TaskState.START);
-        setStateInfo(this);
-        if (debuggable()) {
-            logTaskListeners.onStart(this);
-        }
-        for (TaskListener listener : taskListeners) {
-            listener.onStart(this);
+        toRunning()
+        run(id)
+        toFinish()
+        notifyBehindTasks()
+        release()
+        if (AnchorsRuntime.debuggable() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            Trace.endSection()
         }
     }
 
-    void toRunning() {
-        setState(TaskState.RUNNING);
-        setStateInfo(this);
-        setThreadName(this, Thread.currentThread().getName());
-        if (debuggable()) {
-            logTaskListeners.onRunning(this);
-        }
-        for (TaskListener listener : taskListeners) {
-            listener.onRunning(this);
-        }
+    protected abstract fun run(name: String)
 
-    }
-
-    void toFinish() {
-        setState(TaskState.FINISHED);
-        setStateInfo(this);
-        removeAnchorTask(mId);
-        if (debuggable()) {
-            logTaskListeners.onFinish(this);
+    fun toStart() {
+        state = TaskState.START
+        AnchorsRuntime.setStateInfo(this)
+        if (AnchorsRuntime.debuggable()) {
+            logTaskListeners.onStart(this)
         }
-        for (TaskListener listener : taskListeners) {
-            listener.onFinish(this);
+        for (listener in taskListeners) {
+            listener.onStart(this)
         }
     }
 
-    public Set<String> getDependTaskName() {
-        Set<String> result = new HashSet<>();
-        for (Task task : dependTasks) {
-            result.add(task.mId);
+    fun toRunning() {
+        state = TaskState.RUNNING
+        AnchorsRuntime.setStateInfo(this)
+        AnchorsRuntime.setThreadName(this, Thread.currentThread().name)
+        if (AnchorsRuntime.debuggable()) {
+            logTaskListeners.onRunning(this)
         }
-        return result;
-    }
-
-    public List<Task> getBehindTasks() {
-        return behindTasks;
-    }
-
-    public void removeDepend(Task originTask) {
-        if (dependTasks.contains(originTask)) {
-            dependTasks.remove(originTask);
+        for (listener in taskListeners) {
+            listener.onRunning(this)
         }
     }
 
-    public void updateBehind(Task updateTask, Task originTask) {
-        if (behindTasks.contains(originTask)) {
-            behindTasks.remove(originTask);
+    fun toFinish() {
+        state = TaskState.FINISHED
+        AnchorsRuntime.setStateInfo(this)
+        AnchorsRuntime.removeAnchorTask(id)
+        if (AnchorsRuntime.debuggable()) {
+            logTaskListeners.onFinish(this)
         }
-        behindTasks.add(updateTask);
+        for (listener in taskListeners) {
+            listener.onFinish(this)
+        }
+    }
+
+    val dependTaskName: Set<String>
+        get() {
+            val result = mutableSetOf<String>()
+            for (task in dependTasks) {
+                result.add(task.id)
+            }
+            return result
+        }
+
+    fun removeDepend(originTask: Task) {
+        dependTasks.remove(originTask)
+    }
+
+    fun updateBehind(updateTask: Task, originTask: Task) {
+        behindTasks.remove(originTask)
+        behindTasks.add(updateTask)
     }
 
     /**
-     * 后置触发, 和 {@link Task#dependOn(Task)} 方向相反，都可以设置依赖关系
+     * 后置触发, 和 [Task.dependOn] 方向相反，都可以设置依赖关系
      *
      * @param task
      */
-    protected void behind(@NonNull Task task) {
-        if (task != null && task != this) {
-            if (task instanceof Project) {
-                task = ((Project) task).getStartTask();
+    open fun behindBy(task: Task) {
+        var task = task
+        if (task !== this) {
+            if (task is Project) {
+                task = task.startTask
             }
-            behindTasks.add(task);
-            task.dependOn(this);
+            behindTasks.add(task)
+            task.dependOn(this)
         }
     }
 
-    protected void removeBehind(@NonNull Task task) {
-        if (task != null && task != this) {
-            if (task instanceof Project) {
-                task = ((Project) task).getStartTask();
+    open fun removeBehind(task: Task) {
+        var task = task
+        if (task !== this) {
+            if (task is Project) {
+                task = task.startTask
             }
-            behindTasks.remove(task);
-            task.removeDependence(this);
+            behindTasks.remove(task)
+            task.removeDependence(this)
         }
     }
 
     /**
-     * 前置条件, 和 {@link Task#behind(Task)} 方向相反，都可以设置依赖关系
+     * 前置条件, 和 [Task.behindBy] 方向相反，都可以设置依赖关系
      *
      * @param task
      */
-    public void dependOn(@NonNull Task task) {
-        if (task != null && task != this) {
-            if (task instanceof Project) {
-                task = ((Project) task).getEndTask();
+    open fun dependOn(task: Task) {
+        var task = task
+        if (task !== this) {
+            if (task is Project) {
+                task = task.endTask
             }
-            dependTasks.add(task);
+            dependTasks.add(task)
             //防止外部所有直接调用dependOn无法构建完整图
             if (!task.behindTasks.contains(this)) {
-                task.behindTasks.add(this);
+                task.behindTasks.add(this)
             }
         }
     }
 
-    protected void removeDependence(@NonNull Task task) {
-        if (task != null && task != this) {
-            if (task instanceof Project) {
-                task = ((Project) task).getEndTask();
+    open fun removeDependence(task: Task) {
+        var task = task
+        if (task !== this) {
+            if (task is Project) {
+                task = task.endTask
             }
-            dependTasks.remove(task);
+            dependTasks.remove(task)
             if (task.behindTasks.contains(this)) {
-                task.behindTasks.remove(this);
+                task.behindTasks.remove(this)
             }
         }
     }
 
-    @Override
-    public int compareTo(@NonNull Task o) {
-        return Utils.compareTask(this, o);
+    override fun compareTo(other: Task): Int {
+        return Utils.compareTask(this, other)
     }
-
 
     /**
      * 通知后置者自己已经完成了
      */
-    void notifyBehindTasks() {
-
-        if (this instanceof LockableTask) {
-            if (!((LockableTask) this).successToUnlock()) {
-                return;
+    fun notifyBehindTasks() {
+        if (this is LockableTask) {
+            if (!this.successToUnlock()) {
+                return
             }
         }
-
         if (!behindTasks.isEmpty()) {
-
-            if (behindTasks.size() > 1) {
-                Collections.sort(behindTasks, getTaskComparator());
+            if (behindTasks.size > 1) {
+                Collections.sort(behindTasks, AnchorsRuntime.taskComparator)
             }
 
             //遍历记下来的任务，通知它们说存在的前置已经完成
-            for (Task task : behindTasks) {
-                task.dependTaskFinish(this);
+            for (task in behindTasks) {
+                task.dependTaskFinish(this)
             }
         }
-    }
-
-    public Set<Task> getDependTasks() {
-        return dependTasks;
     }
 
     /**
@@ -268,32 +206,36 @@ public abstract class Task implements Runnable, Comparable<Task> {
      *
      * @param dependTask
      */
-    synchronized void dependTaskFinish(Task dependTask) {
-
+    @Synchronized
+    fun dependTaskFinish(dependTask: Task) {
         if (dependTasks.isEmpty()) {
-            return;
+            return
         }
-        dependTasks.remove(dependTask);
+        dependTasks.remove(dependTask)
 
         //所有前置任务都已经完成了
         if (dependTasks.isEmpty()) {
-            start();
+            start()
         }
     }
 
-    void release() {
-        setState(TaskState.RELEASE);
-        setStateInfo(this);
-        getTaskRuntimeInfo(mId).clearTask();
-        dependTasks.clear();
-        behindTasks.clear();
-        if (debuggable()) {
-            logTaskListeners.onRelease(this);
-            logTaskListeners = null;
+    open fun release() {
+        state = TaskState.RELEASE
+        AnchorsRuntime.setStateInfo(this)
+        getTaskRuntimeInfo(id)?.clearTask()
+        dependTasks.clear()
+        behindTasks.clear()
+        if (AnchorsRuntime.debuggable()) {
+            logTaskListeners.onRelease(this)
         }
-        for (TaskListener listener : taskListeners) {
-            listener.onRelease(this);
+        for (listener in taskListeners) {
+            listener.onRelease(this)
         }
-        taskListeners.clear();
+        taskListeners.clear()
     }
+
+    companion object {
+        const val DEFAULT_PRIORITY = 0
+    }
+
 }

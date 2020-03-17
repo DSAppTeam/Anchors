@@ -1,55 +1,45 @@
-package com.effective.android.anchors;
+package com.effective.android.anchors
 
-import android.os.Looper;
-import android.support.annotation.NonNull;
+import android.os.Looper
 
-import java.util.List;
-import java.util.Set;
-
-public class Utils {
-
-    public static void insertAfterTask(@NonNull Task insert, @NonNull Task targetTask){
-        if(insert == null  || targetTask == null){
-            return;
+object Utils {
+    fun insertAfterTask(insert: Task, targetTask: Task) {
+        val taskBehinds = targetTask.behindTasks
+        for (behind in taskBehinds) {
+            behind.removeDepend(targetTask)
+            insert.behindBy(behind)
         }
-        List<Task> taskBehinds = targetTask.getBehindTasks();
-        for(Task behind: taskBehinds){
-            behind.removeDepend(targetTask);
-            insert.behind(behind);
-        }
-        targetTask.getBehindTasks().clear();
-        insert.dependOn(targetTask);
+        targetTask.behindTasks.clear()
+        insert.dependOn(targetTask)
     }
 
     /**
      * 比较两个 task
-     * {@link Task#getPriority()} 值高的，优先级高
-     * {@link Task#getExecuteTime()} 添加到队列的时间最早，优先级越高
+     * [Task.getPriority] 值高的，优先级高
+     * [Task.getExecuteTime] 添加到队列的时间最早，优先级越高
      *
      * @param task
      * @param o
      * @return
      */
-    public static int compareTask(@NonNull Task task, @NonNull Task o) {
-        if (task.getPriority() < o.getPriority()) {
-            return 1;
+    fun compareTask(task: Task, o: Task): Int {
+        if (task.priority < o.priority) {
+            return 1
         }
-        if (task.getPriority() > o.getPriority()) {
-            return -1;
+        if (task.priority > o.priority) {
+            return -1
         }
-        if (task.getExecuteTime() < o.getExecuteTime()) {
-            return -1;
+        if (task.executeTime < o.executeTime) {
+            return -1
         }
-        if (task.getExecuteTime() > o.getExecuteTime()) {
-            return 1;
-        }
-        return 0;
+        return if (task.executeTime > o.executeTime) {
+            1
+        } else 0
     }
 
-
-    public static void assertMainThread() {
-        if (Thread.currentThread() != Looper.getMainLooper().getThread()) {
-            throw new RuntimeException("AnchorsManager#start should be invoke on MainThread!");
+    fun assertMainThread() {
+        if (Thread.currentThread() !== Looper.getMainLooper().thread) {
+            throw RuntimeException("AnchorsManager#start should be invoke on MainThread!")
         }
     }
 }

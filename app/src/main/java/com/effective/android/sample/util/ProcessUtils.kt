@@ -1,28 +1,24 @@
-package com.effective.android.sample.util;
+package com.effective.android.sample.util
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import android.os.Process
+import java.io.BufferedReader
+import java.io.File
+import java.io.FileReader
 
-public class ProcessUtils {
+object ProcessUtils {
+    val processId: Int
+        get() = Process.myPid()
 
-    public static int getProcessId(){
-        return android.os.Process.myPid();
-    }
-
-    public static String getProcessName() {
-        try {
-            File file = new File("/proc/" + android.os.Process.myPid() + "/" + "cmdline");
-            BufferedReader mBufferedReader = new BufferedReader(new FileReader(file));
-            String processName = mBufferedReader.readLine().trim();
-            mBufferedReader.close();
-            return processName;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+    val processName: String?
+        get() = try {
+            val file = File("/proc/" + Process.myPid() + "/" + "cmdline")
+            val mBufferedReader = BufferedReader(FileReader(file))
+            val processName = mBufferedReader.readLine()
+                    .trim { it <= ' ' }
+            mBufferedReader.close()
+            processName
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
-    }
-
-
-
 }

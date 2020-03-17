@@ -1,716 +1,444 @@
-package com.effective.android.sample.data;
+package com.effective.android.sample.data
 
-import android.support.annotation.Nullable;
+import com.effective.android.anchors.Project.TaskFactory
+import com.effective.android.anchors.Task
+import com.effective.android.anchors.TaskCreator
+import java.util.*
 
+abstract class TestTask(
+    id: String,
+    isAsyncTask: Boolean = false //是否是异步存在
+) : Task(id, isAsyncTask) {
 
-import com.effective.android.anchors.Project;
-import com.effective.android.anchors.Task;
-import com.effective.android.anchors.TaskCreator;
-
-import java.util.Random;
-
-public class TestTaskFactory extends Project.TaskFactory {
-
-    public TestTaskFactory() {
-        super(new TaskCreator() {
-            @Nullable
-            @Override
-            public Task createTask(String taskName) {
-                switch (taskName) {
-                    case TaskTest.TASK_10: {
-                        TASK_10 task_10 = new TASK_10();
-                        task_10.setPriority(10);
-                        return task_10;
-                    }
-                    case TaskTest.TASK_11: {
-                        TASK_11 TASK_11 = new TASK_11();
-                        TASK_11.setPriority(10);
-                        return TASK_11;
-                    }
-                    case TaskTest.TASK_12: {
-                        TASK_12 TASK_12 = new TASK_12();
-                        TASK_12.setPriority(10);
-                        return TASK_12;
-                    }
-                    case TaskTest.TASK_13: {
-                        TASK_13 TASK_13 = new TASK_13();
-                        TASK_13.setPriority(10);
-                        return TASK_13;
-                    }
-                    case TaskTest.TASK_20: {
-                        return new TASK_20();
-                    }
-                    case TaskTest.TASK_21: {
-                        return new TASK_21();
-                    }
-                    case TaskTest.TASK_22: {
-                        return new TASK_22();
-                    }
-                    case TaskTest.TASK_23: {
-                        return new TASK_23();
-                    }
-                    case TaskTest.TASK_30: {
-                        return new TASK_30();
-                    }
-                    case TaskTest.TASK_31: {
-                        return new TASK_31();
-                    }
-                    case TaskTest.TASK_32: {
-                        return new TASK_32();
-                    }
-                    case TaskTest.TASK_33: {
-                        return new TASK_33();
-                    }
-                    case TaskTest.TASK_40: {
-                        return new TASK_40();
-                    }
-                    case TaskTest.TASK_41: {
-                        return new TASK_41();
-                    }
-                    case TaskTest.TASK_42: {
-                        return new TASK_42();
-                    }
-                    case TaskTest.TASK_43: {
-                        return new TASK_43();
-                    }
-                    case TaskTest.TASK_50: {
-                        return new TASK_50();
-                    }
-                    case TaskTest.TASK_51: {
-                        return new TASK_51();
-                    }
-                    case TaskTest.TASK_52: {
-                        return new TASK_52();
-                    }
-                    case TaskTest.TASK_53: {
-                        return new TASK_53();
-                    }
-
-                    case TaskTest.TASK_60: {
-                        return new TASK_60();
-                    }
-                    case TaskTest.TASK_61: {
-                        return new TASK_61();
-                    }
-                    case TaskTest.TASK_62: {
-                        return new TASK_62();
-                    }
-                    case TaskTest.TASK_63: {
-                        return new TASK_63();
-                    }
-                    case TaskTest.TASK_70: {
-                        return new TASK_70();
-                    }
-                    case TaskTest.TASK_71: {
-                        return new TASK_71();
-                    }
-                    case TaskTest.TASK_72: {
-                        return new TASK_72();
-                    }
-                    case TaskTest.TASK_73: {
-                        return new TASK_73();
-                    }
-                    case TaskTest.TASK_80: {
-                        return new TASK_80();
-                    }
-                    case TaskTest.TASK_81: {
-                        return new TASK_81();
-                    }
-                    case TaskTest.TASK_82: {
-                        return new TASK_82();
-                    }
-                    case TaskTest.TASK_83: {
-                        return new TASK_83();
-                    }
-                    case TaskTest.TASK_90: {
-                        return new TASK_90();
-                    }
-                    case TaskTest.TASK_91: {
-                        return new TASK_91();
-                    }
-                    case TaskTest.TASK_92: {
-                        return new TASK_92();
-                    }
-                    case TaskTest.TASK_93: {
-                        return new TASK_93();
-                    }
-                    case TaskTest.UITHREAD_TASK_A: {
-                        return new UITHREAD_TASK_A();
-                    }
-                    case TaskTest.UITHREAD_TASK_B: {
-                        return new UITHREAD_TASK_B();
-                    }
-                    case TaskTest.UITHREAD_TASK_C: {
-                        return new UITHREAD_TASK_C();
-                    }
-                    case TaskTest.ASYNC_TASK_1: {
-                        return new ASYNC_TASK_1();
-                    }
-                    case TaskTest.ASYNC_TASK_2: {
-                        return new ASYNC_TASK_2();
-                    }
-                    case TaskTest.ASYNC_TASK_3: {
-                        return new ASYNC_TASK_3();
-                    }
-                    case TaskTest.ASYNC_TASK_4: {
-                        return new ASYNC_TASK_4();
-                    }
-                    case TaskTest.ASYNC_TASK_5: {
-                        return new ASYNC_TASK_5();
-                    }
-                }
-                return null;
-            }
-        });
-    }
-
-    public static void doIo(long millis) {
+    fun doIo(millis: Long) {
         try {
-            Thread.sleep(millis);
-        } catch (Exception e) {
-
+            Thread.sleep(millis)
+        } catch (e: Exception) {
         }
     }
 
-    public static void doJob(long millis) {
-        long nowTime = System.currentTimeMillis();
+    fun doJob(millis: Long) {
+        val nowTime = System.currentTimeMillis()
         while (System.currentTimeMillis() < nowTime + millis) {
             //程序阻塞指定时间
-            int min = 10;
-            int max = 99;
-            Random random = new Random();
-            int num = random.nextInt(max) % (max - min + 1) + min;
+            val min = 10
+            val max = 99
+            val random = Random()
+            val num = random.nextInt(max) % (max - min + 1) + min
         }
     }
-
-    public static class TASK_10 extends Task {
-
-        public TASK_10() {
-            super(TaskTest.TASK_10, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(1000);
-        }
-    }
-
-    public static class TASK_11 extends Task {
-
-        public TASK_11() {
-            super(TaskTest.TASK_11,true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class TASK_12 extends Task {
-
-        public TASK_12() {
-            super(TaskTest.TASK_12, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class TASK_13 extends Task {
-
-        public TASK_13() {
-            super(TaskTest.TASK_13, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class TASK_20 extends Task {
-
-        public TASK_20() {
-            super(TaskTest.TASK_20, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class TASK_21 extends Task {
-
-        public TASK_21() {
-            super(TaskTest.TASK_21, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class TASK_22 extends Task {
-
-        public TASK_22() {
-            super(TaskTest.TASK_22, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doIo(200);
-        }
-    }
-
-    public static class TASK_23 extends Task {
-
-        public TASK_23() {
-            super(TaskTest.TASK_23, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class TASK_30 extends Task {
-
-        public TASK_30() {
-            super(TaskTest.TASK_30, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class TASK_31 extends Task {
-
-        public TASK_31() {
-            super(TaskTest.TASK_31, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class TASK_32 extends Task {
-
-        public TASK_32() {
-            super(TaskTest.TASK_32, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class TASK_33 extends Task {
-
-        public TASK_33() {
-            super(TaskTest.TASK_33, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doIo(200);
-        }
-    }
-
-    public static class TASK_40 extends Task {
-
-        public TASK_40() {
-            super(TaskTest.TASK_40, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class TASK_41 extends Task {
-
-        public TASK_41() {
-            super(TaskTest.TASK_41, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class TASK_42 extends Task {
-
-        public TASK_42() {
-            super(TaskTest.TASK_42, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class TASK_43 extends Task {
-
-        public TASK_43() {
-            super(TaskTest.TASK_43, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doIo(200);
-        }
-    }
-
-    public static class TASK_50 extends Task {
-
-        public TASK_50() {
-            super(TaskTest.TASK_50, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class TASK_51 extends Task {
-
-        public TASK_51() {
-            super(TaskTest.TASK_51, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class TASK_52 extends Task {
-
-        public TASK_52() {
-            super(TaskTest.TASK_52, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doIo(200);
-        }
-    }
-
-    public static class TASK_53 extends Task {
-
-        public TASK_53() {
-            super(TaskTest.TASK_53, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class TASK_60 extends Task {
-
-        public TASK_60() {
-            super(TaskTest.TASK_60,true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class TASK_61 extends Task {
-
-        public TASK_61() {
-            super(TaskTest.TASK_61,true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class TASK_62 extends Task {
-
-        public TASK_62() {
-            super(TaskTest.TASK_62,true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class TASK_63 extends Task {
-
-        public TASK_63() {
-            super(TaskTest.TASK_63, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doIo(200);
-        }
-    }
-
-    public static class TASK_70 extends Task {
-
-        public TASK_70() {
-            super(TaskTest.TASK_70, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class TASK_71 extends Task {
-
-        public TASK_71() {
-            super(TaskTest.TASK_71, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class TASK_72 extends Task {
-
-        public TASK_72() {
-            super(TaskTest.TASK_72, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doIo(200);
-        }
-    }
-
-    public static class TASK_73 extends Task {
-
-        public TASK_73() {
-            super(TaskTest.TASK_73, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class TASK_80 extends Task {
-
-        public TASK_80() {
-            super(TaskTest.TASK_80, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class TASK_81 extends Task {
-
-        public TASK_81() {
-            super(TaskTest.TASK_81, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class TASK_82 extends Task {
-
-        public TASK_82() {
-            super(TaskTest.TASK_82, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doIo(200);
-        }
-    }
-
-    public static class TASK_83 extends Task {
-
-        public TASK_83() {
-            super(TaskTest.TASK_83, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class TASK_90 extends Task {
-
-        public TASK_90() {
-            super(TaskTest.TASK_90, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class TASK_91 extends Task {
-
-        public TASK_91() {
-            super(TaskTest.TASK_91, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class TASK_92 extends Task {
-
-        public TASK_92() {
-            super(TaskTest.TASK_92);
-        }
-
-        @Override
-        protected void run(String name) {
-            doIo(200);
-        }
-    }
-
-    public static class TASK_93 extends Task {
-
-        public TASK_93() {
-            super(TaskTest.TASK_93, true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-
-    public static class UITHREAD_TASK_A extends Task {
-
-        public UITHREAD_TASK_A() {
-            super(TaskTest.UITHREAD_TASK_A);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class UITHREAD_TASK_B extends Task {
-
-        public UITHREAD_TASK_B() {
-            super(TaskTest.UITHREAD_TASK_B);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class UITHREAD_TASK_C extends Task {
-
-        public UITHREAD_TASK_C() {
-            super(TaskTest.UITHREAD_TASK_C);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class ASYNC_TASK_1 extends Task {
-
-        public ASYNC_TASK_1() {
-            super(TaskTest.ASYNC_TASK_1,true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class ASYNC_TASK_2 extends Task {
-
-        public ASYNC_TASK_2() {
-            super(TaskTest.ASYNC_TASK_2,true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class ASYNC_TASK_3 extends Task {
-
-        public ASYNC_TASK_3() {
-            super(TaskTest.ASYNC_TASK_3,true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class ASYNC_TASK_4 extends Task {
-
-        public ASYNC_TASK_4() {
-            super(TaskTest.ASYNC_TASK_4,true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-    public static class ASYNC_TASK_5 extends Task {
-
-        public ASYNC_TASK_5() {
-            super(TaskTest.ASYNC_TASK_5,true);
-        }
-
-        @Override
-        protected void run(String name) {
-            doJob(200);
-        }
-    }
-
-
 }
+
+class TASK_10 : TestTask(TaskTest.TASK_10, true) {
+    override fun run(name: String) {
+        doJob(1000)
+    }
+}
+
+class TASK_11 : TestTask(TaskTest.TASK_11, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_12 : TestTask(TaskTest.TASK_12, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_13 : TestTask(TaskTest.TASK_13, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_20 : TestTask(TaskTest.TASK_20, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_21 : TestTask(TaskTest.TASK_21, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_22 : TestTask(TaskTest.TASK_22, true) {
+    override fun run(name: String) {
+        doIo(200)
+    }
+}
+
+class TASK_23 : TestTask(TaskTest.TASK_23, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_30 : TestTask(TaskTest.TASK_30, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_31 : TestTask(TaskTest.TASK_31, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_32 : TestTask(TaskTest.TASK_32, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_33 : TestTask(TaskTest.TASK_33, true) {
+    override fun run(name: String) {
+        doIo(200)
+    }
+}
+
+class TASK_40 : TestTask(TaskTest.TASK_40, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_41 : TestTask(TaskTest.TASK_41, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_42 : TestTask(TaskTest.TASK_42, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_43 : TestTask(TaskTest.TASK_43, true) {
+    override fun run(name: String) {
+        doIo(200)
+    }
+}
+
+class TASK_50 : TestTask(TaskTest.TASK_50, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_51 : TestTask(TaskTest.TASK_51, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_52 : TestTask(TaskTest.TASK_52, true) {
+    override fun run(name: String) {
+        doIo(200)
+    }
+}
+
+class TASK_53 : TestTask(TaskTest.TASK_53, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_60 : TestTask(TaskTest.TASK_60, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_61 : TestTask(TaskTest.TASK_61, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_62 : TestTask(TaskTest.TASK_62, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_63 : TestTask(TaskTest.TASK_63, true) {
+    override fun run(name: String) {
+        doIo(200)
+    }
+}
+
+class TASK_70 : TestTask(TaskTest.TASK_70, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_71 : TestTask(TaskTest.TASK_71, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_72 : TestTask(TaskTest.TASK_72, true) {
+    override fun run(name: String) {
+        doIo(200)
+    }
+}
+
+class TASK_73 : TestTask(TaskTest.TASK_73, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_80 : TestTask(TaskTest.TASK_80, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_81 : TestTask(TaskTest.TASK_81, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_82 : TestTask(TaskTest.TASK_82, true) {
+    override fun run(name: String) {
+        doIo(200)
+    }
+}
+
+class TASK_83 : TestTask(TaskTest.TASK_83, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_90 : TestTask(TaskTest.TASK_90, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_91 : TestTask(TaskTest.TASK_91, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_92 : TestTask(TaskTest.TASK_92) {
+    override fun run(name: String) {
+        doIo(200)
+    }
+}
+
+class TASK_93 : TestTask(TaskTest.TASK_93, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class UITHREAD_TASK_A : TestTask(TaskTest.UITHREAD_TASK_A) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class UITHREAD_TASK_B : TestTask(TaskTest.UITHREAD_TASK_B) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class UITHREAD_TASK_C : TestTask(TaskTest.UITHREAD_TASK_C) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class ASYNC_TASK_1 : TestTask(TaskTest.ASYNC_TASK_1, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class ASYNC_TASK_2 : TestTask(TaskTest.ASYNC_TASK_2, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class ASYNC_TASK_3 : TestTask(TaskTest.ASYNC_TASK_3, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class ASYNC_TASK_4 : TestTask(TaskTest.ASYNC_TASK_4, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class ASYNC_TASK_5 : TestTask(TaskTest.ASYNC_TASK_5, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+object TestTaskCreator : TaskCreator {
+    override fun createTask(taskName: String): Task? {
+        when (taskName) {
+            TaskTest.TASK_10 -> {
+                val task_10 = TASK_10()
+                task_10.priority = 10
+                return task_10
+            }
+            TaskTest.TASK_11 -> {
+                val TASK_11 = TASK_11()
+                TASK_11.priority = 10
+                return TASK_11
+            }
+            TaskTest.TASK_12 -> {
+                val TASK_12 = TASK_12()
+                TASK_12.priority = 10
+                return TASK_12
+            }
+            TaskTest.TASK_13 -> {
+                val TASK_13 = TASK_13()
+                TASK_13.priority = 10
+                return TASK_13
+            }
+            TaskTest.TASK_20 -> {
+                return TASK_20()
+            }
+            TaskTest.TASK_21 -> {
+                return TASK_21()
+            }
+            TaskTest.TASK_22 -> {
+                return TASK_22()
+            }
+            TaskTest.TASK_23 -> {
+                return TASK_23()
+            }
+            TaskTest.TASK_30 -> {
+                return TASK_30()
+            }
+            TaskTest.TASK_31 -> {
+                return TASK_31()
+            }
+            TaskTest.TASK_32 -> {
+                return TASK_32()
+            }
+            TaskTest.TASK_33 -> {
+                return TASK_33()
+            }
+            TaskTest.TASK_40 -> {
+                return TASK_40()
+            }
+            TaskTest.TASK_41 -> {
+                return TASK_41()
+            }
+            TaskTest.TASK_42 -> {
+                return TASK_42()
+            }
+            TaskTest.TASK_43 -> {
+                return TASK_43()
+            }
+            TaskTest.TASK_50 -> {
+                return TASK_50()
+            }
+            TaskTest.TASK_51 -> {
+                return TASK_51()
+            }
+            TaskTest.TASK_52 -> {
+                return TASK_52()
+            }
+            TaskTest.TASK_53 -> {
+                return TASK_53()
+            }
+            TaskTest.TASK_60 -> {
+                return TASK_60()
+            }
+            TaskTest.TASK_61 -> {
+                return TASK_61()
+            }
+            TaskTest.TASK_62 -> {
+                return TASK_62()
+            }
+            TaskTest.TASK_63 -> {
+                return TASK_63()
+            }
+            TaskTest.TASK_70 -> {
+                return TASK_70()
+            }
+            TaskTest.TASK_71 -> {
+                return TASK_71()
+            }
+            TaskTest.TASK_72 -> {
+                return TASK_72()
+            }
+            TaskTest.TASK_73 -> {
+                return TASK_73()
+            }
+            TaskTest.TASK_80 -> {
+                return TASK_80()
+            }
+            TaskTest.TASK_81 -> {
+                return TASK_81()
+            }
+            TaskTest.TASK_82 -> {
+                return TASK_82()
+            }
+            TaskTest.TASK_83 -> {
+                return TASK_83()
+            }
+            TaskTest.TASK_90 -> {
+                return TASK_90()
+            }
+            TaskTest.TASK_91 -> {
+                return TASK_91()
+            }
+            TaskTest.TASK_92 -> {
+                return TASK_92()
+            }
+            TaskTest.TASK_93 -> {
+                return TASK_93()
+            }
+            TaskTest.UITHREAD_TASK_A -> {
+                return UITHREAD_TASK_A()
+            }
+            TaskTest.UITHREAD_TASK_B -> {
+                return UITHREAD_TASK_B()
+            }
+            TaskTest.UITHREAD_TASK_C -> {
+                return UITHREAD_TASK_C()
+            }
+            TaskTest.ASYNC_TASK_1 -> {
+                return ASYNC_TASK_1()
+            }
+            TaskTest.ASYNC_TASK_2 -> {
+                return ASYNC_TASK_2()
+            }
+            TaskTest.ASYNC_TASK_3 -> {
+                return ASYNC_TASK_3()
+            }
+            TaskTest.ASYNC_TASK_4 -> {
+                return ASYNC_TASK_4()
+            }
+            TaskTest.ASYNC_TASK_5 -> {
+                return ASYNC_TASK_5()
+            }
+        }
+        return null
+    }
+}
+
+class TestTaskFactory : TaskFactory(TestTaskCreator)

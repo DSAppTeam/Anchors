@@ -1,105 +1,86 @@
-package com.effective.android.anchors;
+package com.effective.android.anchors
 
-import android.os.Handler;
-import android.util.Log;
+import android.os.Handler
 
-public class LockableAnchor {
-
-    private LockListener lockListener;
-    private String targetId;
-    private Object mLockObject = new Object();
-    private Handler handler;
-    private boolean unlock = false;
-
-    LockableAnchor(Handler handler){
-        this.handler = handler;
-    }
+class LockableAnchor internal constructor(private val handler: Handler) {
+    private var lockListener: LockListener? = null
+    var lockId: String = ""
+        private set
+    private val mLockObject = Object()
+    private var unlock = false
 
     /**
      * 外部监听上锁时机，在监听到上锁之后处理业务逻辑，并完成解锁或者破坏锁行为。
      * @param lockListener
      */
-    public void setLockListener(LockListener lockListener){
-        this.lockListener = lockListener;
+    fun setLockListener(lockListener: LockListener?) {
+        this.lockListener = lockListener
     }
 
-    public String getLockId(){
-        return targetId;
+    fun setTargetTaskId(id: String) {
+        lockId = id
     }
 
-    void setTargetTaskId(String id){
-        this.targetId = id;
-    }
-
-    boolean successToUnlock(){
-        return unlock;
+    fun successToUnlock(): Boolean {
+        return unlock
     }
 
     /**
      * 解锁，任务链后续任务继续执行
      */
-    public void unlock(){
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Logger.d(Constants.LOCK_TAG,Thread.currentThread().getName() + "- unlock( " + targetId + " )");
-                Logger.d(Constants.LOCK_TAG,"Continue the task chain...");
-                unlockInner();
-            }
-        });
-    }
-
-    synchronized void unlockInner(){
-        synchronized (mLockObject) {
-            unlock = true;
-            mLockObject.notify();
+    fun unlock() {
+        handler.post {
+            Logger.d(Constants.LOCK_TAG, Thread.currentThread().name + "- unlock( " + lockId + " )")
+            Logger.d(Constants.LOCK_TAG, "Continue the task chain...")
+            unlockInner()
         }
     }
 
-    synchronized void smashInner(){
-        synchronized (mLockObject) {
-            unlock = false;
-            mLockObject.notify();
+    @Synchronized
+    fun unlockInner() {
+        synchronized(mLockObject) {
+            unlock = true
+            mLockObject.notify()
+        }
+    }
+
+    @Synchronized
+    fun smashInner() {
+        synchronized(mLockObject) {
+            unlock = false
+            mLockObject.notify()
         }
     }
 
     /**
      * 破坏锁，任务链后续任务无法继续执行
      */
-    public void smash(){
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Logger.d(Constants.LOCK_TAG,Thread.currentThread().getName() + "- smash( " + targetId + " )");
-                Logger.d(Constants.LOCK_TAG,"Terminate task chain !");
-                smashInner();
-            }
-        });
+    fun smash() {
+        handler.post {
+            Logger.d(Constants.LOCK_TAG, Thread.currentThread().name + "- smash( " + lockId + " )")
+            Logger.d(Constants.LOCK_TAG, "Terminate task chain !")
+            smashInner()
+        }
     }
 
     /**
      * 上锁
      */
-    void lock(){
-        Logger.d(Constants.LOCK_TAG,Thread.currentThread().getName() + "- lock( " + targetId + " )");
+    fun lock() {
+        Logger.d(Constants.LOCK_TAG, Thread.currentThread().name + "- lock( " + lockId + " )")
         try {
-            synchronized (mLockObject) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(lockListener != null){
-                            lockListener.lockUp();
-                        }
-                    }
-                });
-                mLockObject.wait();
+            synchronized(mLockObject) {
+                handler.post {
+                    lockListener?.lockUp()
+                }
+                mLockObject.wait()
             }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
         }
     }
 
-    public interface LockListener{
-        void lockUp();
+    interface LockListener {
+        fun lockUp()
     }
 }

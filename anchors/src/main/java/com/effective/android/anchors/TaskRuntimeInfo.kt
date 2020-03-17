@@ -1,79 +1,45 @@
-package com.effective.android.anchors;
+package com.effective.android.anchors
 
-import android.support.annotation.NonNull;
-import android.util.SparseArray;
+import android.util.SparseArray
 
-import java.util.HashSet;
-import java.util.Set;
-
-public class TaskRuntimeInfo {
-
-    private SparseArray<Long> stateTime;
-    private boolean isAnchor;
-    private Task task;
-    private String threadName;
-    private static final long DEFAULT_TIME = -1l;
-
-    public TaskRuntimeInfo(@NonNull Task task) {
-        this.task = task;
-        threadName = "";
-        stateTime = new SparseArray<>();
-        setStateTime(TaskState.START, DEFAULT_TIME);
-        setStateTime(TaskState.RUNNING, DEFAULT_TIME);
-        setStateTime(TaskState.FINISHED, DEFAULT_TIME);
+object EmptyTask: Task("  "){
+    override fun run(name: String) {
     }
+}
 
-    public Task getTask() {
-        return task;
+class TaskRuntimeInfo(var task: Task) {
+    val stateTime: SparseArray<Long> = SparseArray()
+    var isAnchor: Boolean = false
+    var threadName: String = ""
+
+    init {
+        setStateTime(TaskState.START, DEFAULT_TIME)
+        setStateTime(TaskState.RUNNING, DEFAULT_TIME)
+        setStateTime(TaskState.FINISHED, DEFAULT_TIME)
     }
 
     /**
      * 避免task泄漏
      */
-    public void clearTask() {
-        task = null;
+    fun clearTask() {
+        task = EmptyTask
     }
 
-    public boolean isAnchor() {
-        return isAnchor;
+    val isProject: Boolean = task is Project
+
+    fun setStateTime(@TaskState state: Int, time: Long) {
+        stateTime.put(state, time)
     }
 
-    public void setAnchor(boolean anchor) {
-        isAnchor = anchor;
+    val dependencies = task.dependTaskName
+
+    fun isTaskInfo(task: Task): Boolean {
+        return this.task === task
     }
 
-    public boolean isProject() {
-        return task instanceof Project;
-    }
+    val taskId: String = task.id
 
-    public SparseArray<Long> getStateTime() {
-        return stateTime;
-    }
-
-    public void setStateTime(@TaskState int state, long time) {
-        stateTime.put(state, time);
-    }
-
-    public Set<String> getDependencies() {
-        if (task != null) {
-            return task.getDependTaskName();
-        }
-        return new HashSet<>();
-    }
-
-    public void setThreadName(String threadName) {
-        this.threadName = threadName;
-    }
-
-    public String getThreadName() {
-        return threadName;
-    }
-
-    public boolean isTaskInfo(Task task) {
-        return task != null && this.task == task;
-    }
-
-    public String getTaskId() {
-        return task != null ? task.getId() : "";
+    companion object {
+        private val DEFAULT_TIME: Long = -1L
     }
 }

@@ -1,34 +1,13 @@
-package com.effective.android.anchors;
+package com.effective.android.anchors
 
+import androidx.annotation.MainThread
 
-import android.support.annotation.MainThread;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.text.TextUtils;
-
-import java.util.HashSet;
-import java.util.Set;
-
-public class AnchorsManager {
-
-    private volatile static AnchorsManager sInstance = null;
-    boolean debuggable = false;
-    Set<String> anchorTaskIds = new HashSet<>();
-
-    public static synchronized AnchorsManager getInstance() {
-        if (sInstance == null) {
-            synchronized (AnchorsManager.class) {
-                if (sInstance == null) {
-                    sInstance = new AnchorsManager();
-                }
-            }
-        }
-        return sInstance;
-    }
-
-    public AnchorsManager debuggable(boolean debuggable) {
-        this.debuggable = debuggable;
-        return this;
+object AnchorsManager {
+    var debuggable = false
+    var anchorTaskIds = mutableSetOf<String>()
+    fun debuggable(debuggable: Boolean): AnchorsManager {
+        this.debuggable = debuggable
+        return this
     }
 
     /**
@@ -40,108 +19,103 @@ public class AnchorsManager {
      * @param task block目标task
      * @return
      */
-    @Nullable
-    public LockableAnchor requestBlockWhenFinish(Task task) {
-        return requestBlockWhenFinishInner(task);
+    fun requestBlockWhenFinish(task: Task): LockableAnchor? {
+        return requestBlockWhenFinishInner(task)
     }
 
-    @Nullable
-    LockableAnchor requestBlockWhenFinishInner(Task task) {
-        if (task != null && !TextUtils.isEmpty(task.getId())) {
-            LockableAnchor lockableAnchor = new LockableAnchor(AnchorsRuntime.getHandler());
-            LockableTask lockableTask = new LockableTask(task, lockableAnchor);
-            Utils.insertAfterTask(lockableTask,task);
-            return lockableAnchor;
+    fun requestBlockWhenFinishInner(task: Task): LockableAnchor? {
+        if (task.id.isNotEmpty()) {
+            val lockableAnchor = LockableAnchor(AnchorsRuntime.handler)
+            val lockableTask = LockableTask(task, lockableAnchor)
+            Utils.insertAfterTask(lockableTask, task)
+            return lockableAnchor
         }
-        return null;
+        return null
     }
 
-    public AnchorsManager addAnchor(String taskId) {
-        if (!TextUtils.isEmpty(taskId)) {
-            anchorTaskIds.add(taskId);
+    fun addAnchor(taskId: String): AnchorsManager {
+        if (taskId.isNotEmpty()) {
+            anchorTaskIds.add(taskId)
         }
-        return this;
+        return this
     }
 
-    public AnchorsManager addAnchors(String... taskIds) {
-        if (taskIds != null && taskIds.length > 0) {
-            for (String id : taskIds) {
-                anchorTaskIds.add(id);
-            }
+    fun addAnchors(vararg taskIds: String): AnchorsManager {
+        for (id in taskIds) {
+            anchorTaskIds.add(id)
         }
-        return this;
+        return this
     }
 
-
-    void syncConfigInfoToRuntime(){
-        AnchorsRuntime.clear();
-        AnchorsRuntime.openDebug(debuggable);
-        AnchorsRuntime.addAnchorTasks(anchorTaskIds);
-        debuggable = false;
-        anchorTaskIds.clear();
+    fun syncConfigInfoToRuntime() {
+        AnchorsRuntime.clear()
+        AnchorsRuntime.openDebug(debuggable)
+        AnchorsRuntime.addAnchorTasks(anchorTaskIds)
+        debuggable = false
+        anchorTaskIds.clear()
     }
 
     @MainThread
-    public synchronized void start(@NonNull Task task) {
-        Utils.assertMainThread();
-        if (task == null) {
-            throw new RuntimeException("can no run a task that was null !");
+    @Synchronized
+    fun start(task: Task) {
+        var startTask = task
+        Utils.assertMainThread()
+        syncConfigInfoToRuntime()
+        if (task is Project) {
+            startTask = task.startTask
         }
-        syncConfigInfoToRuntime();
-        Task startTask = task;
-        if(startTask instanceof Project){
-            startTask = ((Project)task).getStartTask();
-        }
-        AnchorsRuntime.traversalDependenciesAndInit(startTask);
-        boolean logEnd = logStartWithAnchorsInfo();
-        startTask.start();
+        AnchorsRuntime.traversalDependenciesAndInit(startTask)
+        val logEnd = logStartWithAnchorsInfo()
+        startTask.start()
         while (AnchorsRuntime.hasAnchorTasks()) {
             try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.sleep(10)
+            } catch (e: InterruptedException) {
+                e.printStackTrace()
             }
             while (AnchorsRuntime.hasRunTasks()) {
-                AnchorsRuntime.tryRunBlockRunnable();
+                AnchorsRuntime.tryRunBlockRunnable()
             }
         }
         if (logEnd) {
-            logEndWithAnchorsInfo();
+            logEndWithAnchorsInfo()
         }
     }
+
 
     /**
      * 打印锚点信息
      *
      * @return
      */
-    private static boolean logStartWithAnchorsInfo() {
+    private fun logStartWithAnchorsInfo(): Boolean {
         if (!AnchorsRuntime.debuggable()) {
-            return false;
+            return false
         }
-        StringBuilder stringBuilder = new StringBuilder();
-        boolean hasAnchorTask = AnchorsRuntime.hasAnchorTasks();
+        val stringBuilder = StringBuilder()
+        val hasAnchorTask = AnchorsRuntime.hasAnchorTasks()
         if (hasAnchorTask) {
-            stringBuilder.append(Constants.HAS_ANCHOR);
-            stringBuilder.append("( ");
-            for (String taskId : AnchorsRuntime.getAnchorTasks()) {
-                stringBuilder.append("\"" + taskId + "\" ");
+            stringBuilder.append(Constants.HAS_ANCHOR)
+            stringBuilder.append("( ")
+            for (taskId in AnchorsRuntime.anchorTasks) {
+                stringBuilder.append("\"$taskId\" ")
             }
-            stringBuilder.append(")");
+            stringBuilder.append(")")
         } else {
-            stringBuilder.append(Constants.NO_ANCHOR);
+            stringBuilder.append(Constants.NO_ANCHOR)
         }
-        Logger.d(Constants.ANCHORS_INFO_TAG, stringBuilder.toString());
-        return hasAnchorTask;
+        Logger.d(Constants.ANCHORS_INFO_TAG, stringBuilder.toString())
+        return hasAnchorTask
     }
 
     /**
      * 打印锚点信息
      */
-    private static void logEndWithAnchorsInfo() {
+    private fun logEndWithAnchorsInfo() {
         if (!AnchorsRuntime.debuggable()) {
-            return;
+            return
         }
-        Logger.d(Constants.ANCHORS_INFO_TAG, Constants.ANCHOR_RELEASE);
+        Logger.d(Constants.ANCHORS_INFO_TAG, Constants.ANCHOR_RELEASE)
     }
+
 }

@@ -1,22 +1,20 @@
-package com.effective.android.sample.view;
+package com.effective.android.sample.view
 
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.os.Bundle
+import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
+import com.effective.android.sample.R
+import com.effective.android.sample.util.ProcessUtils
 
-import com.effective.android.sample.R;
-import com.effective.android.sample.util.ProcessUtils;
+class PrivateProcessActivity constructor() : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_private_process)
+        Log.d(TAG, "PrivateProcessActivity#onCreate process Id is " + ProcessUtils.processId)
+        Log.d(TAG, "PrivateProcessActivity#onCreate process Name is " + ProcessUtils.processName)
+    }
 
-public class PrivateProcessActivity extends AppCompatActivity {
-
-    private static final String TAG = "PrivateProcessActivity";
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_private_process);
-
-        Log.d(TAG, "PrivateProcessActivity#onCreate process Id is " + ProcessUtils.getProcessId());
-        Log.d(TAG, "PrivateProcessActivity#onCreate process Name is " + ProcessUtils.getProcessName());
+    companion object {
+        private val TAG: String = "PrivateProcessActivity"
     }
 }

@@ -1,21 +1,17 @@
-package com.effective.android.anchors;
+package com.effective.android.anchors
 
-class LockableTask extends Task {
-
-    private LockableAnchor lockableAnchor;
-
-    LockableTask(Task wait,LockableAnchor lockableAnchor) {
-        super(wait.getId() + "_waiter",true);
-        lockableAnchor.setTargetTaskId(wait.getId());
-        this.lockableAnchor = lockableAnchor;
+internal class LockableTask(wait: Task, lockableAnchor: LockableAnchor) : Task(wait.id + "_waiter", true) {
+    private val lockableAnchor: LockableAnchor
+    override fun run(name: String) {
+        lockableAnchor.lock()
     }
 
-    @Override
-    protected void run(String name) {
-        lockableAnchor.lock();
+    fun successToUnlock(): Boolean {
+        return lockableAnchor.successToUnlock()
     }
 
-    boolean successToUnlock(){
-        return lockableAnchor.successToUnlock();
+    init {
+        lockableAnchor.setTargetTaskId(wait.id)
+        this.lockableAnchor = lockableAnchor
     }
 }

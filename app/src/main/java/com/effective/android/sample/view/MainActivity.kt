@@ -1,31 +1,23 @@
-package com.effective.android.sample.view;
+package com.effective.android.sample.view
 
-import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
+import android.content.Intent
+import android.os.Bundle
+import android.util.Log
+import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import com.effective.android.anchors.LockableAnchor
+import com.effective.android.anchors.LockableAnchor.LockListener
+import com.effective.android.sample.R
+import com.effective.android.sample.data.TaskTest
+import com.effective.android.sample.util.ProcessUtils
 
-
-import com.effective.android.anchors.LockableAnchor;
-import com.effective.android.anchors.Task;
-import com.effective.android.anchors.TaskListener;
-import com.effective.android.sample.R;
-import com.effective.android.sample.data.TaskTest;
-import com.effective.android.sample.util.ProcessUtils;
-
-public class MainActivity extends AppCompatActivity {
-
-    private static final String TAG = "MainActivity";
-    private LockableAnchor lockableAnchor;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        Log.d(TAG, "MainActivity#onCreate process Id is " + ProcessUtils.getProcessId());
-        Log.d(TAG, "MainActivity#onCreate process Name is " + ProcessUtils.getProcessName());
+class MainActivity() : AppCompatActivity() {
+    private var lockableAnchor: LockableAnchor? = null
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        Log.d(TAG, "MainActivity#onCreate process Id is " + ProcessUtils.processId)
+        Log.d(TAG, "MainActivity#onCreate process Name is " + ProcessUtils.processName)
 
         //SampleApplication#onCreate 已经有常规初始化的demo实例了
 
@@ -34,86 +26,62 @@ public class MainActivity extends AppCompatActivity {
         //一般针对多进程，在常规初始化流程中针对进程对应的特定场景构建特定的初始化链
         //在异步进程被拉起的时候，执行特定进程的初始化链即可
         //具体代码可参考 SampleApplication#initDependenciesCompatMutilProcess() 方法
-        testPrivateProcess();
-        testPublicProcess();
+        testPrivateProcess()
+        testPublicProcess()
 
         //测试用户选择
-        testUserChoose();
+        testUserChoose()
 
         //测试重启新链接
-        testRestartNewDependenciesLink();
+        testRestartNewDependenciesLink()
     }
 
-    private void testPrivateProcess() {
-        findViewById(R.id.test_private_process).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, PrivateProcessActivity.class));
-            }
-        });
+    private fun testPrivateProcess() {
+        findViewById<View>(R.id.test_private_process).setOnClickListener {
+            startActivity(Intent(this@MainActivity, PrivateProcessActivity::class.java))
+        }
     }
 
-
-    private void testPublicProcess() {
-        findViewById(R.id.test_public_process).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, PublicProcessActivity.class));
-            }
-        });
+    private fun testPublicProcess() {
+        findViewById<View>(R.id.test_public_process).setOnClickListener {
+            startActivity(Intent(this@MainActivity, PublicProcessActivity::class.java))
+        }
     }
 
-
-    private void testUserChoose() {
-        findViewById(R.id.test_user_anchor).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("MainActivity", "Demo1 - testUserChoose");
-                lockableAnchor = new TaskTest().startForTestLockableAnchor();
-                lockableAnchor.setLockListener(new LockableAnchor.LockListener() {
-                    @Override
-                    public void lockUp() {
-                        //做一些自己的业务判断
-                        //.....
-                        new CusDialog.Builder(MainActivity.this)
-                                .title("任务(" + lockableAnchor.getLockId() + ")已进入等待状态，请求响应")
-                                .left("终止任务", new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        lockableAnchor.smash();
-                                    }
-                                })
-                                .right("继续执行", new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        lockableAnchor.unlock();
-                                    }
-                                }).build().show();
-                    }
-                });
-                Log.d("MainActivity", "Demo1 - testUserChoose");
-            }
-        });
+    private fun testUserChoose() {
+        findViewById<View>(R.id.test_user_anchor).setOnClickListener {
+            Log.d("MainActivity", "Demo1 - testUserChoose")
+            val anchor = TaskTest().startForTestLockableAnchor() ?: return@setOnClickListener
+            lockableAnchor = anchor
+            anchor.setLockListener(object : LockListener {
+                override fun lockUp() {
+                    //做一些自己的业务判断
+                    //.....
+                    CusDialog.Builder(this@MainActivity)
+                            .title("任务(" + anchor.lockId + ")已进入等待状态，请求响应")
+                            .left("终止任务", View.OnClickListener { anchor.smash() })
+                            .right("继续执行", View.OnClickListener { anchor.unlock() })
+                            .build()
+                            .show()
+                }
+            })
+            Log.d("MainActivity", "Demo1 - testUserChoose")
+        }
     }
 
-
-    private void testRestartNewDependenciesLink() {
-        findViewById(R.id.test_restart).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("MainActivity", "Demo2 - testRestartNewDependenciesLink - startLinkOne");
-                new TaskTest().startForLinkOne(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.d("MainActivity", "Demo2 - testRestartNewDependenciesLink - endLinkOne");
-                        Log.d("MainActivity", "Demo2 - testRestartNewDependenciesLink - startLinkTwo");
-                        new TaskTest().startForLinkTwo();
-                        Log.d("MainActivity", "Demo2 - testRestartNewDependenciesLink - endLinkTwo");
-                    }
-                });
-
-            }
-        });
+    private fun testRestartNewDependenciesLink() {
+        findViewById<View>(R.id.test_restart).setOnClickListener {
+            Log.d("MainActivity", "Demo2 - testRestartNewDependenciesLink - startLinkOne")
+            TaskTest().startForLinkOne(Runnable {
+                Log.d("MainActivity", "Demo2 - testRestartNewDependenciesLink - endLinkOne")
+                Log.d("MainActivity", "Demo2 - testRestartNewDependenciesLink - startLinkTwo")
+                TaskTest().startForLinkTwo()
+                Log.d("MainActivity", "Demo2 - testRestartNewDependenciesLink - endLinkTwo")
+            })
+        }
     }
 
+    companion object {
+        private val TAG = "MainActivity"
+    }
 }

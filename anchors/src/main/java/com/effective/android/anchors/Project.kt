@@ -1,176 +1,121 @@
-package com.effective.android.anchors;
+package com.effective.android.anchors
 
-import android.support.annotation.NonNull;
+class Project(id: String) : Task(id) {
+    lateinit var endTask: Task
+    lateinit var startTask: Task
 
-import java.util.HashMap;
-import java.util.Map;
-
-public class Project extends Task {
-
-    private Task endTask;
-    private Task startTask;
-
-    private Project(String id) {
-        super(id);
+    override fun behindBy(task: Task) {
+        endTask.behindBy(task)
     }
 
-    @NonNull
-    public Task getStartTask() {
-        return startTask;
+    override fun dependOn(task: Task) {
+        startTask.dependOn(task)
     }
 
-    @NonNull
-    public Task getEndTask() {
-        return endTask;
+    override fun removeBehind(task: Task) {
+        endTask.removeBehind(task)
     }
 
-    @Override
-    protected void behind(Task task) {
-        endTask.behind(task);
+    override fun removeDependence(task: Task) {
+        startTask.removeDependence(task)
     }
 
-    @Override
-    public void dependOn(Task task) {
-        startTask.dependOn(task);
+    @Synchronized
+    override fun start() {
+        startTask.start()
     }
 
-    @Override
-    protected void removeBehind(Task task) {
-        endTask.removeBehind(task);
-    }
-
-    @Override
-    protected void removeDependence(Task task) {
-        startTask.removeDependence(task);
-    }
-
-    @Override
-    protected synchronized void start() {
-        startTask.start();
-    }
-
-
-    @Override
-    public void run(String name) {
+    override fun run(name: String) {
         //不需要处理
-    }
-
-    @Override
-    void release() {
-        super.release();
-        endTask = null;
-        startTask = null;
     }
 
     /**
      * project 的构建内部，避免了回环的发生。
      * 当出现project 内 task 循环依赖是，循环依赖会自动断开。
      */
-    public static class Builder {
+    class Builder(projectName: String, val taskFactory: TaskFactory) {
+        private val mStartTask: Task
+        private val mFinishTask: Task
+        private var mCurrentAddTask: Task? = null
+        private var mCurrentTaskShouldDependOnStartTask = false
+        private val mProject = Project(projectName)
+        private var mPriority = 0 //默认project优先级为project内所有task的优先级，如果没有设置则取 max(project内所有task的)
 
-        private Task mCurrentAddTask;
-        private Task mFinishTask;
-        private Task mStartTask;
-        private boolean mCurrentTaskShouldDependOnStartTask;
-        private Project mProject;
-        private TaskFactory mFactory;
-        private int mPriority;              //默认project优先级为project内所有task的优先级，如果没有设置则取 max(project内所有task的)
-
-
-        public Builder(@NonNull String projectName, @NonNull TaskFactory taskFactory) {
-            this.mCurrentAddTask = null;
-            this.mCurrentTaskShouldDependOnStartTask = false;
-            this.mProject = new Project(projectName);
-            long criticalTime = System.currentTimeMillis();
-            this.mStartTask = new CriticalTask(projectName + "_start(" + criticalTime + ")");
-            this.mFinishTask = new CriticalTask(projectName + "_end(" + criticalTime + ")");
-            this.mFactory = taskFactory;
-            if (mFactory == null) {
-                throw new IllegalArgumentException("taskFactory cant's be null");
-            }
+        init {
+            val criticalTime = System.currentTimeMillis()
+            mStartTask = CriticalTask(projectName + "_start(" + criticalTime + ")")
+            mFinishTask = CriticalTask(projectName + "_end(" + criticalTime + ")")
         }
 
-        public Project build() {
+        fun build(): Project {
             if (mCurrentAddTask != null) {
                 if (mCurrentTaskShouldDependOnStartTask) {
-                    mStartTask.behind(mCurrentAddTask);
+                    mStartTask.behindBy(mCurrentAddTask!!)
                 }
             } else {
-                mStartTask.behind(mFinishTask);
+                mStartTask.behindBy(mFinishTask)
             }
-            mStartTask.setPriority(mPriority);
-            mFinishTask.setPriority(mPriority);
-            mProject.startTask = mStartTask;
-            mProject.endTask = mFinishTask;
-            return mProject;
+            mStartTask.priority = mPriority
+            mFinishTask.priority = mPriority
+            mProject.startTask = mStartTask
+            mProject.endTask = mFinishTask
+            return mProject
         }
 
-
-        public Builder add(String taskName) {
-            Task task = mFactory.getTask(taskName);
-            if (task.getPriority() > mPriority) {
-                mPriority = task.getPriority();
+        fun add(taskName: String): Builder {
+            val task = taskFactory.getTask(taskName)
+            if (task.priority > mPriority) {
+                mPriority = task.priority
             }
-            return add(mFactory.getTask(taskName));
+            return add(task)
         }
 
-        public Builder add(Task task) {
+        fun add(task: Task): Builder {
             if (mCurrentTaskShouldDependOnStartTask && mCurrentAddTask != null) {
-                mStartTask.behind(mCurrentAddTask);
+                mStartTask.behindBy(mCurrentAddTask!!)
             }
-            mCurrentAddTask = task;
-            mCurrentTaskShouldDependOnStartTask = true;
-            mCurrentAddTask.behind(mFinishTask);
-            return this;
+            mCurrentAddTask = task
+            mCurrentTaskShouldDependOnStartTask = true
+            task.behindBy(mFinishTask)
+            return this
         }
 
-        public Builder dependOn(String taskName) {
-            return dependOn(mFactory.getTask(taskName));
+        fun dependOn(taskName: String): Builder {
+            return dependOn(taskFactory.getTask(taskName))
         }
 
-        public Builder dependOn(Task task) {
-            task.behind(mCurrentAddTask);
-            mFinishTask.removeDependence(task);
-            mCurrentTaskShouldDependOnStartTask = false;
-            return this;
+        fun dependOn(task: Task): Builder {
+            task.behindBy(mCurrentAddTask!!)
+            mFinishTask.removeDependence(task)
+            mCurrentTaskShouldDependOnStartTask = false
+            return this
         }
 
-        public Builder dependOn(String... names) {
-            if (names != null & names.length > 0) {
-                for (String name : names) {
-                    Task task = mFactory.getTask(name);
-                    task.behind(mCurrentAddTask);
-                    mFinishTask.removeDependence(task);
+        fun dependOn(vararg names: String): Builder {
+            if (names.isNotEmpty()) {
+                for (name in names) {
+                    val task = taskFactory.getTask(name)
+                    task.behindBy(mCurrentAddTask!!)
+                    mFinishTask.removeDependence(task)
                 }
-                mCurrentTaskShouldDependOnStartTask = false;
+                mCurrentTaskShouldDependOnStartTask = false
             }
-            return Builder.this;
+            return this@Builder
         }
     }
 
-    public static class TaskFactory {
-
-        private Map<String, Task> mCacheTask;
-        private TaskCreator mTaskCreator;
-
-        public TaskFactory(TaskCreator creator) {
-            mTaskCreator = creator;
-            mCacheTask = new HashMap<>();
-        }
-
-        public synchronized Task getTask(String taskId) {
-            Task task = mCacheTask.get(taskId);
-
+    open class TaskFactory(private val mTaskCreator: TaskCreator) {
+        private val mCacheTask= mutableMapOf<String, Task>()
+        @Synchronized
+        fun getTask(taskId: String): Task {
+            var task = mCacheTask[taskId]
             if (task != null) {
-                return task;
+                return task
             }
-            task = mTaskCreator.createTask(taskId);
-
-            if (task == null) {
-                throw new IllegalArgumentException("Create task fail. Make sure TaskCreator can create a task with only taskId");
-            }
-            mCacheTask.put(taskId, task);
-            return task;
+            task = mTaskCreator.createTask(taskId)
+            requireNotNull(task) { "Create task fail. Make sure TaskCreator can create a task with only taskId" }
+            mCacheTask[taskId] = task
+            return task
         }
     }
 
@@ -178,14 +123,8 @@ public class Project extends Task {
      * 作为临界节点，标识 project 的开始和结束。
      * 同个 project 下可能需要等待 {次后节点们} 统一结束直接才能进入结束节点。
      */
-    private static class CriticalTask extends Task {
-
-        CriticalTask(String name) {
-            super(name);
-        }
-
-        @Override
-        public void run(String name) {
+    private class CriticalTask internal constructor(name: String) : Task(name) {
+        public override fun run(name: String) {
             //noting to do
         }
     }
