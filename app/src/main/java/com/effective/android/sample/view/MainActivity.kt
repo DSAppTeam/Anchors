@@ -12,7 +12,6 @@ import com.effective.android.sample.data.TaskTest
 import com.effective.android.sample.util.ProcessUtils
 
 class MainActivity() : AppCompatActivity() {
-    private var lockableAnchor: LockableAnchor? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -51,8 +50,7 @@ class MainActivity() : AppCompatActivity() {
     private fun testUserChoose() {
         findViewById<View>(R.id.test_user_anchor).setOnClickListener {
             Log.d("MainActivity", "Demo1 - testUserChoose")
-            val anchor = TaskTest().startForTestLockableAnchor() ?: return@setOnClickListener
-            lockableAnchor = anchor
+            val anchor = TaskTest().startForTestLockableAnchor()
             anchor.setLockListener(object : LockListener {
                 override fun lockUp() {
                     //做一些自己的业务判断

@@ -19,18 +19,15 @@ object AnchorsManager {
      * @param task block目标task
      * @return
      */
-    fun requestBlockWhenFinish(task: Task): LockableAnchor? {
+    fun requestBlockWhenFinish(task: Task): LockableAnchor {
         return requestBlockWhenFinishInner(task)
     }
 
-    fun requestBlockWhenFinishInner(task: Task): LockableAnchor? {
-        if (task.id.isNotEmpty()) {
-            val lockableAnchor = LockableAnchor(AnchorsRuntime.handler)
-            val lockableTask = LockableTask(task, lockableAnchor)
-            Utils.insertAfterTask(lockableTask, task)
-            return lockableAnchor
-        }
-        return null
+    fun requestBlockWhenFinishInner(task: Task): LockableAnchor {
+        val lockableAnchor = LockableAnchor(AnchorsRuntime.handler)
+        val lockableTask = LockableTask(task, lockableAnchor)
+        Utils.insertAfterTask(lockableTask, task)
+        return lockableAnchor
     }
 
     fun addAnchor(taskId: String): AnchorsManager {
@@ -42,7 +39,7 @@ object AnchorsManager {
 
     fun addAnchors(vararg taskIds: String): AnchorsManager {
         for (id in taskIds) {
-            anchorTaskIds.add(id)
+            addAnchor(id)
         }
         return this
     }
@@ -92,19 +89,19 @@ object AnchorsManager {
         if (!AnchorsRuntime.debuggable()) {
             return false
         }
-        val stringBuilder = StringBuilder()
+        val sb = StringBuilder()
         val hasAnchorTask = AnchorsRuntime.hasAnchorTasks()
         if (hasAnchorTask) {
-            stringBuilder.append(Constants.HAS_ANCHOR)
-            stringBuilder.append("( ")
+            sb.append(Constants.HAS_ANCHOR)
+            sb.append("( ")
             for (taskId in AnchorsRuntime.anchorTasks) {
-                stringBuilder.append("\"$taskId\" ")
+                sb.append("\"$taskId\" ")
             }
-            stringBuilder.append(")")
+            sb.append(")")
         } else {
-            stringBuilder.append(Constants.NO_ANCHOR)
+            sb.append(Constants.NO_ANCHOR)
         }
-        Logger.d(Constants.ANCHORS_INFO_TAG, stringBuilder.toString())
+        Logger.d(Constants.ANCHORS_INFO_TAG, sb.toString())
         return hasAnchorTask
     }
 

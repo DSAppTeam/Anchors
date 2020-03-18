@@ -1,7 +1,5 @@
 package com.effective.android.anchors
 
-import android.util.SparseArray
-
 class LogTaskListener : TaskListener {
     override fun onStart(task: Task) {
         Logger.d(task.id + Constants.START_METHOD)
@@ -23,27 +21,27 @@ class LogTaskListener : TaskListener {
     companion object {
         private fun logTaskRuntimeInfoString(task: Task) {
             val taskRuntimeInfo = AnchorsRuntime.getTaskRuntimeInfo(task.id) ?: return
-            val map: SparseArray<Long> = taskRuntimeInfo.stateTime
-            val startTime: Long = map.get(TaskState.START)
-            val runningTime: Long = map.get(TaskState.RUNNING)
-            val finishedTime: Long = map.get(TaskState.FINISHED)
-            val builder: StringBuilder = StringBuilder()
-            builder.append(Constants.WRAPPED)
-            builder.append(Constants.TASK_DETAIL_INFO_TAG)
-            builder.append(Constants.WRAPPED)
-            buildTaskInfoEdge(builder, taskRuntimeInfo)
-            addTaskInfoLineString(builder, Constants.DEPENDENCIES, getDependenceInfo(taskRuntimeInfo), false)
-            addTaskInfoLineString(builder, Constants.IS_ANCHOR, taskRuntimeInfo.isAnchor.toString(), false)
-            addTaskInfoLineString(builder, Constants.THREAD_INFO, taskRuntimeInfo.threadName, false)
-            addTaskInfoLineString(builder, Constants.START_TIME, startTime.toString(), true)
-            addTaskInfoLineString(builder, Constants.START_UNTIL_RUNNING, (runningTime - startTime).toString(), true)
-            addTaskInfoLineString(builder, Constants.RUNNING_CONSUME, (finishedTime - runningTime).toString(), true)
-            addTaskInfoLineString(builder, Constants.FINISH_TIME, finishedTime.toString(), false)
-            buildTaskInfoEdge(builder, null)
-            builder.append(Constants.WRAPPED)
-            Logger.d(Constants.TASK_DETAIL_INFO_TAG, builder.toString())
+            val map = taskRuntimeInfo.stateTime
+            val startTime = map.get(TaskState.START)
+            val runningTime = map.get(TaskState.RUNNING)
+            val finishedTime = map.get(TaskState.FINISHED)
+            val sb: StringBuilder = StringBuilder()
+            sb.append(Constants.WRAPPED)
+            sb.append(Constants.TASK_DETAIL_INFO_TAG)
+            sb.append(Constants.WRAPPED)
+            buildTaskInfoEdge(sb, taskRuntimeInfo)
+            addTaskInfoLineString(sb, Constants.DEPENDENCIES, getDependenceInfo(taskRuntimeInfo), false)
+            addTaskInfoLineString(sb, Constants.IS_ANCHOR, taskRuntimeInfo.isAnchor.toString(), false)
+            addTaskInfoLineString(sb, Constants.THREAD_INFO, taskRuntimeInfo.threadName, false)
+            addTaskInfoLineString(sb, Constants.START_TIME, startTime.toString(), true)
+            addTaskInfoLineString(sb, Constants.START_UNTIL_RUNNING, (runningTime - startTime).toString(), true)
+            addTaskInfoLineString(sb, Constants.RUNNING_CONSUME, (finishedTime - runningTime).toString(), true)
+            addTaskInfoLineString(sb, Constants.FINISH_TIME, finishedTime.toString(), false)
+            buildTaskInfoEdge(sb, null)
+            sb.append(Constants.WRAPPED)
+            Logger.d(Constants.TASK_DETAIL_INFO_TAG, sb.toString())
             if (taskRuntimeInfo.isAnchor) {
-                Logger.d(Constants.ANCHORS_INFO_TAG, builder.toString())
+                Logger.d(Constants.ANCHORS_INFO_TAG, sb.toString())
             }
         }
 

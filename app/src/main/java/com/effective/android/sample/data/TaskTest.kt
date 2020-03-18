@@ -149,7 +149,7 @@ class TaskTest {
                 .start(UiTaskA)
     }
 
-    fun startForTestLockableAnchor(): LockableAnchor? {
+    fun startForTestLockableAnchor(): LockableAnchor {
         val testTaskFactory = TestTaskFactory()
         val project1 = Project.Builder(PROJECT_1, testTaskFactory)
                 .add(TASK_10)

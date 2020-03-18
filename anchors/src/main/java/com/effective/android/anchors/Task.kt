@@ -187,7 +187,7 @@ abstract class Task @JvmOverloads constructor(
                 return
             }
         }
-        if (!behindTasks.isEmpty()) {
+        if (behindTasks.isNotEmpty()) {
             if (behindTasks.size > 1) {
                 Collections.sort(behindTasks, AnchorsRuntime.taskComparator)
             }
