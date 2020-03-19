@@ -20,26 +20,17 @@ object AnchorsManager {
      * @return
      */
     fun requestBlockWhenFinish(task: Task): LockableAnchor {
-        return requestBlockWhenFinishInner(task)
-    }
-
-    fun requestBlockWhenFinishInner(task: Task): LockableAnchor {
         val lockableAnchor = LockableAnchor(AnchorsRuntime.handler)
         val lockableTask = LockableTask(task, lockableAnchor)
         Utils.insertAfterTask(lockableTask, task)
         return lockableAnchor
     }
 
-    fun addAnchor(taskId: String): AnchorsManager {
-        if (taskId.isNotEmpty()) {
-            anchorTaskIds.add(taskId)
-        }
-        return this
-    }
-
     fun addAnchors(vararg taskIds: String): AnchorsManager {
-        for (id in taskIds) {
-            addAnchor(id)
+        for (taskId in taskIds) {
+            if (taskId.isNotEmpty()) {
+                anchorTaskIds.add(taskId)
+            }
         }
         return this
     }

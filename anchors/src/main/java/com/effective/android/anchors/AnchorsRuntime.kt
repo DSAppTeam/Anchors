@@ -242,8 +242,7 @@ internal object AnchorsRuntime {
                 maxDepth = depth
             }
         }
-        maxDepth++
-        return maxDepth
+        return maxDepth + 1
     }
 
     internal class InnerThreadPool {

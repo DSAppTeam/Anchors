@@ -1,8 +1,8 @@
 package com.effective.android.anchors
 
 class Project(id: String) : Task(id) {
-    lateinit var endTask: Task
     lateinit var startTask: Task
+    lateinit var endTask: Task
 
     override fun behindBy(task: Task) {
         endTask.behindBy(task)
@@ -113,7 +113,7 @@ class Project(id: String) : Task(id) {
                 return task
             }
             task = mTaskCreator.createTask(taskId)
-            requireNotNull(task) { "Create task fail. Make sure TaskCreator can create a task with only taskId" }
+            requireNotNull(task) { "Create task fail. Make sure TaskCreator can create a task with taskId:$taskId" }
             mCacheTask[taskId] = task
             return task
         }
@@ -123,7 +123,7 @@ class Project(id: String) : Task(id) {
      * 作为临界节点，标识 project 的开始和结束。
      * 同个 project 下可能需要等待 {次后节点们} 统一结束直接才能进入结束节点。
      */
-    private class CriticalTask internal constructor(name: String) : Task(name) {
+    private class CriticalTask(name: String) : Task(name) {
         public override fun run(name: String) {
             //noting to do
         }

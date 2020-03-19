@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.effective.android.sample.R
 import com.effective.android.sample.util.ProcessUtils
 
-class PrivateProcessActivity constructor() : AppCompatActivity() {
+class PrivateProcessActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_private_process)

@@ -111,7 +111,7 @@ class TaskTest {
         UiTaskB.dependOn(UiTaskA)
         UiTaskC.dependOn(UiTaskA)
         AnchorsManager.debuggable(true)
-                .addAnchors(TASK_93, "TASK_E", "TASK_10")
+                .addAnchors(TASK_93, UITHREAD_TASK_C, "TASK_10")
                 .start(UiTaskA)
     }
 

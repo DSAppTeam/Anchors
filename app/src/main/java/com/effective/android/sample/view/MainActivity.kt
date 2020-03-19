@@ -11,7 +11,7 @@ import com.effective.android.sample.R
 import com.effective.android.sample.data.TaskTest
 import com.effective.android.sample.util.ProcessUtils
 
-class MainActivity() : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
