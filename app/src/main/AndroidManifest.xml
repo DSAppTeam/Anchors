@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.effective.android.sample">
+          package="com.effective.android.sample">
 
     <application
         android:name=".SampleApplication"
@@ -28,7 +28,7 @@
 
         <activity
             android:name=".view.PublicProcessActivity"
-            android:process=".public">
+            android:process="com.hotsun.test">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
