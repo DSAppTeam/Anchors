@@ -6,9 +6,12 @@ import java.io.File
 import java.io.FileReader
 
 object ProcessUtils {
+
+    @JvmStatic
     val processId: Int
         get() = Process.myPid()
 
+    @JvmStatic
     val processName: String?
         get() = try {
             val file = File("/proc/" + Process.myPid() + "/" + "cmdline")

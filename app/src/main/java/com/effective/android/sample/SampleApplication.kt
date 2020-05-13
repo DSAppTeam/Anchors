@@ -28,7 +28,7 @@ class SampleApplication : Application() {
         when {
             processName  == packageName -> {
                 Log.d(TAG, "SampleApplication#initDependenciesCompatMutilProcess - startFromApplicationOnMainProcess")
-                TaskTest().startFromApplicationOnMainProcess()
+                TaskTest().startFromApplicationOnMainProcessByDsl()
 
                 //私有进程 com.effective.android.sample:remote
             }

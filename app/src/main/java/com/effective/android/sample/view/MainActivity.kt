@@ -16,8 +16,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        Log.d(TAG, "MainActivity#onCreate process Id is " + ProcessUtils.getProcessId())
-        Log.d(TAG, "MainActivity#onCreate process Name is " + ProcessUtils.getProcessName())
+        Log.d(TAG, "MainActivity#onCreate process Id is " + ProcessUtils.processId)
+        Log.d(TAG, "MainActivity#onCreate process Name is " + ProcessUtils.processName)
         //SampleApplication#onCreate 已经有常规初始化的demo实例了
 //留意跳转时Log.d 输出的新进程信息，同时application#onCreate会被再次调用
 //一般针对多进程，在常规初始化流程中针对进程对应的特定场景构建特定的初始化链
@@ -46,8 +46,12 @@ class MainActivity : AppCompatActivity() {
                 val lockableAnchor = it
                 CusDialog.Builder(this@MainActivity)
                         .title("任务(" + lockableAnchor.lockId + ")已进入等待状态，请求响应")
-                        .left("终止任务") { lockableAnchor.smash() }
-                        .right("继续执行") { lockableAnchor.unlock() }.build().show()
+                        .left("终止任务", View.OnClickListener {
+                            lockableAnchor.smash()
+                        })
+                        .right("继续执行", View.OnClickListener {
+                            lockableAnchor.unlock()
+                        }).build().show()
             }
             Log.d("MainActivity", "Demo1 - testUserChoose")
         }

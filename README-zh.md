@@ -4,6 +4,7 @@
 
 ![](https://travis-ci.org/YummyLau/Anchors.svg?branch=master)
 ![Language](https://img.shields.io/badge/language-java-orange.svg)
+![Language](https://img.shields.io/badge/language-kotlin-orange.svg)
 ![Version](https://img.shields.io/badge/version-1.0.5-blue.svg)
 
 README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [中文](https://github.com/YummyLau/Anchors/blob/master/README-zh.md)
@@ -13,6 +14,7 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 * 1.0.3（2019/12/11） 新增支持节点等待功能
 * 1.0.4（2019/12/31） 优化线上反馈多线程同步通知下一节点启动的问题
 * 1.0.5（2020/01/20） 新增节点释放监听入口，新增多进程/等待/重启新链等 demo 场景（见 Sample）
+* 1.1.0（2020/05/13） 支持 kotlin 及 DSL 特性
 
 
 #### 简介
@@ -53,12 +55,13 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 2. 在 **app** 模块下添加依赖
 
 	```
-	implementation 'com.effective.android:anchors:1.0.5'
+	implementation 'com.effective.android:anchors:1.1.0'
 	```
 
 2. 在 `Application` 中添加依赖图
 
 	```
+	//java code
 	//anchor 设置
 	AnchorsManager.getInstance().debuggable(true)
 	        .addAnchors(anchorYouNeed)
@@ -73,7 +76,33 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
    	    //lockableAnchor.smash 破坏等待，终止任务链
    }
    anchorsManager.start(dependencyGraphHead);
-  
+   
+	//kotlin code
+   getInstance()
+        .debuggable { true }
+        .taskFactory { TestTaskFactory() }     //根据id生成task的工厂
+        .anchors { arrayOf(TASK_93, TASK_10) } //anchor 对应的 task id
+        .block("TASK_10000") {			       // block 场景的 task id 及 处理监听的 lambda
+            //根据业务进行  it.smash() or it.unlock()
+        }
+        .graphics {							      // 构建依赖图
+            UITHREAD_TASK_A.sons(
+                    TASK_10.sons(
+                            TASK_11.sons(
+                                    TASK_12.sons(
+                                            TASK_13))),
+                    TASK_20.sons(
+                            TASK_21.sons(
+                                    TASK_22.sons(TASK_23))),
+	
+                    UITHREAD_TASK_B.alsoParents(TASK_22),
+	
+                    UITHREAD_TASK_C
+            )
+            arrayOf(UITHREAD_TASK_A)
+        }
+        .startUp()
+   
 	```
 
 	其中 *anchorYouNeed* 为你所需要添加的锚点, *waitTaskYouNeed* 为你所需要等待的任务,*dependencyGraphHead* 为依赖图的头部.

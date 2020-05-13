@@ -4,6 +4,7 @@
 
 ![](https://travis-ci.org/YummyLau/Anchors.svg?branch=master)
 ![Language](https://img.shields.io/badge/language-java-orange.svg)
+![Language](https://img.shields.io/badge/language-kotlin-orange.svg)
 ![Version](https://img.shields.io/badge/version-1.0.5-blue.svg)
 
 README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [中文](https://github.com/YummyLau/Anchors/blob/master/README-zh.md)
@@ -14,6 +15,7 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 * 1.0.3 (2019/12/11) Added support for node wait function
 * 1.0.4 (2019/12/31) Optimize the online feedback of multi-thread synchronization to notify the next node to start
 * 1.0.5 (2020/01/20) Added demo scenarios such as node release monitoring entry, multi-process / wait / restart new chain, etc. (see Sample example)
+* 1.1.0 (2020/05/13) Support kotlin and DSL features
 
 #### Introduction
 
@@ -53,12 +55,13 @@ Advantages over `alpha`
 2. Add dependencies under the **app** module
 
 	```
-	implementation 'com.effective.android:anchors:1.0.5'
+	implementation 'com.effective.android:anchors:1.1.0'
 	```
 
 3. Add a dependency graph in `Application`
 
 	```
+	//java code
 	//anchor Call
 	AnchorsManager.getInstance().debuggable(true)
 	        .addAnchors(anchorYouNeed)
@@ -73,6 +76,33 @@ Advantages over `alpha`
    	    //lockableAnchor.smash Destroy the wait and terminate the task chain
    }
    anchorsManager.start(dependencyGraphHead);
+   
+      
+	//kotlin code
+   getInstance()
+        .debuggable { true }
+        .taskFactory { TestTaskFactory() }     //Factory to generate tasks based on id
+        .anchors { arrayOf(TASK_93, TASK_10) } //task id corresponding to anchor
+        .block("TASK_10000") {			       // The task id of the block scene and the processing lambda
+            //According to business  it.smash() or it.unlock()
+        }
+        .graphics {							      // Build dependency graph
+            UITHREAD_TASK_A.sons(
+                    TASK_10.sons(
+                            TASK_11.sons(
+                                    TASK_12.sons(
+                                            TASK_13))),
+                    TASK_20.sons(
+                            TASK_21.sons(
+                                    TASK_22.sons(TASK_23))),
+	
+                    UITHREAD_TASK_B.alsoParents(TASK_22),
+	
+                    UITHREAD_TASK_C
+            )
+            arrayOf(UITHREAD_TASK_A)
+        }
+        .startUp()
 	```
 
 	*AnchorYouNeed* is the anchor you need to add, *waitTaskYouNeed* is the task you need to wait for, and *dependencyGraphHead* is the head of the dependency graph.

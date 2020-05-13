@@ -294,7 +294,7 @@ class ASYNC_TASK_5 : TestTask(TaskTest.ASYNC_TASK_5, true) {
 }
 
 object TestTaskCreator : TaskCreator {
-    override fun createTask(taskName: String): Task? {
+    override fun createTask(taskName: String): Task {
         when (taskName) {
             TaskTest.TASK_10 -> {
                 val task_10 = TASK_10()
@@ -437,7 +437,7 @@ object TestTaskCreator : TaskCreator {
                 return ASYNC_TASK_5()
             }
         }
-        return null
+        return ASYNC_TASK_5()
     }
 }
 

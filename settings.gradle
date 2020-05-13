@@ -1,1 +1,2 @@
-include ':app', ':anchors'
+include ':app'
+//include ':anchors'
