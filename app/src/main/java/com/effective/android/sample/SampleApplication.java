@@ -37,7 +37,8 @@ public class SampleApplication extends Application {
         if (TextUtils.equals(getPackageName(), processName)) {
 
             Log.d(TAG, "SampleApplication#initDependenciesCompatMutilProcess - startFromApplicationOnMainProcess");
-            new TaskTest().startFromApplicationOnMainProcess();
+            new TaskTest().startFromApplicationOnMainProcessByDsl();
+//            new TaskTest().startFromApplicationOnMainProcess();
 
             //私有进程 com.effective.android.sample:remote
         } else if (processName.startsWith(getPackageName())) {
