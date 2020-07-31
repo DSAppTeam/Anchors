@@ -5,7 +5,7 @@
 ![](https://travis-ci.org/YummyLau/Anchors.svg?branch=master)
 ![Language](https://img.shields.io/badge/language-java-orange.svg)
 ![Language](https://img.shields.io/badge/language-kotlin-orange.svg)
-![Version](https://img.shields.io/badge/version-1.0.5-blue.svg)
+![Version](https://img.shields.io/badge/version-1.1.1-blue.svg)
 
 README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [中文](https://github.com/YummyLau/Anchors/blob/master/README-zh.md)
 
@@ -16,6 +16,7 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 * 1.0.4 (2019/12/31) Optimize the online feedback of multi-thread synchronization to notify the next node to start
 * 1.0.5 (2020/01/20) Added demo scenarios such as node release monitoring entry, multi-process / wait / restart new chain, etc. (see Sample example)
 * 1.1.0 (2020/05/13) Support kotlin and DSL features
+* 1.1.1 (2020/07/31) Optimize the DSL block API
 
 #### Introduction
 
@@ -55,7 +56,7 @@ Advantages over `alpha`
 2. Add dependencies under the **app** module
 
 	```
-	implementation 'com.effective.android:anchors:1.1.0'
+	implementation 'com.effective.android:anchors:1.1.1'
 	```
 
 3. Add a dependency graph in `Application`

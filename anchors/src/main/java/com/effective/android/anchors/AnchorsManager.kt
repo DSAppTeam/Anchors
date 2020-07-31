@@ -229,25 +229,9 @@ fun AnchorsManager.startUp(): AnchorsManager {
         }
     }
 
-    requireNotNull(AnchorsManagerBuilder.factory) { "kotlin dsl-build should set TaskFactory and graphics with invoking AnchorsManager#graphics()" }
+    requireNotNull(AnchorsManagerBuilder.factory) { "kotlin dsl-build should set TaskFactory with invoking AnchorsManager#taskFactory()" }
 
-    if (!AnchorsManagerBuilder.block.isNullOrEmpty()) {
-        val blockTask = AnchorsManagerBuilder.makeTask(AnchorsManagerBuilder.block!!)
-        if (blockTask == null) {
-            Logger.w("can find task's id = ${AnchorsManagerBuilder.block} in factory")
-        } else {
-            val lock = requestBlockWhenFinish(blockTask)
-            val listener = AnchorsManagerBuilder.blockListener
-            lock.setLockListener(object : LockableAnchor.LockListener {
-                override fun lockUp() {
-                    listener?.invoke(lock)
-                }
-            })
-        }
-
-    }
-
-    requireNotNull(AnchorsManagerBuilder.graphics) { "kotlin dsl-build should set TaskFactory and graphics with invoking AnchorsManager#graphics()" }
+    requireNotNull(AnchorsManagerBuilder.graphics) { "kotlin dsl-build should set graphics with invoking AnchorsManager#graphics()" }
 
     val sons = AnchorsManagerBuilder.graphics?.invoke()
 
@@ -280,6 +264,21 @@ fun AnchorsManager.startUp(): AnchorsManager {
     if (validSon.isEmpty()) {
         Logger.w("No task is run ！")
         return this
+    }
+
+    if (!AnchorsManagerBuilder.block.isNullOrEmpty()) {
+        val blockTask = AnchorsManagerBuilder.makeTask(AnchorsManagerBuilder.block!!)
+        if (blockTask == null) {
+            Logger.w("can find task's id = ${AnchorsManagerBuilder.block} in factory")
+        } else {
+            val lock = requestBlockWhenFinish(blockTask)
+            val listener = AnchorsManagerBuilder.blockListener
+            lock.setLockListener(object : LockableAnchor.LockListener {
+                override fun lockUp() {
+                    listener?.invoke(lock)
+                }
+            })
+        }
     }
 
     if (validSon.size == 1) {
