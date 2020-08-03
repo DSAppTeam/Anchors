@@ -1,5 +1,5 @@
 build
 app/build
-#local.properties
-#.idea
+local.properties
+.idea
 .gradle
