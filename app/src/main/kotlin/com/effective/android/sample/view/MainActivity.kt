@@ -1,4 +1,4 @@
-package com.effective.android.sample.view
+package com.effective.android.sample.view;
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,7 +8,7 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import com.effective.android.sample.R
-import com.effective.android.sample.data.TaskTest
+import com.effective.android.sample.data.Datas
 import com.effective.android.sample.util.ProcessUtils
 
 class MainActivity : AppCompatActivity() {
@@ -19,10 +19,10 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "MainActivity#onCreate process Id is " + ProcessUtils.processId)
         Log.d(TAG, "MainActivity#onCreate process Name is " + ProcessUtils.processName)
         //SampleApplication#onCreate 已经有常规初始化的demo实例了
-//留意跳转时Log.d 输出的新进程信息，同时application#onCreate会被再次调用
-//一般针对多进程，在常规初始化流程中针对进程对应的特定场景构建特定的初始化链
-//在异步进程被拉起的时候，执行特定进程的初始化链即可
-//具体代码可参考 SampleApplication#initDependenciesCompatMutilProcess() 方法
+        //留意跳转时Log.d 输出的新进程信息，同时application#onCreate会被再次调用
+        //一般针对多进程，在常规初始化流程中针对进程对应的特定场景构建特定的初始化链
+        //在异步进程被拉起的时候，执行特定进程的初始化链即可
+        //具体代码可参考 SampleApplication#initDependenciesCompatMutilProcess() 方法
         testPrivateProcess()
         testPublicProcess()
         //测试用户选择
@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
     private fun testUserChoose() {
         findViewById<View>(R.id.test_user_anchor).setOnClickListener {
             Log.d("MainActivity", "Demo1 - testUserChoose")
-            TaskTest().startForTestLockableAnchorByDsl {
+            Datas().startForTestLockableAnchorByDsl {
                 val lockableAnchor = it
                 CusDialog.Builder(this@MainActivity)
                         .title("任务(" + lockableAnchor.lockId + ")已进入等待状态，请求响应")
@@ -60,12 +60,12 @@ class MainActivity : AppCompatActivity() {
     private fun testRestartNewDependenciesLink() {
         findViewById<View>(R.id.test_restart).setOnClickListener {
             Log.d("MainActivity", "Demo2 - testRestartNewDependenciesLink - startLinkOne")
-            TaskTest().startForLinkOneByDsl(
+            Datas().startForLinkOneByDsl(
                     Runnable {
                         Log.d("MainActivity", "Demo2 - testRestartNewDependenciesLink - endLinkOne")
                         Log.d("MainActivity", "Demo2 - testRestartNewDependenciesLink - startLinkTwo")
                         Handler(Looper.getMainLooper()).post {
-                            TaskTest().startForLinkTwoByDsl()
+                            Datas().startForLinkTwoByDsl()
                         }
                         Log.d("MainActivity", "Demo2 - testRestartNewDependenciesLink - endLinkTwo")
                     })

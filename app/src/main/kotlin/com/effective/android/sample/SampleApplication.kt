@@ -1,12 +1,14 @@
 package com.effective.android.sample
 
 import android.app.Application
-import android.text.TextUtils
 import android.util.Log
-import com.effective.android.sample.data.TaskTest
+import com.effective.android.sample.data.Datas
 import com.effective.android.sample.util.ProcessUtils
 import com.squareup.leakcanary.LeakCanary
 
+/**
+ * kotlin demo
+ */
 class SampleApplication : Application() {
     override fun onCreate() {
         super.onCreate()
@@ -28,19 +30,19 @@ class SampleApplication : Application() {
         when {
             processName  == packageName -> {
                 Log.d(TAG, "SampleApplication#initDependenciesCompatMutilProcess - startFromApplicationOnMainProcess")
-                TaskTest().startFromApplicationOnMainProcessByDsl()
+                Datas().startFromApplicationOnMainProcessByDsl()
 
                 //私有进程 com.effective.android.sample:remote
             }
             processName.startsWith(packageName) -> {
                 Log.d(TAG, "SampleApplication#initDependenciesCompatMutilProcess - startFromApplicationOnPrivateProcess")
-                TaskTest().startFromApplicationOnPrivateProcess()
+                Datas().startFromApplicationOnPrivateProcess()
 
                 //公有进程 .public
             }
             else -> {
                 Log.d(TAG, "SampleApplication#initDependenciesCompatMutilProcess - startFromApplicationOnPublicProcess")
-                TaskTest().startFromApplicationOnPublicProcess()
+                Datas().startFromApplicationOnPublicProcess()
             }
         }
     }

@@ -59,55 +59,86 @@ Advantages over `alpha`
 	implementation 'com.effective.android:anchors:1.1.1'
 	```
 
-3. Add a dependency graph in `Application`
+3. Add dependency graph and start
 
-	```
-	//java code
-	//anchor Call
-	AnchorsManager.getInstance().debuggable(true)
-	        .addAnchors(anchorYouNeed)
-	        .start(dependencyGraphHead);
-	        
-	//or Waiting for the scene Call
-	AnchorsManager anchorsManager = AnchorsManager.getInstance();
-   anchorsManager.debuggable(true);
-   LockableAnchor lockableAnchor = anchorsManager.requestBlockWhenFinish(waitTaskYouNeed);
-   lockableAnchor.setLockListener(...){
-   	    //lockableAnchor.unlock  Remove the wait and continue the task chain
-   	    //lockableAnchor.smash Destroy the wait and terminate the task chain
-   }
-   anchorsManager.start(dependencyGraphHead);
+    The framework supports java and kotlin languages. For the two languages, `JDatas` is built in the Demo to implement the java scene logic, and the `Datas` class is used to implement the kotlin logic. The start-up dependency set is received in the form of a "graph", and the link to the construction node of the graph is realized.
    
-      
-	//kotlin code
-   getInstance()
-        .debuggable { true }
-        .taskFactory { TestTaskFactory() }     //Factory to generate tasks based on id
-        .anchors { arrayOf(TASK_93, TASK_10) } //task id corresponding to anchor
-        .block("TASK_10000") {			       // The task id of the block scene and the processing lambda
-            //According to business  it.smash() or it.unlock()
-        }
-        .graphics {							      // Build dependency graph
-            UITHREAD_TASK_A.sons(
-                    TASK_10.sons(
-                            TASK_11.sons(
-                                    TASK_12.sons(
-                                            TASK_13))),
-                    TASK_20.sons(
-                            TASK_21.sons(
-                                    TASK_22.sons(TASK_23))),
-	
-                    UITHREAD_TASK_B.alsoParents(TASK_22),
-	
-                    UITHREAD_TASK_C
-            )
-            arrayOf(UITHREAD_TASK_A)
-        }
-        .startUp()
-	```
-
-	*AnchorYouNeed* is the anchor you need to add, *waitTaskYouNeed* is the task you need to wait for, and *dependencyGraphHead* is the head of the dependency graph.
-
+   
+    ```
+     ==>  Take java as an example, the code can refer to the JDatas class
+     
+     To construct a task, the first parameter specifies the name and unique id, and the second parameter specifies whether the task runs asynchronously
+     Task task = new Task("name",false) {
+         @Override
+         protected void run(@NotNull String s) {
+             //todo
+         }
+     };
+     
+     Build a Project. Project is a Task subclass, used to describe multiple Task scenarios. Because of the use of <TaskName> to build, pass a factory for unified processing
+     The following constructs the logic of task1 <- task2 <- task3 <- task4, A -> B means A depends on B
+     TestTaskFactory testTaskFactory = new TestTaskFactory();
+     Project.Builder builder = new Project.Builder("name", testTaskFactory);
+     builder9.add("task1Name");
+     builder9.add("task2Name").dependOn("task1Name");
+     builder9.add("task3Name").dependOn("task2Name");
+     builder9.add("task4Name").dependOn("task4Name");
+     Project project = builder.build();
+     
+     Combination, in fact, the above project#dependOn is a combination method
+     project.dependOn(task);
+         ...
+     You can build a dependency graph through various combinations, and then call start to pass the graph head node to start
+     AnchorsManager.getInstance()
+         .start(task);
+     
+     When debugging is needed
+     AnchorsManager.getInstance()
+         .debuggable(true)
+         .start(task);
+     
+     When the anchor needs to be set, <anchorYouNeed> represents some tasks, and these tasks need to be guaranteed to be initialized before the end of Application#onCreate
+     AnchorsManager.getInstance()
+         .addAnchors(anchorYouNeed)
+         .start(task);
+     
+     For some scenarios, you may need to monitor the running status of a task, you can use the block blocking function. After blocking and waiting, you can release/destroy the waiting according to the business logic. WaitTaskYouNeed is the task you need to wait for
+     AnchorsManager anchorsManager = AnchorsManager.getInstance();
+     LockableAnchor lockableAnchor = anchorsManager.requestBlockWhenFinish(waitTaskYouNeed); 
+     lockableAnchor.setLockListener(...){
+         //lockableAnchor.unlock() Release the waiting and continue the task chain
+         //lockableAnchor.smash() Destroy waiting and terminate the task chain
+     }
+     anchorsManager.start(task);
+     
+     ==> koltin also supports all the above processes, and also provides a dsl build form to build a dependency graph, the code can refer to the Datas class
+     Describe a dependency graph by calling the graphics method, use <TaskName> to build, and pass a factory for unified processing
+     getInstance()
+         .debuggable { true }
+         .taskFactory { TestTaskFactory() }     //The factory that generates task according to id
+         .anchors { arrayOf(TASK_93, TASK_10) } //task id corresponding to anchor
+         .block("TASK_10000") {			       // The task id of the block scene and the lambda that handles the monitoring
+             //According to business  it.smash() or it.unlock()
+         }
+         .graphics {							      // Build dependency graph
+             UITHREAD_TASK_A.sons(
+                     TASK_10.sons(
+                             TASK_11.sons(
+                                     TASK_12.sons(
+                                             TASK_13))),
+                     TASK_20.sons(
+                             TASK_21.sons(
+                                     TASK_22.sons(TASK_23))),
+     
+                     UITHREAD_TASK_B.alsoParents(TASK_22),
+     
+                     UITHREAD_TASK_C
+             )
+             arrayOf(UITHREAD_TASK_A)
+         }
+         .startUp()
+     Where anchorYouNeed is the anchor you need to add, waitTaskYouNeed is the task you need to wait for, and dependencyGraphHead is the head of the dependency graph.
+     ```
 
 #### Sample
 

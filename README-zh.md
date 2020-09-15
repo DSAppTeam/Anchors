@@ -59,27 +59,61 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 	implementation 'com.effective.android:anchors:1.1.1'
 	```
 
-2. 在 `Application` 中添加依赖图
+3. 添加依赖图并启动
 
-	```
-	//java code
-	//anchor 设置
-	AnchorsManager.getInstance().debuggable(true)
-	        .addAnchors(anchorYouNeed)
-	        .start(dependencyGraphHead);
-	        
-	//or 等待场景 设置
-	AnchorsManager anchorsManager = AnchorsManager.getInstance();
-   anchorsManager.debuggable(true);
-   LockableAnchor lockableAnchor = anchorsManager.requestBlockWhenFinish(waitTaskYouNeed);
-   lockableAnchor.setLockListener(...){
-   	    //lockableAnchor.unlock 解除等待，继续任务链
-   	    //lockableAnchor.smash 破坏等待，终止任务链
-   }
-   anchorsManager.start(dependencyGraphHead);
+    框架支持 java 和 kotlin 语言，针对两种语言，Demo 中构建了 `JDatas` 来实现 java 场景逻辑，`Datas` 类来实现 kotlin 逻辑。以 "图" 的形式接收启动依赖集，图的构建节点的链接来实现。
    
-	//kotlin code
-   getInstance()
+   
+    ```
+    ==>  以 java 为例子，代码可参考 JDatas 类
+    
+    构建一个 Task, 第一个参数指定 name,也是唯一 id，第二个参数指定该 Task 是否异步运行
+    Task task = new Task("name",false) {
+        @Override
+        protected void run(@NotNull String s) {
+            //todo
+        }
+    };
+    
+    构建一个 Project，Project 是 Task 子类，用于描述多 Task 场景，由于使用 <TaskName> 构建，传递一个工厂统一处理
+    以下构建  task1 <- task2 <- task3 <- task4 逻辑， A -> B 表示 A 依赖 B
+    TestTaskFactory testTaskFactory = new TestTaskFactory();
+    Project.Builder builder = new Project.Builder("name", testTaskFactory);
+    builder9.add("task1Name");
+    builder9.add("task2Name").dependOn("task1Name");
+    builder9.add("task3Name").dependOn("task2Name");
+    builder9.add("task4Name").dependOn("task4Name");
+    Project project = builder.build();
+    
+    组合，其实上述 project#dependOn 就是一种组合方式
+    project.dependOn(task);
+        ...
+    通过各种组合即可构建一张依赖图，之后调用 start 传递图头部节点即可启动
+    AnchorsManager.getInstance()
+        .start(task);
+    
+    需要打开调试时 
+    AnchorsManager.getInstance()
+        .debuggable(true)
+        .start(task);
+    
+    需要设置 anchor 时，<anchorYouNeed> 代表某些 task，这些 task 需要在 Application#onCreate 结束前保证初始完毕
+    AnchorsManager.getInstance()
+        .addAnchors(anchorYouNeed)
+        .start(task);
+    
+    对于某些场景，你可能需要监听某个 task 的运行状态，则可使用 block 阻塞功能，阻塞等待后可根据业务逻辑解除/破坏等待，waitTaskYouNeed 为你所需要等待的任务
+    AnchorsManager anchorsManager = AnchorsManager.getInstance();
+    LockableAnchor lockableAnchor = anchorsManager.requestBlockWhenFinish(waitTaskYouNeed); 
+    lockableAnchor.setLockListener(...){
+        //lockableAnchor.unlock() 解除等待，继续任务链
+        //lockableAnchor.smash() 破坏等待，终止任务链
+    }
+    anchorsManager.start(task);
+    
+    ==> koltin 也支持上述所有流程，同时也提供了 dsl 的构建形式构建依赖图，代码可参考 Datas 类
+    通过调用 graphics 方法来描述一张依赖图，使用 <TaskName> 构建，传递一个工厂统一处理
+    getInstance()
         .debuggable { true }
         .taskFactory { TestTaskFactory() }     //根据id生成task的工厂
         .anchors { arrayOf(TASK_93, TASK_10) } //anchor 对应的 task id
@@ -95,18 +129,16 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
                     TASK_20.sons(
                             TASK_21.sons(
                                     TASK_22.sons(TASK_23))),
-	
+    
                     UITHREAD_TASK_B.alsoParents(TASK_22),
-	
+    
                     UITHREAD_TASK_C
             )
             arrayOf(UITHREAD_TASK_A)
         }
         .startUp()
-   
-	```
-
-	其中 *anchorYouNeed* 为你所需要添加的锚点, *waitTaskYouNeed* 为你所需要等待的任务,*dependencyGraphHead* 为依赖图的头部.
+    其中 anchorYouNeed 为你所需要添加的锚点, waitTaskYouNeed 为你所需要等待的任务,dependencyGraphHead 为依赖图的头部。
+    ```
 
 #### Sample
 
