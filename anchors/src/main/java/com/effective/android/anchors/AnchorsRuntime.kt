@@ -3,7 +3,7 @@ package com.effective.android.anchors
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
-import android.util.Log
+import com.effective.android.anchors.Logger.d
 import com.effective.android.anchors.Logger.w
 import com.effective.android.anchors.Utils.compareTask
 import java.util.*
@@ -208,7 +208,7 @@ internal object AnchorsRuntime {
                     builder.append(" --> ")
                 }
                 // traversalVisitor 一定不为空，故可以 length-5
-                Log.d(Constants.DEPENDENCE_TAG, builder.substring(0, builder.length - 5))
+                d(Constants.DEPENDENCE_TAG, builder.substring(0, builder.length - 5))
             }
 
             traversalDependenciesAndInit(nextTask, traversalVisitor)
