@@ -1,7 +1,6 @@
 package com.effective.android.anchors
 
 import android.support.annotation.MainThread
-import android.text.TextUtils
 import com.effective.android.anchors.AnchorsRuntime.addAnchorTasks
 import com.effective.android.anchors.AnchorsRuntime.anchorTasks
 import com.effective.android.anchors.AnchorsRuntime.clear
@@ -16,6 +15,7 @@ import com.effective.android.anchors.Logger.d
 import com.effective.android.anchors.Utils.assertMainThread
 import com.effective.android.anchors.Utils.insertAfterTask
 import java.util.*
+import kotlin.collections.LinkedHashSet
 
 object AnchorsManager {
 
@@ -166,16 +166,14 @@ internal object AnchorsManagerBuilder {
     var debuggable = false
     var anchors: MutableList<String> = mutableListOf()
     var factory: Project.TaskFactory? = null
-    var graphics: (() -> Array<String>)? = null
     var block: String? = null
     var blockListener: ((lockableAnchor: LockableAnchor) -> Unit)? = null
-    val allTask: MutableSet<Task> = mutableSetOf();
+    val allTask: LinkedHashSet<Task> = LinkedHashSet<Task>()
 
     fun setUp() {
         debuggable = false
         anchors.clear()
         factory = null
-        graphics = null
         block = null
         blockListener = null
         allTask.clear()
@@ -214,7 +212,8 @@ fun AnchorsManager.block(block: String, listener: (lockableAnchor: LockableAncho
 }
 
 fun AnchorsManager.graphics(graphics: () -> Array<String>): AnchorsManager {
-    AnchorsManagerBuilder.graphics = graphics
+    // 内部调用 String.sons 扩展，将任务信息存入 allTask
+    graphics.invoke()
     return this
 }
 
@@ -231,11 +230,7 @@ fun AnchorsManager.startUp(): AnchorsManager {
 
     requireNotNull(AnchorsManagerBuilder.factory) { "kotlin dsl-build should set TaskFactory with invoking AnchorsManager#taskFactory()" }
 
-    requireNotNull(AnchorsManagerBuilder.graphics) { "kotlin dsl-build should set graphics with invoking AnchorsManager#graphics()" }
-
-    val sons = AnchorsManagerBuilder.graphics?.invoke()
-
-    if (sons.isNullOrEmpty()) {
+    if (AnchorsManagerBuilder.allTask.isEmpty()) {
         Logger.w("No task is run ！")
         return this
     }
@@ -244,26 +239,6 @@ fun AnchorsManager.startUp(): AnchorsManager {
         override fun run(name: String) {
             Logger.d("task(inner_start_up_task) start !")
         }
-    }
-
-    val validSon = mutableListOf<Task>()
-
-    if (sons.isNotEmpty()) {
-        for (taskId in sons) {
-            if (taskId.isNotEmpty()) {
-                val son = AnchorsManagerBuilder.makeTask(taskId)
-                if (son == null) {
-                    Logger.w("can find task's id = $taskId in factory,skip this son")
-                    continue
-                }
-                validSon.add(son);
-            }
-        }
-    }
-
-    if (validSon.isEmpty()) {
-        Logger.w("No task is run ！")
-        return this
     }
 
     if (!AnchorsManagerBuilder.block.isNullOrEmpty()) {
@@ -281,11 +256,11 @@ fun AnchorsManager.startUp(): AnchorsManager {
         }
     }
 
-    if (validSon.size == 1) {
-        start(validSon[0])
+    if (AnchorsManagerBuilder.allTask.size == 1) {
+        start(AnchorsManagerBuilder.allTask.first())
     } else {
-        for (task in validSon) {
-            setUp.behind(task)
+        AnchorsManagerBuilder.allTask.forEach {
+            setUp.behind(it)
         }
         start(setUp)
     }
