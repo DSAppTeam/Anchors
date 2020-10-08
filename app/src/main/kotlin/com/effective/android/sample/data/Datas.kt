@@ -99,10 +99,10 @@ class Datas {
                 .anchors { arrayOf(TASK_82) }
                 .graphics {
                     UITHREAD_TASK_A.sons(
-                                TASK_80.sons(
+                            TASK_80.sons(
                                     TASK_81,
                                     TASK_82.sons(TASK_83)),
-                                UITHREAD_TASK_B)
+                            UITHREAD_TASK_B)
                     arrayOf(UITHREAD_TASK_A)
                 }
                 .startUp()
@@ -136,6 +136,22 @@ class Datas {
                 }
                 .startUp()
         return getInstance().curBlockAnchor
+        //等价于
+//        val factory = TestTaskFactory()
+//        val manager = getInstance()
+//                .debuggable { true }
+//                .taskFactory { factory }
+//                .graphics {
+//                    arrayOf(TASK_10.sons(TASK_11.sons(TASK_12.sons(TASK_13))))
+//                };
+//        val lockableAnchor = manager.requestBlockWhenFinish(factory.getTask(TASK_10))
+//        lockableAnchor.setLockListener(object : LockableAnchor.LockListener {
+//            override fun lockUp() {
+//                listener.invoke(lockableAnchor)
+//            }
+//        })
+//        manager.startUp()
+//        return manager.curBlockAnchor
     }
 
     fun startForLinkOneByDsl(runnable: Runnable) {
