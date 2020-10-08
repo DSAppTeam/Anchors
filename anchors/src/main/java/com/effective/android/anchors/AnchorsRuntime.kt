@@ -36,7 +36,6 @@ internal object AnchorsRuntime {
     private val sTaskRuntimeInfo: MutableMap<String, TaskRuntimeInfo> = HashMap()
     //Task 比较逻辑
     val taskComparator: Comparator<Task> = Comparator { lhs, rhs -> compareTask(lhs, rhs) }
-    private val sTraversalVisitor: MutableSet<Task> = mutableSetOf()
 
     @JvmStatic
     fun clear() {
@@ -44,7 +43,6 @@ internal object AnchorsRuntime {
         sAnchorTaskIds.clear()
         sRunBlockApplication.clear()
         sTaskRuntimeInfo.clear()
-        sTraversalVisitor.clear()
     }
 
     @JvmStatic
@@ -153,13 +151,12 @@ internal object AnchorsRuntime {
      * @param task
      */
     @JvmStatic
-    fun traversalDependenciesAndInit(task: Task) { //获取依赖树最大深度
-        val maxDepth = getDependenciesMaxDepth(task, sTraversalVisitor)
-        sTraversalVisitor.clear()
-        val pathTasks = arrayOfNulls<Task>(maxDepth)
-        //遍历初始化运行时数据并打印log
-        traversalDependenciesPath(task, pathTasks, 0)
-        //如果锚点不存在，则移除。存在则提升锚点链的优先级
+    fun traversalDependenciesAndInit(task: Task) {
+
+        val traversalVisitor: LinkedHashSet<Task> = linkedSetOf()
+        traversalVisitor.add(task)
+        traversalDependenciesAndInit(task, traversalVisitor)
+
         val iterator = sAnchorTaskIds.iterator()
         while (iterator.hasNext()) {
             val taskId = iterator.next()
@@ -170,6 +167,53 @@ internal object AnchorsRuntime {
                 val info = getTaskRuntimeInfo(taskId)
                 traversalMaxTaskPriority(info?.task)
             }
+        }
+    }
+
+    /**
+     * 回溯算法遍历依赖树，初始化任务，并记录log
+     *
+     * 如果单条依赖线上存在重复依赖将抛出异常（会造成依赖回环）
+     */
+    @JvmStatic
+    private fun traversalDependenciesAndInit(task: Task, traversalVisitor: LinkedHashSet<Task>) {
+
+        val taskRuntimeInfo = getTaskRuntimeInfo(task.id)
+        if (taskRuntimeInfo == null) {
+            // 如果没有初始化则初始化runtimeInfo
+            val info = TaskRuntimeInfo(task)
+
+            if (sAnchorTaskIds.contains(task.id)) {
+                info.isAnchor = true
+            }
+            sTaskRuntimeInfo[task.id] = info
+        } else {
+            if (!taskRuntimeInfo.isTaskInfo(task)) {
+                throw RuntimeException("Multiple different tasks are not allowed to contain the same id (${task.id})!")
+            }
+        }
+
+        for (nextTask in task.behindTasks) {
+            if (!traversalVisitor.contains(nextTask)) {
+                traversalVisitor.add(nextTask)
+            } else {
+                throw RuntimeException("Do not allow dependency graphs to have a loopback！Related task'id is ${task.id} !")
+            }
+
+            if (sDebuggable && nextTask.behindTasks.isEmpty()) {
+                val iterator = traversalVisitor.iterator()
+                val builder = StringBuilder()
+                while (iterator.hasNext()) {
+                    builder.append(iterator.next().id)
+                    builder.append(" --> ")
+                }
+                // traversalVisitor 一定不为空，故可以 length-5
+                d(Constants.DEPENDENCE_TAG, builder.substring(0, builder.length - 5))
+            }
+
+            traversalDependenciesAndInit(nextTask, traversalVisitor)
+
+            traversalVisitor.remove(nextTask)
         }
     }
 
@@ -186,77 +230,6 @@ internal object AnchorsRuntime {
         for (dependence in task.dependTasks) {
             traversalMaxTaskPriority(dependence)
         }
-    }
-
-    /**
-     * 遍历依赖树
-     * 1. 初始化 sTaskRuntimeInfo
-     * 2. 判断锚点是否存在依赖树中
-     *
-     * @param task
-     * @param pathTasks
-     * @param pathLen
-     */
-    private fun traversalDependenciesPath(task: Task, pathTasks: Array<Task?>, pathLen: Int) {
-        var pathLen = pathLen
-        pathTasks[pathLen++] = task
-        //依赖路径到尽头了
-        if (task.behindTasks.isEmpty()) {
-            val stringBuilder = StringBuilder()
-            for (i in 0 until pathLen) {
-                val pathItem = pathTasks[i]
-                if (pathItem != null) {
-                    if (hasTaskRuntimeInfo(pathItem.id)) {
-                        val taskRuntimeInfo = getTaskRuntimeInfo(pathItem.id)
-                        //不允许框架层存在两个相同id的task
-                        if (taskRuntimeInfo != null && !taskRuntimeInfo.isTaskInfo(pathItem)) {
-                            throw RuntimeException("Multiple different tasks are not allowed to contain the same id (" + pathItem.id + ")!")
-                        }
-                    } else { //如果没有初始化则初始化runtimeInfo
-                        val taskRuntimeInfo = TaskRuntimeInfo(pathItem)
-                        if (sAnchorTaskIds.contains(pathItem.id)) {
-                            taskRuntimeInfo.isAnchor = true
-                        }
-                        sTaskRuntimeInfo[pathItem.id] = taskRuntimeInfo
-                    }
-                    if (sDebuggable) {
-                        stringBuilder.append((if (i == 0) "" else " --> ") + pathItem.id)
-                    }
-                }
-            }
-            if (sDebuggable) {
-                d(Constants.DEPENDENCE_TAG, stringBuilder.toString())
-            }
-        } else {
-            for (behindTask in task.behindTasks) {
-                traversalDependenciesPath(behindTask, pathTasks, pathLen)
-            }
-        }
-    }
-
-    /**
-     * 获取依赖树的最大深度
-     *
-     * @param task
-     * @return
-     */
-    private fun getDependenciesMaxDepth(task: Task, sTraversalVisitor: MutableSet<Task>): Int { //判断依赖路径是否存在异常，不允许存在回环的依赖
-        var maxDepth = 0
-        if (!sTraversalVisitor.contains(task)) {
-            sTraversalVisitor.add(task)
-        } else {
-            throw RuntimeException("Do not allow dependency graphs to have a loopback！Related task'id is " + task.id + "!")
-        }
-        for (behindTask in task.behindTasks) {
-            val newTasks: MutableSet<Task> = HashSet()
-            newTasks.addAll(sTraversalVisitor)
-            val depth = getDependenciesMaxDepth(behindTask, newTasks)
-            if (depth >= maxDepth) {
-                maxDepth = depth
-            }
-        }
-        maxDepth++
-        return maxDepth
     }
 
     internal class InnerThreadPool {
