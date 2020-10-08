@@ -11,6 +11,7 @@ class TaskRuntimeInfo(var task: Task) {
 
     val stateTime: SparseArray<Long>
     var isAnchor = false
+    val dependencies: Set<String>
     var threadName: String = ""
 
     /**
@@ -27,9 +28,6 @@ class TaskRuntimeInfo(var task: Task) {
         stateTime.put(state, time)
     }
 
-    val dependencies: Set<String>
-        get() = task.dependTaskName
-
     fun isTaskInfo(task: Task?): Boolean {
         return task != null && this.task === task
     }
@@ -42,11 +40,11 @@ class TaskRuntimeInfo(var task: Task) {
     }
 
     init {
-        this.task = task
         threadName = ""
         stateTime = SparseArray()
         setStateTime(TaskState.START, DEFAULT_TIME)
         setStateTime(TaskState.RUNNING, DEFAULT_TIME)
         setStateTime(TaskState.FINISHED, DEFAULT_TIME)
+        dependencies = task.getDependTaskName()
     }
 }
