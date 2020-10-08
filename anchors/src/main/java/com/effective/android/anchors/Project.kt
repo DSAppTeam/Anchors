@@ -124,7 +124,7 @@ class Project private constructor(id: String) : Task(id) {
             val builder = TaskCreatorBuilder()
             mTaskCreator = object : TaskCreator {
                 override fun createTask(taskName: String): Task {
-                    return builder.also(init).createTask.invoke(taskName);
+                    return builder.also(init).createTask.invoke(taskName)
                 }
             }
         }

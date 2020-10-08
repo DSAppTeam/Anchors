@@ -168,7 +168,7 @@ internal object AnchorsManagerBuilder {
     var factory: Project.TaskFactory? = null
     var block: String? = null
     var blockListener: ((lockableAnchor: LockableAnchor) -> Unit)? = null
-    val allTask: LinkedHashSet<Task> = LinkedHashSet<Task>();
+    val allTask: LinkedHashSet<Task> = LinkedHashSet<Task>()
 
     fun setUp() {
         debuggable = false
