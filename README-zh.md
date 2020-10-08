@@ -5,7 +5,7 @@
 ![](https://travis-ci.org/YummyLau/Anchors.svg?branch=master)
 ![Language](https://img.shields.io/badge/language-java-orange.svg)
 ![Language](https://img.shields.io/badge/language-kotlin-orange.svg)
-![Version](https://img.shields.io/badge/version-1.1.1-blue.svg)
+![Version](https://img.shields.io/badge/version-1.1.2-blue.svg)
 
 README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [中文](https://github.com/YummyLau/Anchors/blob/master/README-zh.md)
 
@@ -15,7 +15,8 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 * 1.0.4（2019/12/31） 优化线上反馈多线程同步通知下一节点启动的问题
 * 1.0.5（2020/01/20） 新增节点释放监听入口，新增多进程/等待/重启新链等 demo 场景（见 Sample）
 * 1.1.0（2020/05/13） 支持 kotlin 及 DSL 特性
-* 1.1.1 (2020/07/31)  优化DSL block api
+* 1.1.1 (2020/07/31)  优化 DSL block api
+* 1.1.2 (2020/10/08)  优化依赖树遍历速度，修复 Log-TASK_DETAIL 依赖任务无信息的问题
 
 
 #### 简介
@@ -56,7 +57,7 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 2. 在 **app** 模块下添加依赖
 
 	```
-	implementation 'com.effective.android:anchors:1.1.1'
+	implementation 'com.effective.android:anchors:1.1.2'
 	```
 
 3. 添加依赖图并启动
