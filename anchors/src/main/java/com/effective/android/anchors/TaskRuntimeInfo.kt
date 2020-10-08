@@ -45,6 +45,6 @@ class TaskRuntimeInfo(var task: Task) {
         setStateTime(TaskState.START, DEFAULT_TIME)
         setStateTime(TaskState.RUNNING, DEFAULT_TIME)
         setStateTime(TaskState.FINISHED, DEFAULT_TIME)
-        dependencies = task.getDependTaskName()
+        dependencies = task.dependTaskName
     }
 }

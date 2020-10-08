@@ -49,6 +49,7 @@ class Datas {
                 .taskFactory { TestTaskFactory() }
                 .anchors { arrayOf(TASK_93, "TASK_E", TASK_10) }
                 .block("TASK_10000") {
+
                     //根据业务进行  it.smash() or it.unlock()
                 }
                 .graphics {

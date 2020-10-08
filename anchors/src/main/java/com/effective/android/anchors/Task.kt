@@ -91,13 +91,14 @@ abstract class Task @JvmOverloads constructor(//mId,唯一存在
         }
     }
 
-    fun getDependTaskName(): Set<String> {
-        val result: MutableSet<String> = HashSet()
-        for (task in dependTasks) {
-            result.add(task.id)
+    val dependTaskName: Set<String>
+        get() {
+            val result: MutableSet<String> = HashSet()
+            for (task in dependTasks) {
+                result.add(task.id)
+            }
+            return result
         }
-        return result
-    }
 
     fun removeDepend(originTask: Task?) {
         if (dependTasks.contains(originTask)) {
