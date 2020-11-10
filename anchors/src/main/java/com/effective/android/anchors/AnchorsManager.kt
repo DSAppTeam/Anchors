@@ -1,28 +1,48 @@
 package com.effective.android.anchors
 
 import android.support.annotation.MainThread
-import android.text.TextUtils
-import com.effective.android.anchors.AnchorsRuntime.addAnchorTasks
-import com.effective.android.anchors.AnchorsRuntime.anchorTasks
-import com.effective.android.anchors.AnchorsRuntime.clear
-import com.effective.android.anchors.AnchorsRuntime.debuggable
-import com.effective.android.anchors.AnchorsRuntime.handler
-import com.effective.android.anchors.AnchorsRuntime.hasAnchorTasks
-import com.effective.android.anchors.AnchorsRuntime.hasRunTasks
-import com.effective.android.anchors.AnchorsRuntime.openDebug
-import com.effective.android.anchors.AnchorsRuntime.traversalDependenciesAndInit
-import com.effective.android.anchors.AnchorsRuntime.tryRunBlockRunnable
-import com.effective.android.anchors.Logger.d
-import com.effective.android.anchors.Utils.assertMainThread
-import com.effective.android.anchors.Utils.insertAfterTask
+import com.effective.android.anchors.log.Logger.d
+import com.effective.android.anchors.util.Utils.assertMainThread
+import com.effective.android.anchors.util.Utils.insertAfterTask
+import com.effective.android.anchors.log.Logger
+import com.effective.android.anchors.task.lock.LockableTask
+import com.effective.android.anchors.task.project.Project
+import com.effective.android.anchors.task.Task
+import com.effective.android.anchors.task.lock.LockableAnchor
 import java.util.*
-import kotlin.collections.ArrayList
+import java.util.concurrent.ExecutorService
+import kotlin.collections.HashMap
 
-object AnchorsManager {
+/**
+ * updated by yummylau on 2020/01/09 调整为非单例，支持扩展到任何场景
+ */
+class AnchorsManager {
 
     var debuggable = false
-    var anchorTaskIds: MutableSet<String> = HashSet()
-    var curBlockAnchor: LockableAnchor? = null
+    private var anchorTaskIds: MutableSet<String> = HashSet()
+    private var blockAnchors = HashMap<String, LockableAnchor?>()
+    private var currentBlockAnchor: LockableAnchor? = null
+    private val anchorsRuntime: AnchorsRuntime
+
+    private constructor(executor: ExecutorService? = null) {
+        this.anchorsRuntime = AnchorsRuntime(executor)
+    }
+
+    companion object {
+        @JvmStatic
+        @JvmOverloads
+        fun getInstance(executor: ExecutorService? = null): AnchorsManager {
+            return AnchorsManager(executor)
+        }
+    }
+
+    fun getLockableAnchors(): Map<String, LockableAnchor?> {
+        return blockAnchors
+    }
+
+    fun getAnchorsRuntime(): AnchorsRuntime {
+        return anchorsRuntime
+    }
 
     fun debuggable(debuggable: Boolean): AnchorsManager {
         this.debuggable = debuggable
@@ -39,13 +59,13 @@ object AnchorsManager {
      * @return
      */
     fun requestBlockWhenFinish(task: Task): LockableAnchor {
-        val lockableAnchor = LockableAnchor(handler)
+        val lockableAnchor = LockableAnchor(anchorsRuntime.handler)
         val lockableTask = LockableTask(task, lockableAnchor)
         insertAfterTask(lockableTask, task)
-        curBlockAnchor = lockableAnchor
-        curBlockAnchor?.setReleaseListener(object : LockableAnchor.ReleaseListener {
+        blockAnchors[task.id] = lockableAnchor
+        lockableAnchor.addReleaseListener(object : LockableAnchor.ReleaseListener {
             override fun release() {
-                curBlockAnchor = null
+                blockAnchors[task.id] = null
             }
         })
         return lockableAnchor
@@ -74,16 +94,7 @@ object AnchorsManager {
         return this
     }
 
-    fun syncConfigInfoToRuntime() {
-        clear()
-        openDebug(debuggable)
-        addAnchorTasks(anchorTaskIds)
-        debuggable = false
-        anchorTaskIds.clear()
-    }
-
     @MainThread
-    @Synchronized
     fun start(task: Task?) {
         assertMainThread()
         if (task == null) {
@@ -94,17 +105,17 @@ object AnchorsManager {
         if (startTask is Project) {
             startTask = (task as Project).startTask
         }
-        traversalDependenciesAndInit(startTask)
+        anchorsRuntime.traversalDependenciesAndInit(startTask)
         val logEnd = logStartWithAnchorsInfo()
         startTask.start()
-        while (hasAnchorTasks()) {
+        while (anchorsRuntime.hasAnchorTasks()) {
             try {
                 Thread.sleep(10)
             } catch (e: InterruptedException) {
                 e.printStackTrace()
             }
-            while (hasRunTasks()) {
-                tryRunBlockRunnable()
+            while (anchorsRuntime.hasRunTasks()) {
+                anchorsRuntime.tryRunBlockRunnable()
             }
         }
         if (logEnd) {
@@ -112,53 +123,44 @@ object AnchorsManager {
         }
     }
 
-
-    @Synchronized
-    @JvmStatic
-    fun getInstance(): AnchorsManager {
-        return this
-    }
-
-    @Synchronized
-    @JvmStatic
-    fun instance(): AnchorsManager {
-        return this
+    private fun syncConfigInfoToRuntime() {
+        anchorsRuntime.clear()
+        anchorsRuntime.debuggable = debuggable;
+        anchorsRuntime.addAnchorTasks(anchorTaskIds)
+        debuggable = false
+        anchorTaskIds.clear()
     }
 
 
-    /**
-     * 打印锚点信息
-     *
-     * @return
-     */
     private fun logStartWithAnchorsInfo(): Boolean {
-        if (!debuggable()) {
+        if (!debuggable) {
             return false
         }
         val stringAnchorsManagerBuilder = StringBuilder()
-        val hasAnchorTask = hasAnchorTasks()
+        val hasAnchorTask = anchorsRuntime.hasAnchorTasks()
         if (hasAnchorTask) {
             stringAnchorsManagerBuilder.append(Constants.HAS_ANCHOR)
             stringAnchorsManagerBuilder.append("( ")
-            for (taskId in anchorTasks) {
+            for (taskId in anchorsRuntime.anchorTaskIds) {
                 stringAnchorsManagerBuilder.append("\"$taskId\" ")
             }
             stringAnchorsManagerBuilder.append(")")
         } else {
             stringAnchorsManagerBuilder.append(Constants.NO_ANCHOR)
         }
-        d(Constants.ANCHORS_INFO_TAG, stringAnchorsManagerBuilder.toString())
+        if (debuggable) {
+            d(Constants.ANCHORS_INFO_TAG, stringAnchorsManagerBuilder.toString())
+        }
         return hasAnchorTask
     }
 
-    /**
-     * 打印锚点信息
-     */
     private fun logEndWithAnchorsInfo() {
-        if (!debuggable()) {
+        if (!debuggable) {
             return
         }
-        d(Constants.ANCHORS_INFO_TAG, Constants.ANCHOR_RELEASE)
+        if (debuggable) {
+            d(Constants.ANCHORS_INFO_TAG, Constants.ANCHOR_RELEASE)
+        }
     }
 }
 
@@ -167,8 +169,7 @@ internal object AnchorsManagerBuilder {
     var debuggable = false
     var anchors: MutableList<String> = mutableListOf()
     var factory: Project.TaskFactory? = null
-    var block: String? = null
-    var blockListener: ((lockableAnchor: LockableAnchor) -> Unit)? = null
+    var blocks = mutableMapOf<String, ((lockableAnchor: LockableAnchor) -> Unit)>()
     val allTask: MutableSet<Task> = mutableSetOf();
     var sons: Array<String>? = null
 
@@ -176,8 +177,7 @@ internal object AnchorsManagerBuilder {
         debuggable = false
         anchors.clear()
         factory = null
-        block = null
-        blockListener = null
+        blocks.clear()
         sons = null
         allTask.clear()
     }
@@ -209,8 +209,7 @@ fun AnchorsManager.taskFactory(init: () -> Project.TaskFactory): AnchorsManager 
 }
 
 fun AnchorsManager.block(block: String, listener: (lockableAnchor: LockableAnchor) -> Unit): AnchorsManager {
-    AnchorsManagerBuilder.block = block
-    AnchorsManagerBuilder.blockListener = listener
+    AnchorsManagerBuilder.blocks[block] = listener
     return this
 }
 
@@ -267,18 +266,19 @@ fun AnchorsManager.startUp(): AnchorsManager {
         return this
     }
 
-    if (!AnchorsManagerBuilder.block.isNullOrEmpty()) {
-        val blockTask = AnchorsManagerBuilder.makeTask(AnchorsManagerBuilder.block!!)
-        if (blockTask == null) {
-            Logger.w("can find task's id = ${AnchorsManagerBuilder.block} in factory")
-        } else {
-            val lock = requestBlockWhenFinish(blockTask)
-            val listener = AnchorsManagerBuilder.blockListener
-            lock.setLockListener(object : LockableAnchor.LockListener {
-                override fun lockUp() {
-                    listener?.invoke(lock)
-                }
-            })
+    if (!AnchorsManagerBuilder.blocks.isNullOrEmpty()) {
+        AnchorsManagerBuilder.blocks.forEach {
+            val blockTask = AnchorsManagerBuilder.makeTask(it.key)
+            if (blockTask == null) {
+                Logger.w("can find task's id = ${it.key} in factory")
+            } else {
+                val lock = requestBlockWhenFinish(blockTask)
+                lock.setLockListener(object : LockableAnchor.LockListener {
+                    override fun lockUp() {
+                        it.value.invoke(lock)
+                    }
+                })
+            }
         }
     }
 

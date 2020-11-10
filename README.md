@@ -5,7 +5,7 @@
 ![](https://travis-ci.org/YummyLau/Anchors.svg?branch=master)
 ![Language](https://img.shields.io/badge/language-java-orange.svg)
 ![Language](https://img.shields.io/badge/language-kotlin-orange.svg)
-![Version](https://img.shields.io/badge/version-1.1.2-blue.svg)
+![Version](https://img.shields.io/badge/version-1.1.3-blue.svg)
 
 README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [中文](https://github.com/YummyLau/Anchors/blob/master/README-zh.md)
 
@@ -18,6 +18,7 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 * 1.1.0 (2020/05/13) Support kotlin and DSL features
 * 1.1.1 (2020/07/31) Optimize the DSL block API
 * 1.1.2 (2020/10/08) Optimize the traversal speed of the dependency tree, and fix the problem that the Log-TASK_DETAIL dependency task has no information.
+* 1.1.3 (2020/11/10) Support multiple block nodes, AnchorManager is no longer open as a singleton, supports custom thread pool, taskListener supports DSL selective coverage method
 
 #### Introduction
 
@@ -57,7 +58,7 @@ Advantages over `alpha`
 2. Add dependencies under the **app** module
 
 	```
-	implementation 'com.effective.android:anchors:1.1.2'
+	implementation 'com.effective.android:anchors:1.1.3'
 	```
 
 3. Add dependency graph and start
@@ -114,7 +115,7 @@ Advantages over `alpha`
      
      ==> koltin also supports all the above processes, and also provides a dsl build form to build a dependency graph, the code can refer to the Datas class
      Describe a dependency graph by calling the graphics method, use <TaskName> to build, and pass a factory for unified processing
-     getInstance()
+     AnchorsManager.getInstance()
          .debuggable { true }
          .taskFactory { TestTaskFactory() }     //The factory that generates task according to id
          .anchors { arrayOf(TASK_93, TASK_10) } //task id corresponding to anchor

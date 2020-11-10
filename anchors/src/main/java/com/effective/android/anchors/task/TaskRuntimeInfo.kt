@@ -1,6 +1,7 @@
-package com.effective.android.anchors
+package com.effective.android.anchors.task
 
 import android.util.SparseArray
+import com.effective.android.anchors.task.project.Project
 
 object EmptyTask: Task("inner_default_empty_task"){
     override fun run(name: String) {

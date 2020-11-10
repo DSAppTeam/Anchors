@@ -1,9 +1,9 @@
 package com.effective.android.sample.data
 
 import com.effective.android.anchors.*
-import com.effective.android.anchors.AnchorsManager.debuggable
-import com.effective.android.anchors.AnchorsManager.getInstance
-import com.effective.android.sample.data.TestTaskFactory.*
+import com.effective.android.anchors.task.Task
+import com.effective.android.anchors.task.listener.TaskListener
+import com.effective.android.anchors.task.lock.LockableAnchor
 
 class Datas {
     /**
@@ -44,7 +44,7 @@ class Datas {
      * 2019-12-11 14:05:46.087 32459-32459/com.effective.android.sample D/SampleApplication: onCreate - end
      */
     fun startFromApplicationOnMainProcessByDsl() {
-        getInstance()
+        AnchorsManager.getInstance()
                 .debuggable { true }
                 .taskFactory { TestTaskFactory() }
                 .anchors { arrayOf(TASK_93, "TASK_E", TASK_10) }
@@ -93,7 +93,7 @@ class Datas {
     }
 
     fun startFromApplicationOnPrivateProcess() {
-        getInstance()
+        AnchorsManager.getInstance()
                 .debuggable { true }
                 .taskFactory { TestTaskFactory() }
                 .anchors { arrayOf(TASK_82) }
@@ -109,7 +109,7 @@ class Datas {
     }
 
     fun startFromApplicationOnPublicProcess() {
-        getInstance()
+        AnchorsManager.getInstance()
                 .debuggable { true }
                 .taskFactory { TestTaskFactory() }
                 .anchors { arrayOf(TASK_93) }
@@ -125,7 +125,7 @@ class Datas {
     }
 
     fun startForTestLockableAnchorByDsl(listener: (lockableAnchor: LockableAnchor) -> Unit): LockableAnchor? {
-        getInstance()
+        val manager = AnchorsManager.getInstance()
                 .debuggable { true }
                 .taskFactory { TestTaskFactory() }
                 .block(TASK_10) {
@@ -135,7 +135,7 @@ class Datas {
                     arrayOf(TASK_10.sons(TASK_11.sons(TASK_12.sons(TASK_13))))
                 }
                 .startUp()
-        return getInstance().curBlockAnchor
+        return manager.getLockableAnchors()[TASK_10]
         //等价于
 //        val factory = TestTaskFactory()
 //        val manager = getInstance()
@@ -151,21 +151,18 @@ class Datas {
 //            }
 //        })
 //        manager.startUp()
-//        return manager.curBlockAnchor
+//        return lockableAnchor
     }
 
     fun startForLinkOneByDsl(runnable: Runnable) {
         val factory = TestTaskFactory();
         val end = factory.getTask(TASK_13);
-        end.addTaskListener(object : TaskListener {
-            override fun onStart(task: Task) {}
-            override fun onRunning(task: Task) {}
-            override fun onFinish(task: Task) {}
-            override fun onRelease(task: Task) {
+        end.addTaskListener {
+            onRelease {
                 runnable.run()
             }
-        });
-        getInstance()
+        }
+        val manager = AnchorsManager.getInstance()
                 .debuggable { true }
                 .taskFactory { factory }
                 .graphics {
@@ -175,7 +172,7 @@ class Datas {
     }
 
     fun startForLinkTwoByDsl() {
-        getInstance()
+        val manager = AnchorsManager.getInstance()
                 .debuggable { true }
                 .taskFactory { TestTaskFactory() }
                 .graphics {

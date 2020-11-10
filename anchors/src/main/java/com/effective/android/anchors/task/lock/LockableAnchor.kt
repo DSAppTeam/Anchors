@@ -1,15 +1,17 @@
-package com.effective.android.anchors
+package com.effective.android.anchors.task.lock
 
 import android.os.Handler
-import com.effective.android.anchors.Logger.d
+import com.effective.android.anchors.Constants
+import com.effective.android.anchors.log.Logger.d
 
 class LockableAnchor internal constructor(private val handler: Handler) {
     private var lockListener: LockListener? = null
     var lockId: String? = null
         private set
     private val mLockObject = Object()
-    private var mReleaseListener: ReleaseListener? = null
+    private var releaseListeners = mutableListOf<ReleaseListener>()
     private var unlock = false
+
     /**
      * 外部监听上锁时机，在监听到上锁之后处理业务逻辑，并完成解锁或者破坏锁行为。
      * @param lockListener
@@ -18,8 +20,10 @@ class LockableAnchor internal constructor(private val handler: Handler) {
         this.lockListener = lockListener
     }
 
-    internal fun setReleaseListener(releaseListener: ReleaseListener) {
-        this.mReleaseListener = releaseListener
+    internal fun addReleaseListener(releaseListener: ReleaseListener) {
+        if (!releaseListeners.contains(releaseListener)) {
+            releaseListeners.add(releaseListener)
+        }
     }
 
     internal fun setTargetTaskId(id: String?) {
@@ -46,7 +50,10 @@ class LockableAnchor internal constructor(private val handler: Handler) {
         synchronized(mLockObject) {
             unlock = true
             mLockObject.notify()
-            mReleaseListener?.release()
+            for (releaseListener in releaseListeners) {
+                releaseListener.release()
+            }
+            releaseListeners.clear()
         }
     }
 
@@ -55,7 +62,10 @@ class LockableAnchor internal constructor(private val handler: Handler) {
         synchronized(mLockObject) {
             unlock = false
             mLockObject.notify()
-            mReleaseListener?.release()
+            for (releaseListener in releaseListeners) {
+                releaseListener.release()
+            }
+            releaseListeners.clear()
         }
     }
 

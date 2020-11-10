@@ -1,9 +1,15 @@
-package com.effective.android.anchors
+package com.effective.android.anchors.task
 
 import android.os.Build
 import android.os.Trace
 import android.text.TextUtils
-import com.effective.android.anchors.Utils.compareTask
+import com.effective.android.anchors.*
+import com.effective.android.anchors.util.Utils.compareTask
+import com.effective.android.anchors.log.LogTaskListener
+import com.effective.android.anchors.task.listener.TaskListener
+import com.effective.android.anchors.task.listener.TaskListenerBuilder
+import com.effective.android.anchors.task.lock.LockableTask
+import com.effective.android.anchors.task.project.Project
 import java.util.*
 
 /**
@@ -24,10 +30,21 @@ abstract class Task @JvmOverloads constructor(//mId,唯一存在
     val dependTasks = mutableSetOf<Task>() //依赖者
     private val taskListeners: MutableList<TaskListener> = ArrayList() //监听器
     private var logTaskListeners: TaskListener? = LogTaskListener()
+    internal lateinit var anchorsRuntime: AnchorsRuntime
+
+    internal fun bindRuntime(anchorsRuntime: AnchorsRuntime) {
+        this.anchorsRuntime = anchorsRuntime;
+    }
+
+    fun addTaskListener(function: TaskListenerBuilder.() -> Unit) {
+        taskListeners.add(TaskListenerBuilder().also(function))
+    }
 
     fun addTaskListener(taskListener: TaskListener?) {
-        if (taskListener != null && !taskListeners.contains(taskListener)) {
-            taskListeners.add(taskListener)
+        taskListener?.let {
+            if (!taskListeners.contains(it)) {
+                taskListeners.add(it)
+            }
         }
     }
 
@@ -38,11 +55,11 @@ abstract class Task @JvmOverloads constructor(//mId,唯一存在
         }
         toStart()
         executeTime = System.currentTimeMillis()
-        AnchorsRuntime.executeTask(this)
+        anchorsRuntime.executeTask(this)
     }
 
     override fun run() {
-        if (AnchorsRuntime.debuggable() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+        if (anchorsRuntime.debuggable && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             Trace.beginSection(id)
         }
         toRunning()
@@ -50,7 +67,7 @@ abstract class Task @JvmOverloads constructor(//mId,唯一存在
         toFinish()
         notifyBehindTasks()
         release()
-        if (AnchorsRuntime.debuggable() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+        if (anchorsRuntime.debuggable && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             Trace.endSection()
         }
     }
@@ -59,8 +76,8 @@ abstract class Task @JvmOverloads constructor(//mId,唯一存在
 
     fun toStart() {
         state = TaskState.START
-        AnchorsRuntime.setStateInfo(this)
-        if (AnchorsRuntime.debuggable()) {
+        anchorsRuntime.setStateInfo(this)
+        if (anchorsRuntime.debuggable) {
             logTaskListeners!!.onStart(this)
         }
         for (listener in taskListeners) {
@@ -70,9 +87,9 @@ abstract class Task @JvmOverloads constructor(//mId,唯一存在
 
     fun toRunning() {
         state = TaskState.RUNNING
-        AnchorsRuntime.setStateInfo(this)
-        AnchorsRuntime.setThreadName(this, Thread.currentThread().name)
-        if (AnchorsRuntime.debuggable()) {
+        anchorsRuntime.setStateInfo(this)
+        anchorsRuntime.setThreadName(this, Thread.currentThread().name)
+        if (anchorsRuntime.debuggable) {
             logTaskListeners!!.onRunning(this)
         }
         for (listener in taskListeners) {
@@ -82,8 +99,8 @@ abstract class Task @JvmOverloads constructor(//mId,唯一存在
 
     fun toFinish() {
         state = TaskState.FINISHED
-        AnchorsRuntime.setStateInfo(this)
-        if (AnchorsRuntime.debuggable()) {
+        anchorsRuntime.setStateInfo(this)
+        if (anchorsRuntime.debuggable) {
             logTaskListeners!!.onFinish(this)
         }
         for (listener in taskListeners) {
@@ -187,7 +204,7 @@ abstract class Task @JvmOverloads constructor(//mId,唯一存在
         }
         if (behindTasks.isNotEmpty()) {
             if (behindTasks.size > 1) {
-                Collections.sort(behindTasks, AnchorsRuntime.taskComparator)
+                Collections.sort(behindTasks, anchorsRuntime.taskComparator)
             }
             //遍历记下来的任务，通知它们说存在的前置已经完成
             for (task in behindTasks) {
@@ -217,12 +234,12 @@ abstract class Task @JvmOverloads constructor(//mId,唯一存在
 
     open fun release() {
         state = TaskState.RELEASE
-        AnchorsRuntime.setStateInfo(this)
-        AnchorsRuntime.removeAnchorTask(id)
-        AnchorsRuntime.getTaskRuntimeInfo(id)?.clearTask()
+        anchorsRuntime.setStateInfo(this)
+        anchorsRuntime.removeAnchorTask(id)
+        anchorsRuntime.getTaskRuntimeInfo(id)?.clearTask()
         dependTasks.clear()
         behindTasks.clear()
-        if (AnchorsRuntime.debuggable()) {
+        if (anchorsRuntime.debuggable) {
             logTaskListeners?.onRelease(this)
             logTaskListeners = null
         }

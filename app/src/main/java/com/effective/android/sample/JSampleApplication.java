@@ -29,16 +29,16 @@ public class JSampleApplication extends Application {
         Log.d(TAG, "SampleApplication#onCreate - end");
     }
 
-    private void initDependenciesCompatMultiProcess(){
+    private void initDependenciesCompatMultiProcess() {
         String processName = ProcessUtils.getProcessName();
-        if(!TextUtils.isEmpty(processName)){
-            if(TextUtils.equals(processName,getPackageName())){
+        if (!TextUtils.isEmpty(processName)) {
+            if (TextUtils.equals(processName, getPackageName())) {
                 Log.d(TAG, "SampleApplication#initDependenciesCompatMutilProcess - startFromApplicationOnMainProcess");
                 new JDatas().startFromApplicationOnMainProcess();
-            }else if(processName.startsWith(getPackageName())){
+            } else if (processName.startsWith(getPackageName())) {
                 Log.d(TAG, "SampleApplication#initDependenciesCompatMutilProcess - startFromApplicationOnPrivateProcess");
                 new JDatas().startFromApplicationOnPrivateProcess();
-            }else{
+            } else {
                 Log.d(TAG, "SampleApplication#initDependenciesCompatMutilProcess - startFromApplicationOnPublicProcess");
                 new JDatas().startFromApplicationOnPublicProcess();
             }

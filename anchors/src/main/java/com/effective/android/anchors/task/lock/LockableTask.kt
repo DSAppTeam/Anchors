@@ -1,4 +1,6 @@
-package com.effective.android.anchors
+package com.effective.android.anchors.task.lock
+
+import com.effective.android.anchors.task.Task
 
 internal class LockableTask(wait: Task, lockableAnchor: LockableAnchor) : Task(wait.id + "_waiter", true) {
     private val lockableAnchor: LockableAnchor

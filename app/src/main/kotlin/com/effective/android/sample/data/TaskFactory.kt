@@ -1,8 +1,8 @@
 package com.effective.android.sample.data
 
-import com.effective.android.anchors.Project.TaskFactory
-import com.effective.android.anchors.Task
-import com.effective.android.anchors.TaskCreator
+import com.effective.android.anchors.task.project.Project.TaskFactory
+import com.effective.android.anchors.task.Task
+import com.effective.android.anchors.task.TaskCreator
 import java.util.*
 
 abstract class TestTask(
@@ -47,7 +47,7 @@ class TASK_12 : TestTask(Datas.TASK_12, true) {
     }
 }
 
-class TASK_13 : TestTask(Datas.TASK_13, true) {
+class TASK_13 : TestTask(Datas.TASK_13, false) {
     override fun run(name: String) {
         doJob(200)
     }

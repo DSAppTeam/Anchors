@@ -5,7 +5,7 @@
 ![](https://travis-ci.org/YummyLau/Anchors.svg?branch=master)
 ![Language](https://img.shields.io/badge/language-java-orange.svg)
 ![Language](https://img.shields.io/badge/language-kotlin-orange.svg)
-![Version](https://img.shields.io/badge/version-1.1.2-blue.svg)
+![Version](https://img.shields.io/badge/version-1.1.3-blue.svg)
 
 README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [中文](https://github.com/YummyLau/Anchors/blob/master/README-zh.md)
 
@@ -17,6 +17,7 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 * 1.1.0（2020/05/13） 支持 kotlin 及 DSL 特性
 * 1.1.1 (2020/07/31)  优化 DSL block api
 * 1.1.2 (2020/10/08)  优化依赖树遍历速度，修复 Log-TASK_DETAIL 依赖任务无信息的问题
+* 1.1.3 (2020/11/10)  支持多个 block 节点，AnchorManager不再作为单例开放，支持自定义线程池，taskListener 支持 DSL 选择性覆盖方法
 
 
 #### 简介
@@ -57,7 +58,7 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 2. 在 **app** 模块下添加依赖
 
 	```
-	implementation 'com.effective.android:anchors:1.1.2'
+	implementation 'com.effective.android:anchors:1.1.3'
 	```
 
 3. 添加依赖图并启动
@@ -114,7 +115,7 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
     
     ==> koltin 也支持上述所有流程，同时也提供了 dsl 的构建形式构建依赖图，代码可参考 Datas 类
     通过调用 graphics 方法来描述一张依赖图，使用 <TaskName> 构建，传递一个工厂统一处理
-    getInstance()
+    AnchorsManager.getInstance()
         .debuggable { true }
         .taskFactory { TestTaskFactory() }     //根据id生成task的工厂
         .anchors { arrayOf(TASK_93, TASK_10) } //anchor 对应的 task id

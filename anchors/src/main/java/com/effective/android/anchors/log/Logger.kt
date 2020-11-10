@@ -1,6 +1,7 @@
-package com.effective.android.anchors
+package com.effective.android.anchors.log
 
 import android.util.Log
+import com.effective.android.anchors.Constants
 
 /**
  * 调试 log 管理
@@ -25,22 +26,16 @@ object Logger {
 
     @JvmStatic
     fun e(tag: String?, obj: Any) {
-        if (AnchorsRuntime.debuggable()) {
-            Log.e(tag, obj.toString())
-        }
+        Log.e(tag, obj.toString())
     }
 
     @JvmStatic
     fun w(tag: String?, obj: Any) {
-        if (AnchorsRuntime.debuggable()) {
-            Log.w(tag, obj.toString())
-        }
+        Log.w(tag, obj.toString())
     }
 
     @JvmStatic
     fun d(tag: String?, obj: Any) {
-        if (AnchorsRuntime.debuggable()) {
-            Log.d(tag, obj.toString())
-        }
+        Log.d(tag, obj.toString())
     }
 }

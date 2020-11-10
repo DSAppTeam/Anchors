@@ -1,4 +1,8 @@
-package com.effective.android.anchors
+package com.effective.android.anchors.task.project
+
+import com.effective.android.anchors.task.Task
+import com.effective.android.anchors.task.TaskCreator
+import com.effective.android.anchors.task.TaskCreatorBuilder
 
 
 class Project private constructor(id: String) : Task(id) {

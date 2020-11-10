@@ -1,6 +1,11 @@
-package com.effective.android.anchors
+package com.effective.android.anchors.log
 
-import com.effective.android.anchors.Logger.d
+import com.effective.android.anchors.Constants
+import com.effective.android.anchors.log.Logger.d
+import com.effective.android.anchors.task.Task
+import com.effective.android.anchors.task.listener.TaskListener
+import com.effective.android.anchors.task.TaskRuntimeInfo
+import com.effective.android.anchors.task.TaskState
 
 class LogTaskListener : TaskListener {
 
@@ -23,7 +28,7 @@ class LogTaskListener : TaskListener {
 
     companion object {
         private fun logTaskRuntimeInfoString(task: Task) {
-            val taskRuntimeInfo = AnchorsRuntime.getTaskRuntimeInfo(task.id) ?: return
+            val taskRuntimeInfo = task.anchorsRuntime.getTaskRuntimeInfo(task.id) ?: return
             val map = taskRuntimeInfo.stateTime
             val startTime = map[TaskState.START]
             val runningTime = map[TaskState.RUNNING]

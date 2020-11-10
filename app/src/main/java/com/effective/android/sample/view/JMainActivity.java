@@ -8,10 +8,12 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import com.effective.android.anchors.LockableAnchor;
+import com.effective.android.anchors.task.lock.LockableAnchor;
 import com.effective.android.sample.R;
 import com.effective.android.sample.data.JDatas;
 import com.effective.android.sample.util.ProcessUtils;
+
+import java.util.List;
 
 public class JMainActivity extends AppCompatActivity {
 
@@ -60,26 +62,28 @@ public class JMainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.d("MainActivity", "Demo1 - testUserChoose");
-                final LockableAnchor lockableAnchor = new JDatas().startForTestLockableAnchor();
-                lockableAnchor.setLockListener(new LockableAnchor.LockListener() {
-                    @Override
-                    public void lockUp() {
-                        new CusDialog.Builder(JMainActivity.this)
-                                .title("任务(" + lockableAnchor.getLockId() + ")已进入等待状态，请求响应")
-                                .left("终止任务", new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        lockableAnchor.smash();
-                                    }
-                                })
-                                .right("继续执行", new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        lockableAnchor.unlock();
-                                    }
-                                }).build().show();
-                    }
-                });
+                final List<LockableAnchor> lockableAnchors = new JDatas().startForTestLockableAnchor();
+                for(final LockableAnchor lockableAnchor : lockableAnchors){
+                    lockableAnchor.setLockListener(new LockableAnchor.LockListener() {
+                        @Override
+                        public void lockUp() {
+                            new CusDialog.Builder(JMainActivity.this)
+                                    .title("任务(" + lockableAnchor.getLockId() + ")已进入等待状态，请求响应")
+                                    .left("终止任务", new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            lockableAnchor.smash();
+                                        }
+                                    })
+                                    .right("继续执行", new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            lockableAnchor.unlock();
+                                        }
+                                    }).build().show();
+                        }
+                    });
+                }
             }
         });
     }

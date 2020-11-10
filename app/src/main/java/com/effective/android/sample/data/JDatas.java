@@ -1,12 +1,15 @@
 package com.effective.android.sample.data;
 
 import com.effective.android.anchors.AnchorsManager;
-import com.effective.android.anchors.LockableAnchor;
-import com.effective.android.anchors.Project;
-import com.effective.android.anchors.Task;
-import com.effective.android.anchors.TaskListener;
+import com.effective.android.anchors.task.lock.LockableAnchor;
+import com.effective.android.anchors.task.project.Project;
+import com.effective.android.anchors.task.Task;
+import com.effective.android.anchors.task.listener.TaskListener;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.effective.android.anchors.AnchorsManager.getInstance;
 import static com.effective.android.sample.data.Datas.*;
@@ -153,12 +156,13 @@ public class JDatas {
         TestTask UiTaskC = new UITHREAD_TASK_C();
         project9.dependOn(UiTaskA);
         UiTaskC.dependOn(UiTaskA);
-        getInstance().debuggable(true)
+        AnchorsManager.getInstance().debuggable(true)
                 .addAnchors(TASK_93)
                 .start(UiTaskA);
     }
 
-    public LockableAnchor startForTestLockableAnchor(){
+
+    public List<LockableAnchor> startForTestLockableAnchor(){
         TestTaskFactory testTaskFactory = new TestTaskFactory();
         Project.Builder  builder1 = new Project.Builder(PROJECT_1, testTaskFactory);
         builder1.add(TASK_10);
@@ -174,12 +178,16 @@ public class JDatas {
         UiTaskC.dependOn(UiTaskB);
         AnchorsManager anchorsManager = getInstance();
         anchorsManager.debuggable(true);
-        LockableAnchor lockableAnchor = anchorsManager.requestBlockWhenFinish(testTaskFactory.getTask(TASK_10));
+        final LockableAnchor lockableAnchor1 = anchorsManager.requestBlockWhenFinish(testTaskFactory.getTask(TASK_10));
+        final LockableAnchor lockableAnchor2 = anchorsManager.requestBlockWhenFinish(testTaskFactory.getTask(TASK_11));
         anchorsManager.start(UiTaskA);
-        return lockableAnchor;
+        List<LockableAnchor> result = new ArrayList<>();
+        result.add(lockableAnchor1);
+        result.add(lockableAnchor2);
+        return result;
     }
 
-    public void startForLinkOneByDsl(final Runnable runnable) {
+    public AnchorsManager startForLinkOneByDsl(final Runnable runnable) {
         TestTaskFactory factory = new TestTaskFactory();
         Task end = factory.getTask(TASK_13);
         end.addTaskListener(new TaskListener() {
@@ -195,12 +203,14 @@ public class JDatas {
 
             @Override
             public void onFinish(@NotNull Task task) {
-
+                if(runnable != null){
+                    runnable.run();
+                }
             }
 
             @Override
             public void onRelease(@NotNull Task task) {
-                runnable.run();
+
             }
         });
         Project.Builder builder= new Project.Builder(PROJECT_9, factory);
@@ -211,8 +221,9 @@ public class JDatas {
         Project project = builder.build();
         TestTask UiTaskA = new UITHREAD_TASK_A();
         project.dependOn(UiTaskA);
-        getInstance().debuggable(true)
-                .start(UiTaskA);
+        AnchorsManager anchorsManager = getInstance();
+        anchorsManager.debuggable(true).addAnchor(TASK_13).start(UiTaskA);
+        return anchorsManager;
     }
 
     public void startForLinkTwoByDsl() {

@@ -1,4 +1,4 @@
-package com.effective.android.anchors
+package com.effective.android.anchors.task
 
 import android.support.annotation.IntDef
 

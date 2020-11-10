@@ -1,6 +1,7 @@
-package com.effective.android.anchors
+package com.effective.android.anchors.util
 
 import android.os.Looper
+import com.effective.android.anchors.task.Task
 
 object Utils {
 

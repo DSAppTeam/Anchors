@@ -1,4 +1,4 @@
-package com.effective.android.anchors
+package com.effective.android.anchors.task
 
 interface TaskCreator {
     fun createTask(taskName: String): Task
