@@ -108,16 +108,7 @@ class AnchorsManager {
         anchorsRuntime.traversalDependenciesAndInit(startTask)
         val logEnd = logStartWithAnchorsInfo()
         startTask.start()
-        while (anchorsRuntime.hasAnchorTasks()) {
-            try {
-                Thread.sleep(10)
-            } catch (e: InterruptedException) {
-                e.printStackTrace()
-            }
-            while (anchorsRuntime.hasRunTasks()) {
-                anchorsRuntime.tryRunBlockRunnable()
-            }
-        }
+        anchorsRuntime.tryRunBlockTask()
         if (logEnd) {
             logEndWithAnchorsInfo()
         }
@@ -127,7 +118,6 @@ class AnchorsManager {
         anchorsRuntime.clear()
         anchorsRuntime.debuggable = debuggable;
         anchorsRuntime.addAnchorTasks(anchorTaskIds)
-        debuggable = false
         anchorTaskIds.clear()
     }
 
@@ -158,9 +148,7 @@ class AnchorsManager {
         if (!debuggable) {
             return
         }
-        if (debuggable) {
-            d(Constants.ANCHORS_INFO_TAG, Constants.ANCHOR_RELEASE)
-        }
+        d(Constants.ANCHORS_INFO_TAG, Constants.ANCHOR_RELEASE)
     }
 }
 

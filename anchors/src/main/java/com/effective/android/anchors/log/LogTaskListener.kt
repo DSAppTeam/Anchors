@@ -41,7 +41,7 @@ class LogTaskListener : TaskListener {
             addTaskInfoLineString(builder, Constants.DEPENDENCIES, getDependenceInfo(taskRuntimeInfo), false)
             addTaskInfoLineString(builder, Constants.IS_ANCHOR, java.lang.String.valueOf(taskRuntimeInfo.isAnchor), false)
             addTaskInfoLineString(builder, Constants.THREAD_INFO, taskRuntimeInfo.threadName, false)
-            addTaskInfoLineString(builder, Constants.START_TIME, startTime.toString(), true)
+            addTaskInfoLineString(builder, Constants.START_TIME, startTime.toString(), false)
             addTaskInfoLineString(builder, Constants.START_UNTIL_RUNNING, (runningTime - startTime).toString(), true)
             addTaskInfoLineString(builder, Constants.RUNNING_CONSUME, (finishedTime - runningTime).toString(), true)
             addTaskInfoLineString(builder, Constants.FINISH_TIME, finishedTime.toString(), false)

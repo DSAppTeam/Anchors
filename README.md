@@ -40,25 +40,21 @@ Advantages over `alpha`
 > 4. In combination with the asynchronous hybrid chain and anchor function, it can flexibly handle many complex initialization scenarios, but it is necessary to fully understand the thread background when using the function.
 
 #### Use
-1. Add jcenter warehouse to project root
+1. Add the JitPack repository to the project root path, and no longer use JCenter
 
 	```
-	buildscript {
-		repositories {
-		jcenter ()
-		}
-	}
-	allprojects {
-		repositories {
-		jcenter ()
-		}
-	}
+    allprojects {
+        repositories {
+            ...
+            maven { url 'https://jitpack.io' }
+        }
+    }
 	```
 
 2. Add dependencies under the **app** module
 
 	```
-	implementation 'com.effective.android:anchors:1.1.3'
+	implementation 'com.github.YummyLau:Anchors:1.1.4'
 	```
 
 3. Add dependency graph and start

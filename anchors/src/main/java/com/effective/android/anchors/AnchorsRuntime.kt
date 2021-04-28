@@ -25,17 +25,20 @@ class AnchorsRuntime {
 
     //线程池，支持自定义
     private val pool: AnchorThreadPool
+    private val obj = Object()
+    private val obj2 = Object()
 
     //如果存在锚点任务，则同步的任务都所有锚点任务都完成前，在 UIThread 上运行
     //ps: 后续解除锚点之后，所有UI线程上的 Task 都通过 handle 发送执行，不保证业务逻辑的同步。
-    private val runBlockTask: MutableList<Task> = mutableListOf()
-
-    //所有 task 运行时信息
-    private val runtimeInfo: MutableMap<String, TaskRuntimeInfo> = HashMap()
+    @Volatile
+    var runBlockTask: MutableList<Task> = mutableListOf()
 
     //设置锚点任务，当且仅当所有锚点任务都完成时, application 不在阻塞 UIThread
     @Volatile
     internal var anchorTaskIds: MutableSet<String> = mutableSetOf()
+
+    //所有 task 运行时信息
+    private val runtimeInfo: MutableMap<String, TaskRuntimeInfo> = HashMap()
     internal var debuggable = false
     internal val handler = Handler(Looper.getMainLooper())
 
@@ -53,50 +56,62 @@ class AnchorsRuntime {
         runtimeInfo.clear()
     }
 
-    @Synchronized
     internal fun addAnchorTasks(ids: Set<String>) {
-        if (ids.isNotEmpty()) {
-            anchorTaskIds.addAll(ids)
+        synchronized(obj2) {
+            if (ids.isNotEmpty()) {
+                anchorTaskIds.addAll(ids)
+            }
         }
     }
 
-    @Synchronized
     internal fun removeAnchorTask(id: String) {
-        if (!TextUtils.isEmpty(id)) {
-            anchorTaskIds.remove(id)
+        synchronized(obj2) {
+            if (!TextUtils.isEmpty(id)) {
+                anchorTaskIds.remove(id)
+            }
         }
     }
 
     internal fun hasAnchorTasks(): Boolean {
-        return anchorTaskIds.isNotEmpty()
+        synchronized(obj2) {
+            return anchorTaskIds.isNotEmpty()
+        }
     }
 
     private fun addRunTasks(task: Task) {
-        if (!runBlockTask.contains(task)) {
-            runBlockTask.add(task)
+        synchronized(obj) {
+            if (!runBlockTask.contains(task)) {
+                runBlockTask.add(task)
+            }
         }
     }
 
-    internal fun tryRunBlockRunnable() {
-        if (runBlockTask.isNotEmpty()) {
-            if (runBlockTask.size > 1) {
-                Collections.sort(runBlockTask, taskComparator)
+    internal fun tryRunBlockTask() {
+        while (hasAnchorTasks()) {
+            try {
+                Thread.sleep(10)
+            } catch (e: InterruptedException) {
+                e.printStackTrace()
             }
-            val runnable: Runnable = runBlockTask.removeAt(0)
-            if (hasAnchorTasks()) {
-                runnable.run()
-            } else {
-                handler.post(runnable)
-                for (blockItem in runBlockTask) {
-                    handler.post(blockItem)
+            while (runBlockTask.isNotEmpty()) {
+                synchronized(obj) {
+                    if (runBlockTask.isNotEmpty()) {
+                        Collections.sort(runBlockTask, taskComparator)
+                        runBlockTask.removeAt(0)?.let {
+                            if (hasAnchorTasks()) {
+                                it.run()
+                            } else {
+                                handler.post(it)
+                                for (blockItem in runBlockTask) {
+                                    handler.post(blockItem)
+                                }
+                                runBlockTask.clear()
+                            }
+                        }
+                    }
                 }
-                runBlockTask.clear()
             }
         }
-    }
-
-    internal fun hasRunTasks(): Boolean {
-        return runBlockTask.isNotEmpty()
     }
 
     private fun hasTaskRuntimeInfo(taskId: String): Boolean {
