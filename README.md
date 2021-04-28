@@ -55,7 +55,7 @@ Advantages over `alpha`
 2. Add dependencies under the **app** module
 
 	```
-	implementation 'com.effective.android:anchors:v1.1.4'
+	implementation 'com.github.YummyLau:Anchors:v1.1.4'
 	```
 
 3. Add dependency graph and start
