@@ -19,6 +19,7 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 * 1.1.1 (2020/07/31) Optimize the DSL block API
 * 1.1.2 (2020/10/08) Optimize the traversal speed of the dependency tree, and fix the problem that the Log-TASK_DETAIL dependency task has no information.
 * 1.1.3 (2020/11/10) Support multiple block nodes, AnchorManager is no longer open as a singleton, supports custom thread pool, taskListener supports DSL selective coverage method
+* 1.1.4 (2021/04/28) Optimize log and optimize multi-threaded scenarios
 
 #### Introduction
 
@@ -54,7 +55,7 @@ Advantages over `alpha`
 2. Add dependencies under the **app** module
 
 	```
-	implementation 'com.github.YummyLau:Anchors:1.1.4'
+	implementation 'com.effective.android:anchors:v1.1.4'
 	```
 
 3. Add dependency graph and start
