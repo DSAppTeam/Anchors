@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'com.novoda.bintray-release'
+apply plugin: 'maven-publish'
 
 android {
     compileSdkVersion 28
@@ -19,13 +19,30 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:28.0.0'
 }
 
+task generateSourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier 'sources'
+}
 
-publish {
-    userOrg = 'yummylau'
-    groupId = 'com.effective.android'
-    artifactId = 'anchors'
-    publishVersion = '1.1.4'
-    desc = 'Android startup framework'
-    website = 'https://github.com/YummyLau/Anchors'
+def versionName = "1.1.4"
+
+// Because the components are created only during the afterEvaluate phase, you must
+// configure your publications using the afterEvaluate() lifecycle method.
+afterEvaluate {
+    publishing {
+        publications {
+            Production(MavenPublication) {
+                // Creates a Maven publication called "release".
+                // Applies the component for the release build variant.
+                from components.release
+                // You can then customize attributes of the publication as shown below.
+                groupId = 'com.github.Yummylau'
+                artifactId = 'Anchors'
+                version = versionName
+                // 上传source，这样使用放可以看到方法注释
+                artifact generateSourcesJar
+            }
+        }
+    }
 }
 

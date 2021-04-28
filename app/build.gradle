@@ -23,5 +23,5 @@ dependencies {
     testImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 //    implementation project(':anchors')
-    implementation 'com.effective.android:anchors:1.1.4'
+    implementation 'com.github.YummyLau:Anchors:v1.1.3'
 }
