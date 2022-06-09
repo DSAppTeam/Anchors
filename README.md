@@ -5,7 +5,7 @@
 ![](https://travis-ci.org/YummyLau/Anchors.svg?branch=master)
 ![Language](https://img.shields.io/badge/language-java-orange.svg)
 ![Language](https://img.shields.io/badge/language-kotlin-orange.svg)
-[![](https://jitpack.io/v/YummyLau/Anchors.svg)](https://jitpack.io/#YummyLau/Anchors)
+[![](https://jitpack.io/v/DSAppTeam/Anchors.svg)](https://jitpack.io/#DSAppTeam/Anchors)
 
 README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [中文](https://github.com/YummyLau/Anchors/blob/master/README-zh.md)
 
@@ -20,6 +20,7 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 * 1.1.2 (2020/10/08) Optimize the traversal speed of the dependency tree, and fix the problem that the Log-TASK_DETAIL dependency task has no information.
 * 1.1.3 (2020/11/10) Support multiple block nodes, AnchorManager is no longer open as a singleton, supports custom thread pool, taskListener supports DSL selective coverage method
 * 1.1.4 (2021/04/28) Optimize log and optimize multi-threaded scenarios
+* 1.1.5 (2022/06/09) Optimize multi-threaded scenarios
 
 #### Introduction
 
@@ -55,7 +56,7 @@ Advantages over `alpha`
 2. Add dependencies under the **app** module
 
 	```
-	implementation 'com.github.YummyLau:Anchors:v1.1.4'
+	implementation 'com.github.DSAppTeam:Anchors:v1.1.5'
 	```
 
 3. Add dependency graph and start

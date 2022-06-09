@@ -5,7 +5,7 @@
 ![](https://travis-ci.org/YummyLau/Anchors.svg?branch=master)
 ![Language](https://img.shields.io/badge/language-java-orange.svg)
 ![Language](https://img.shields.io/badge/language-kotlin-orange.svg)
-[![](https://jitpack.io/v/YummyLau/Anchors.svg)](https://jitpack.io/#YummyLau/Anchors)
+[![](https://jitpack.io/v/DSAppTeam/Anchors.svg)](https://jitpack.io/#DSAppTeam/Anchors)
 
 README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [中文](https://github.com/YummyLau/Anchors/blob/master/README-zh.md)
 
@@ -19,7 +19,7 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 * 1.1.2 (2020/10/08)  优化依赖树遍历速度，修复 Log-TASK_DETAIL 依赖任务无信息的问题
 * 1.1.3 (2020/11/10)  支持多个 block 节点，AnchorManager不再作为单例开放，支持自定义线程池，taskListener 支持 DSL 选择性覆盖方法
 * 1.1.4（2021/04/28）优化日志并优化多线程方案
-
+* 1.1.5（2022/06/09）优化多线程方案
 
 
 #### 简介
@@ -56,7 +56,7 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 2. 在 **app** 模块下添加依赖
 
 	```
-	implementation 'com.github.YummyLau:Anchors:v1.1.4'
+	implementation 'com.github.DSAppTeam:Anchors:v1.1.5'
 	```
 
 3. 添加依赖图并启动
