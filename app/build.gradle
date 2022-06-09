@@ -22,6 +22,6 @@ dependencies {
     releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
     testImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-//    implementation project(':anchors')
-    implementation 'com.github.YummyLau:Anchors:v1.1.4'
+    implementation project(':anchors')
+//    implementation 'com.github.YummyLau:Anchors:v1.1.4'
 }

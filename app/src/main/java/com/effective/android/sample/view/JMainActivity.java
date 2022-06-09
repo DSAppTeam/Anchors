@@ -36,8 +36,19 @@ public class JMainActivity extends AppCompatActivity {
         testUserChoose();
         //测试重启新链接
         testRestartNewDependenciesLink();
+        testAsyncTask();
     }
 
+    private void testAsyncTask() {
+        this.findViewById(R.id.test_async).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("MainActivity", "Demo3 - testAsyncAnchors");
+                new JDatas().startAllAsyncTask();
+                Log.d("MainActivity", "Demo3 - testAsyncAnchors --end");
+            }
+        });
+    }
 
     private void testPrivateProcess() {
         this.findViewById(R.id.test_private_process).setOnClickListener(new View.OnClickListener() {

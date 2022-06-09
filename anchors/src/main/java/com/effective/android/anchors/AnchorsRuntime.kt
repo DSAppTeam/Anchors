@@ -10,6 +10,7 @@ import com.effective.android.anchors.task.Task
 import com.effective.android.anchors.task.TaskRuntimeInfo
 import java.util.*
 import java.util.concurrent.*
+import kotlin.concurrent.thread
 
 /**
  * Anchors 框架 runtime 信息管理
@@ -27,6 +28,7 @@ class AnchorsRuntime {
     private val pool: AnchorThreadPool
     private val obj = Object()
     private val obj2 = Object()
+    private val obj3 = Object()
 
     //如果存在锚点任务，则同步的任务都所有锚点任务都完成前，在 UIThread 上运行
     //ps: 后续解除锚点之后，所有UI线程上的 Task 都通过 handle 发送执行，不保证业务逻辑的同步。
@@ -68,6 +70,9 @@ class AnchorsRuntime {
         synchronized(obj2) {
             if (!TextUtils.isEmpty(id)) {
                 anchorTaskIds.remove(id)
+                synchronized(obj3) {
+                    obj3.notify()
+                }
             }
         }
     }
@@ -82,16 +87,24 @@ class AnchorsRuntime {
         synchronized(obj) {
             if (!runBlockTask.contains(task)) {
                 runBlockTask.add(task)
+                synchronized(obj3) {
+                    obj3.notify()
+                }
             }
         }
     }
 
     internal fun tryRunBlockTask() {
         while (hasAnchorTasks()) {
-            try {
-                Thread.sleep(10)
-            } catch (e: InterruptedException) {
-                e.printStackTrace()
+//            try {
+//                Thread.sleep(10)
+//            } catch (e: InterruptedException) {
+//                e.printStackTrace()
+//            }
+            synchronized(obj3) {
+                if (runBlockTask.isEmpty()) {
+                    obj3.wait()
+                }
             }
             while (runBlockTask.isNotEmpty()) {
                 synchronized(obj) {

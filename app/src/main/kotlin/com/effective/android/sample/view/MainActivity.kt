@@ -29,6 +29,7 @@ class MainActivity : AppCompatActivity() {
         testUserChoose()
         //测试重启新链接
         testRestartNewDependenciesLink()
+        testAsyncTask()
     }
 
     private fun testPrivateProcess() {
@@ -69,6 +70,17 @@ class MainActivity : AppCompatActivity() {
                         }
                         Log.d("MainActivity", "Demo2 - testRestartNewDependenciesLink - endLinkTwo")
                     })
+        }
+    }
+
+    private fun testAsyncTask() {
+        findViewById<View>(R.id.test_async).setOnClickListener {
+            Log.d("MainActivity", "Demo3 - testAsyncAnchors")
+            Datas().startAllAsyncTask()
+            Log.d("MainActivity", "Demo3 - testAsyncAnchors --end")
+            Log.d("MainActivity", "Demo3 - testSyncAnchors")
+            Datas().startAllSyncTask()
+            Log.d("MainActivity", "Demo3 - testSyncAnchors --end")
         }
     }
 

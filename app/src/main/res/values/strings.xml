@@ -4,4 +4,5 @@
     <string name="test_public_process">app 公有进程</string>
     <string name="test_wait_for_user_choose_to_continue">测试用户选择继续执行依赖链</string>
     <string name="test_restart_link_until_previous_link_finishing">测试旧链结束后启动新依赖链</string>
+    <string name="test_all_async">测试异步任务锚点</string>
 </resources>

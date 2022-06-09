@@ -239,4 +239,28 @@ public class JDatas {
         getInstance().debuggable(true)
                 .start(UiTaskA);
     }
+
+    public void startAllAsyncTask() {
+        TestTaskFactory factory = new TestTaskFactory();
+        Project.Builder builder= new Project.Builder(PROJECT_9, factory);
+        builder.add(ASYNC_TASK_1);
+        builder.add(ASYNC_TASK_2).dependOn(ASYNC_TASK_1);
+        builder.add(ASYNC_TASK_3).dependOn(ASYNC_TASK_2);
+        builder.add(ASYNC_TASK_4).dependOn(ASYNC_TASK_3);
+        builder.add(ASYNC_TASK_5).dependOn(ASYNC_TASK_4);
+        Project project = builder.build();
+        getInstance().debuggable(true).addAnchor(ASYNC_TASK_1)
+                .start(project);
+    }
+
+    public void startAllSyncTask() {
+        TestTaskFactory factory = new TestTaskFactory();
+        Project.Builder builder= new Project.Builder(PROJECT_9, factory);
+        builder.add(UITHREAD_TASK_A);
+        builder.add(UITHREAD_TASK_B).dependOn(UITHREAD_TASK_A);
+        builder.add(UITHREAD_TASK_C).dependOn(UITHREAD_TASK_B);
+        Project project = builder.build();
+        getInstance().debuggable(true).addAnchor(UITHREAD_TASK_C)
+                .start(project);
+    }
 }
