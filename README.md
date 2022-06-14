@@ -21,6 +21,7 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 * 1.1.3 (2020/11/10) Support multiple block nodes, AnchorManager is no longer open as a singleton, supports custom thread pool, taskListener supports DSL selective coverage method
 * 1.1.4 (2021/04/28) Optimize log and optimize multi-threaded scenarios
 * 1.1.5 (2022/06/09) Optimize multi-threaded scenarios
+* 1.1.6 (2022/06/14) Support dynamic cutting of subsequent task chains
 
 #### Introduction
 
@@ -157,8 +158,11 @@ The following describes the main scenarios involved in the demo.
 
 * After an initialization chain is completed, another new chain may be started
 
-	This kind of function is also supported, but in fact the framework advocates unified management of all initialization chains in the application.Because the framework emphasizes that **arbitrary initialization tasks should be business heavyweight initialization code or third-party SDK init** . The code can refer to ```MainActivity#testRestartNewDependenciesLink```.
+    This kind of function is also supported, but in fact the framework advocates unified management of all initialization chains in the application.Because the framework emphasizes that **arbitrary initialization tasks should be business heavyweight initialization code or third-party SDK init** . The code can refer to ```MainActivity#testRestartNewDependenciesLink```.
 
+* The subsequent task chain needs to be modified according to the running result of a certain task
+
+    When defining a task, you can override ```Task#modifySons``` to obtain the follow-up tasks of the current task, and you can return a new follow-up task id list after cutting according to your needs. (Note: It can only be deleted in the original task chain and cannot be added). The code can refer to ```MainActivity#testCutoutTask```.
 
 #### Debug information
 
