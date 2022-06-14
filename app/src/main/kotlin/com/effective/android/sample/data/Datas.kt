@@ -148,14 +148,17 @@ class Datas {
         val manager = AnchorsManager.getInstance()
             .debuggable { true }
             .taskFactory { TestTaskFactory() }
-            .block(TASK_10) {
+            .block(TASK_12) {
                 listener.invoke(it)
             }
             .graphics {
-                arrayOf(TASK_10.sons(TASK_11.sons(TASK_12.sons(TASK_13))))
+                arrayOf(
+                    TASK_10.sons(TASK_11.sons(TASK_12.sons(TASK_13))),
+                    TASK_20.sons(TASK_12)
+                )
             }
             .startUp()
-        return manager.getLockableAnchors()[TASK_10]
+        return manager.getLockableAnchors()[TASK_12]
         //等价于
 //        val factory = TestTaskFactory()
 //        val manager = getInstance()
@@ -240,6 +243,45 @@ class Datas {
             .startUp()
     }
 
+    fun startTest() {
+        val manager = AnchorsManager.getInstance()
+            .debuggable { true }
+            .taskFactory { TestTaskFactory() }
+            .graphics {
+                arrayOf(
+                    UITHREAD_TASK_A.sons(TASK_20.sons(TASK_21.sons(TASK_22.sons(TASK_23)))),
+                    UITHREAD_TASK_B.sons(TASK_20.sons(TASK_21.sons(TASK_22.sons(TASK_23))))
+                )
+            }
+            .startUp()
+    }
+
+    fun startCutoutTask(listener: (lockableAnchor: LockableAnchor) -> Unit): LockableAnchor? {
+        val manager = AnchorsManager.getInstance()
+            .debuggable { true }
+//            .anchors { arrayOf(TASK_91, TASK_82) }
+            .block(UITHREAD_TASK_B) {
+                listener.invoke(it)
+            }
+            .taskFactory { TestTaskFactory() }
+            .graphics {
+                arrayOf(
+                    UITHREAD_TASK_A.sons(
+                        CUTOUT_TASK_1.sons(
+                            TASK_100.sons(
+                                TASK_101.sons(UITHREAD_TASK_B.sons(TASK_102.sons(TASK_103)))
+                            ),
+                            TASK_90.sons(TASK_91.sons(UITHREAD_TASK_B)),
+                            TASK_80.sons(TASK_81.sons(TASK_82.sons(TASK_83)))
+                        )
+                    )
+
+                )
+            }
+            .startUp()
+        return manager.getLockableAnchors()[UITHREAD_TASK_B]
+    }
+
     companion object {
         const val PROJECT_1 = "PROJECT_1"
         const val TASK_10 = "TASK_10"
@@ -286,6 +328,11 @@ class Datas {
         const val TASK_91 = "TASK_91"
         const val TASK_92 = "TASK_92"
         const val TASK_93 = "TASK_93"
+        const val PROJECT_10 = "PROJECT_10"
+        const val TASK_100 = "TASK_100"
+        const val TASK_101 = "TASK_101"
+        const val TASK_102 = "TASK_102"
+        const val TASK_103 = "TASK_103"
         const val UITHREAD_TASK_A = "UITHREAD_TASK_A"
         const val UITHREAD_TASK_B = "UITHREAD_TASK_B"
         const val UITHREAD_TASK_C = "UITHREAD_TASK_C"
@@ -294,5 +341,6 @@ class Datas {
         const val ASYNC_TASK_3 = "ASYNC_TASK_3"
         const val ASYNC_TASK_4 = "ASYNC_TASK_4"
         const val ASYNC_TASK_5 = "ASYNC_TASK_5"
+        const val CUTOUT_TASK_1 = "CUTOUT_TASK_1"
     }
 }

@@ -33,22 +33,22 @@ public class JDatas {
      * 2019-12-11 14:05:44.852 32459-32459/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> PROJECT_1_start(1576044344835) --> TASK_10 --> TASK_11 --> TASK_12 --> TASK_13 --> PROJECT_1_end(1576044344835)
      * 2019-12-11 14:05:44.853 32459-32459/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> UITHREAD_TASK_B
      * 2019-12-11 14:05:44.853 32459-32459/com.effective.android.sample D/DEPENDENCE_DETAIL: UITHREAD_TASK_A --> UITHREAD_TASK_C
-     *
-     *
-     *
-     *
+     * <p>
+     * <p>
+     * <p>
+     * <p>
      * 设置了一下anchor
      * 2019-12-11 14:05:44.853 32459-32459/com.effective.android.sample D/ANCHOR_DETAIL: has some anchors！( "TASK_10" "TASK_93" )
-     *
-     *
+     * <p>
+     * <p>
      * 校验log：当且仅当anchor执行完毕，解除阻塞
      * 2019-12-11 14:05:44.805 32459-32459/com.effective.android.sample D/SampleApplication: onCreate - start
-     *
-     *
+     * <p>
+     * <p>
      * （TASK_10 完成）
      * （TASK_93 完成）
-     *
-     *
+     * <p>
+     * <p>
      * 2019-12-11 14:05:46.086 32459-32459/com.effective.android.sample D/ANCHOR_DETAIL: All anchors were released！
      * 2019-12-11 14:05:46.087 32459-32459/com.effective.android.sample D/SampleApplication: onCreate - end
      */
@@ -96,7 +96,7 @@ public class JDatas {
         builder7.add(TASK_72).dependOn(TASK_70);
         builder7.add(TASK_73).dependOn(TASK_72);
         Project project7 = builder7.build();
-        Project.Builder builder8 =new Project.Builder(PROJECT_8, testTaskFactory);
+        Project.Builder builder8 = new Project.Builder(PROJECT_8, testTaskFactory);
         builder8.add(TASK_80);
         builder8.add(TASK_81).dependOn(TASK_80);
         builder8.add(TASK_82).dependOn(TASK_80);
@@ -162,9 +162,9 @@ public class JDatas {
     }
 
 
-    public List<LockableAnchor> startForTestLockableAnchor(){
+    public List<LockableAnchor> startForTestLockableAnchor() {
         TestTaskFactory testTaskFactory = new TestTaskFactory();
-        Project.Builder  builder1 = new Project.Builder(PROJECT_1, testTaskFactory);
+        Project.Builder builder1 = new Project.Builder(PROJECT_1, testTaskFactory);
         builder1.add(TASK_10);
         builder1.add(TASK_11).dependOn(TASK_10);
         builder1.add(TASK_12).dependOn(TASK_11);
@@ -203,7 +203,7 @@ public class JDatas {
 
             @Override
             public void onFinish(@NotNull Task task) {
-                if(runnable != null){
+                if (runnable != null) {
                     runnable.run();
                 }
             }
@@ -213,7 +213,7 @@ public class JDatas {
 
             }
         });
-        Project.Builder builder= new Project.Builder(PROJECT_9, factory);
+        Project.Builder builder = new Project.Builder(PROJECT_9, factory);
         builder.add(TASK_10);
         builder.add(TASK_11).dependOn(TASK_10);
         builder.add(TASK_12).dependOn(TASK_11);
@@ -228,7 +228,7 @@ public class JDatas {
 
     public void startForLinkTwoByDsl() {
         TestTaskFactory factory = new TestTaskFactory();
-        Project.Builder builder= new Project.Builder(PROJECT_9, factory);
+        Project.Builder builder = new Project.Builder(PROJECT_9, factory);
         builder.add(TASK_20);
         builder.add(TASK_21).dependOn(TASK_20);
         builder.add(TASK_22).dependOn(TASK_21);
@@ -242,7 +242,7 @@ public class JDatas {
 
     public void startAllAsyncTask() {
         TestTaskFactory factory = new TestTaskFactory();
-        Project.Builder builder= new Project.Builder(PROJECT_9, factory);
+        Project.Builder builder = new Project.Builder(PROJECT_9, factory);
         builder.add(ASYNC_TASK_1);
         builder.add(ASYNC_TASK_2).dependOn(ASYNC_TASK_1);
         builder.add(ASYNC_TASK_3).dependOn(ASYNC_TASK_2);
@@ -255,12 +255,32 @@ public class JDatas {
 
     public void startAllSyncTask() {
         TestTaskFactory factory = new TestTaskFactory();
-        Project.Builder builder= new Project.Builder(PROJECT_9, factory);
+        Project.Builder builder = new Project.Builder(PROJECT_9, factory);
         builder.add(UITHREAD_TASK_A);
         builder.add(UITHREAD_TASK_B).dependOn(UITHREAD_TASK_A);
         builder.add(UITHREAD_TASK_C).dependOn(UITHREAD_TASK_B);
         Project project = builder.build();
         getInstance().debuggable(true).addAnchor(UITHREAD_TASK_C)
                 .start(project);
+    }
+
+    public void startCutoutTask() {
+        TestTaskFactory factory = new TestTaskFactory();
+        Project.Builder builder = new Project.Builder(PROJECT_10, factory);
+        builder.add(UITHREAD_TASK_A);
+        builder.add(CUTOUT_TASK_1).dependOn(UITHREAD_TASK_A);
+        builder.add(TASK_100).dependOn(CUTOUT_TASK_1);
+        builder.add(TASK_101).dependOn(TASK_100);
+        builder.add(TASK_90).dependOn(CUTOUT_TASK_1);
+        builder.add(TASK_91).dependOn(TASK_90);
+        builder.add(UITHREAD_TASK_B).dependOn(TASK_101).dependOn(TASK_91);
+        builder.add(TASK_102).dependOn(UITHREAD_TASK_B);
+        builder.add(TASK_103).dependOn(TASK_102);
+        builder.add(TASK_80).dependOn(CUTOUT_TASK_1);
+        builder.add(TASK_81).dependOn(TASK_80);
+        builder.add(TASK_82).dependOn(TASK_81);
+        builder.add(TASK_83).dependOn(TASK_82);
+        Project project = builder.build();
+        getInstance().debuggable(true).start(project);
     }
 }

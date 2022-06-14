@@ -30,14 +30,29 @@ class MainActivity : AppCompatActivity() {
         //测试重启新链接
         testRestartNewDependenciesLink()
         testAsyncTask()
+        testCutoutTask()
     }
 
     private fun testPrivateProcess() {
-        findViewById<View>(R.id.test_private_process).setOnClickListener { startActivity(Intent(this@MainActivity, PrivateProcessActivity::class.java)) }
+        findViewById<View>(R.id.test_private_process).setOnClickListener {
+            startActivity(
+                Intent(
+                    this@MainActivity,
+                    PrivateProcessActivity::class.java
+                )
+            )
+        }
     }
 
     private fun testPublicProcess() {
-        findViewById<View>(R.id.test_public_process).setOnClickListener { startActivity(Intent(this@MainActivity, PublicProcessActivity::class.java)) }
+        findViewById<View>(R.id.test_public_process).setOnClickListener {
+            startActivity(
+                Intent(
+                    this@MainActivity,
+                    PublicProcessActivity::class.java
+                )
+            )
+        }
     }
 
     private fun testUserChoose() {
@@ -46,13 +61,13 @@ class MainActivity : AppCompatActivity() {
             Datas().startForTestLockableAnchorByDsl {
                 val lockableAnchor = it
                 CusDialog.Builder(this@MainActivity)
-                        .title("任务(" + lockableAnchor.lockId + ")已进入等待状态，请求响应")
-                        .left("终止任务", View.OnClickListener {
-                            lockableAnchor.smash()
-                        })
-                        .right("继续执行", View.OnClickListener {
-                            lockableAnchor.unlock()
-                        }).build().show()
+                    .title("任务(" + lockableAnchor.lockId + ")已进入等待状态，请求响应")
+                    .left("终止任务", View.OnClickListener {
+                        lockableAnchor.smash()
+                    })
+                    .right("继续执行", View.OnClickListener {
+                        lockableAnchor.unlock()
+                    }).build().show()
             }
             Log.d("MainActivity", "Demo1 - testUserChoose")
         }
@@ -62,14 +77,14 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.test_restart).setOnClickListener {
             Log.d("MainActivity", "Demo2 - testRestartNewDependenciesLink - startLinkOne")
             Datas().startForLinkOneByDsl(
-                    Runnable {
-                        Log.d("MainActivity", "Demo2 - testRestartNewDependenciesLink - endLinkOne")
-                        Log.d("MainActivity", "Demo2 - testRestartNewDependenciesLink - startLinkTwo")
-                        Handler(Looper.getMainLooper()).post {
-                            Datas().startForLinkTwoByDsl()
-                        }
-                        Log.d("MainActivity", "Demo2 - testRestartNewDependenciesLink - endLinkTwo")
-                    })
+                Runnable {
+                    Log.d("MainActivity", "Demo2 - testRestartNewDependenciesLink - endLinkOne")
+                    Log.d("MainActivity", "Demo2 - testRestartNewDependenciesLink - startLinkTwo")
+                    Handler(Looper.getMainLooper()).post {
+                        Datas().startForLinkTwoByDsl()
+                    }
+                    Log.d("MainActivity", "Demo2 - testRestartNewDependenciesLink - endLinkTwo")
+                })
         }
     }
 
@@ -81,6 +96,23 @@ class MainActivity : AppCompatActivity() {
             Log.d("MainActivity", "Demo3 - testSyncAnchors")
             Datas().startAllSyncTask()
             Log.d("MainActivity", "Demo3 - testSyncAnchors --end")
+        }
+    }
+
+    private fun testCutoutTask() {
+        findViewById<View>(R.id.test_cutout).setOnClickListener {
+            Log.d("MainActivity", "Demo4 - testCutoutTask")
+            Datas().startCutoutTask {
+                val lockableAnchor = it
+                CusDialog.Builder(this@MainActivity)
+                    .title("任务(" + lockableAnchor.lockId + ")已进入等待状态，请求响应")
+                    .left("终止任务", View.OnClickListener {
+                        lockableAnchor.smash()
+                    })
+                    .right("继续执行", View.OnClickListener {
+                        lockableAnchor.unlock()
+                    }).build().show()
+            }
         }
     }
 

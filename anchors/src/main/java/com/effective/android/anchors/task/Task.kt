@@ -11,13 +11,16 @@ import com.effective.android.anchors.task.listener.TaskListenerBuilder
 import com.effective.android.anchors.task.lock.LockableTask
 import com.effective.android.anchors.task.project.Project
 import java.util.*
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.CopyOnWriteArraySet
 
 /**
  * created by yummylau on 2019/03/11
  */
 abstract class Task @JvmOverloads constructor(//mId,唯一存在
-        val id: String, //是否是异步存在
-        val isAsyncTask: Boolean = false) : Runnable, Comparable<Task> {
+    val id: String, //是否是异步存在
+    val isAsyncTask: Boolean = false
+) : Runnable, Comparable<Task> {
 
     @TaskState
     var state: Int
@@ -26,8 +29,8 @@ abstract class Task @JvmOverloads constructor(//mId,唯一存在
             : Int
     var executeTime: Long = 0
         protected set
-    val behindTasks = mutableListOf<Task>() //被依赖者
-    val dependTasks = mutableSetOf<Task>() //依赖者
+    val behindTasks = CopyOnWriteArrayList<Task>() //被依赖者
+    val dependTasks = CopyOnWriteArraySet<Task>() //依赖者
     private val taskListeners: MutableList<TaskListener> = ArrayList() //监听器
     private var logTaskListeners: TaskListener? = LogTaskListener()
     internal lateinit var anchorsRuntime: AnchorsRuntime
@@ -65,6 +68,8 @@ abstract class Task @JvmOverloads constructor(//mId,唯一存在
         toRunning()
         run(id)
         toFinish()
+        val behindTaskIds = modifySons(behindTasks.map { it.id }.toTypedArray())
+        tryCutoutBehind(behindTaskIds)
         notifyBehindTasks()
         release()
         if (anchorsRuntime.debuggable && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
@@ -73,6 +78,10 @@ abstract class Task @JvmOverloads constructor(//mId,唯一存在
     }
 
     protected abstract fun run(name: String)
+
+    protected open fun modifySons(behindTaskIds: Array<String>): Array<String> {
+        return behindTaskIds
+    }
 
     fun toStart() {
         state = TaskState.START
@@ -186,6 +195,25 @@ abstract class Task @JvmOverloads constructor(//mId,唯一存在
             if (task.behindTasks.contains(this)) {
                 task.behindTasks.remove(this)
             }
+        }
+    }
+
+
+    private fun removeDependenceChain(task: Task) {
+        removeDependence(task)//删除前驱节点
+        if (dependTasks.isEmpty()) {
+            //如果没有其他依赖节点，删除后续任务的依赖关系
+            for (behindTask in behindTasks) {
+                behindTask.removeDependenceChain(this)
+            }
+            anchorsRuntime.removeAnchorTask(id)
+        }
+    }
+
+    private fun tryCutoutBehind(behindTaskIds: Array<String>) {
+        val cutOutTasks = behindTasks.filterNot { behindTaskIds.contains(it.id) }
+        for (task in cutOutTasks) {
+            task.removeDependenceChain(this)
         }
     }
 

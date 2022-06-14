@@ -245,6 +245,47 @@ class TASK_93 : TestTask(Datas.TASK_93, true) {
     }
 }
 
+class TASK_100 : TestTask(Datas.TASK_100, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+
+}
+
+class TASK_101 : TestTask(Datas.TASK_101, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+}
+
+class TASK_102 : TestTask(Datas.TASK_102) {
+    override fun run(name: String) {
+        doIo(200)
+    }
+
+}
+
+class TASK_103 : TestTask(Datas.TASK_103, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+
+}
+
+class CUTOUT_TASK_1 : TestTask(Datas.CUTOUT_TASK_1, true) {
+    override fun run(name: String) {
+        doJob(200)
+    }
+
+    override fun modifySons(behindTaskIds: Array<String>): Array<String> {
+        if (behindTaskIds.size >= 3) {
+            return arrayOf(behindTaskIds[0], behindTaskIds[2])
+        }
+        return behindTaskIds
+    }
+
+}
+
 class UITHREAD_TASK_A : TestTask(Datas.UITHREAD_TASK_A) {
     override fun run(name: String) {
         doJob(200)
@@ -411,6 +452,21 @@ object TestTaskCreator : TaskCreator {
             }
             Datas.TASK_93 -> {
                 return TASK_93()
+            }
+            Datas.TASK_100 -> {
+                return TASK_100()
+            }
+            Datas.TASK_101 -> {
+                return TASK_101()
+            }
+            Datas.TASK_102 -> {
+                return TASK_102()
+            }
+            Datas.TASK_103 -> {
+                return TASK_103()
+            }
+            Datas.CUTOUT_TASK_1 -> {
+                return CUTOUT_TASK_1()
             }
             Datas.UITHREAD_TASK_A -> {
                 return UITHREAD_TASK_A()

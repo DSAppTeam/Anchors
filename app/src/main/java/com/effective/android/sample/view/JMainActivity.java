@@ -37,6 +37,8 @@ public class JMainActivity extends AppCompatActivity {
         //测试重启新链接
         testRestartNewDependenciesLink();
         testAsyncTask();
+        //测试动态任务裁剪
+        testCutoutTask();
     }
 
     private void testAsyncTask() {
@@ -118,6 +120,15 @@ public class JMainActivity extends AppCompatActivity {
                         Log.d("MainActivity", "Demo2 - testRestartNewDependenciesLink - endLinkTwo");
                     }
                 });
+            }
+        });
+    }
+
+    private void testCutoutTask() {
+        this.findViewById(R.id.test_cutout).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new JDatas().startCutoutTask();
             }
         });
     }
