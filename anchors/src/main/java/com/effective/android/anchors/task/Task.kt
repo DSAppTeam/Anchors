@@ -232,7 +232,12 @@ abstract class Task @JvmOverloads constructor(//mId,唯一存在
         }
         if (behindTasks.isNotEmpty()) {
             if (behindTasks.size > 1) {
-                Collections.sort(behindTasks, anchorsRuntime.taskComparator)
+                val elements = behindTasks.toTypedArray()
+                Arrays.sort(elements, anchorsRuntime.taskComparator)
+                for (index in elements.indices) {
+                    behindTasks[index] = elements[index]
+                }
+//                Collections.sort(behindTasks, anchorsRuntime.taskComparator)
             }
             //遍历记下来的任务，通知它们说存在的前置已经完成
             for (task in behindTasks) {

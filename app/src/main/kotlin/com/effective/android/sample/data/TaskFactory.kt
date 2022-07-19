@@ -430,16 +430,16 @@ object TestTaskCreator : TaskCreator {
                 return TASK_73()
             }
             Datas.TASK_80 -> {
-                return TASK_80()
+                return TASK_80().apply { priority = 30 }
             }
             Datas.TASK_81 -> {
-                return TASK_81()
+                return TASK_81().apply { priority = 40 }
             }
             Datas.TASK_82 -> {
                 return TASK_82()
             }
             Datas.TASK_83 -> {
-                return TASK_83()
+                return TASK_83().apply { priority = 20 }
             }
             Datas.TASK_90 -> {
                 return TASK_90()
@@ -454,7 +454,7 @@ object TestTaskCreator : TaskCreator {
                 return TASK_93()
             }
             Datas.TASK_100 -> {
-                return TASK_100()
+                return TASK_100().apply { priority = 20 }
             }
             Datas.TASK_101 -> {
                 return TASK_101()

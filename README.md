@@ -22,6 +22,7 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 * 1.1.4 (2021/04/28) Optimize log and optimize multi-threaded scenarios
 * 1.1.5 (2022/06/09) Optimize multi-threaded scenarios
 * 1.1.6 (2022/06/14) Support dynamic cutting of subsequent task chains
+* 1.1.7 (2022/07/19) Fix java.lang.UnsupportedOperationException for apps running on and targeting Android versions lower than Oreo (API level < 26)
 
 #### Introduction
 

@@ -21,7 +21,7 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 * 1.1.4（2021/04/28）优化日志并优化多线程方案
 * 1.1.5（2022/06/09）优化多线程方案
 * 1.1.6（2022/06/14）支持动态裁剪后续任务链条
-
+* 1.1.7（2022/07/19）修复java.lang.UnsupportedOperationException
 
 #### 简介
 

@@ -259,10 +259,10 @@ class Datas {
     fun startCutoutTask(listener: (lockableAnchor: LockableAnchor) -> Unit): LockableAnchor? {
         val manager = AnchorsManager.getInstance()
             .debuggable { true }
-//            .anchors { arrayOf(TASK_91, TASK_82) }
-            .block(UITHREAD_TASK_B) {
-                listener.invoke(it)
-            }
+            .anchors { arrayOf(TASK_91) }
+//            .block(UITHREAD_TASK_B) {
+//                listener.invoke(it)
+//            }
             .taskFactory { TestTaskFactory() }
             .graphics {
                 arrayOf(
@@ -272,7 +272,7 @@ class Datas {
                                 TASK_101.sons(UITHREAD_TASK_B.sons(TASK_102.sons(TASK_103)))
                             ),
                             TASK_90.sons(TASK_91.sons(UITHREAD_TASK_B)),
-                            TASK_80.sons(TASK_81.sons(TASK_82.sons(TASK_83)))
+                            TASK_80.sons(TASK_81, TASK_10, TASK_82, TASK_11, TASK_83)
                         )
                     )
 
