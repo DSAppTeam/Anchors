@@ -57,7 +57,7 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 2. 在 **app** 模块下添加依赖
 
 	```
-	implementation 'com.github.DSAppTeam:Anchors:v1.1.5'
+	implementation 'com.github.DSAppTeam:Anchors:v1.1.7'
 	```
 
 3. 添加依赖图并启动

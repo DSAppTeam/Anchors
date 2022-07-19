@@ -58,7 +58,7 @@ Advantages over `alpha`
 2. Add dependencies under the **app** module
 
 	```
-	implementation 'com.github.DSAppTeam:Anchors:v1.1.5'
+	implementation 'com.github.DSAppTeam:Anchors:v1.1.7'
 	```
 
 3. Add dependency graph and start
