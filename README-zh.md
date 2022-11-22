@@ -22,6 +22,7 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 * 1.1.5（2022/06/09）优化多线程方案
 * 1.1.6（2022/06/14）支持动态裁剪后续任务链条
 * 1.1.7（2022/07/19）修复java.lang.UnsupportedOperationException
+* 1.1.8（2022/11/22）修复java.lang.IllegalArgumentException
 
 #### 简介
 
@@ -57,7 +58,7 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 2. 在 **app** 模块下添加依赖
 
 	```
-	implementation 'com.github.DSAppTeam:Anchors:v1.1.7'
+	implementation 'com.github.DSAppTeam:Anchors:v1.1.8'
 	```
 
 3. 添加依赖图并启动

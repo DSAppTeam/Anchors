@@ -23,6 +23,7 @@ README: [English](https://github.com/YummyLau/Anchors/blob/master/README.md) | [
 * 1.1.5 (2022/06/09) Optimize multi-threaded scenarios
 * 1.1.6 (2022/06/14) Support dynamic cutting of subsequent task chains
 * 1.1.7 (2022/07/19) Fix java.lang.UnsupportedOperationException for apps running on and targeting Android versions lower than Oreo (API level < 26)
+* 1.1.8 (2022/11/22) Fix java.lang.IllegalArgumentException
 
 #### Introduction
 
@@ -58,7 +59,7 @@ Advantages over `alpha`
 2. Add dependencies under the **app** module
 
 	```
-	implementation 'com.github.DSAppTeam:Anchors:v1.1.7'
+	implementation 'com.github.DSAppTeam:Anchors:v1.1.8'
 	```
 
 3. Add dependency graph and start

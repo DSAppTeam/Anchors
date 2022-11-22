@@ -14,7 +14,7 @@ class AnchorThreadPool {
      * 但是，anchors支持锚点阻塞ui线程，后续可能还会有延迟的异步初始化任务，所以也不要完全饱和。
      */
     private val corePoolSize = Math.max(4, Math.min(cpuCount - 1, 8))
-    private val maximumPoolSize = cpuCount * 2 + 1
+    private val maximumPoolSize = corePoolSize * 2 + 1
     private val keepLivesSecond = 30L
     private val sThreadFactory: ThreadFactory = object : ThreadFactory {
         private val mCount = AtomicInteger(1)
